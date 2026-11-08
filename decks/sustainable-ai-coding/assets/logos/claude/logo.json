@@ -1,0 +1,32 @@
+{
+ "brand": "Claude",
+ "domain": "claude.ai",
+ "files": [
+  {
+   "file": "logo.svg",
+   "kind": "mark",
+   "source": "svgl",
+   "url": "https://svgl.app/library/claude-ai-icon.svg",
+   "title": "Claude AI"
+  },
+  {
+   "file": "wordmark.svg",
+   "kind": "wordmark",
+   "source": "svgl",
+   "url": "https://svgl.app/library/claude-ai-wordmark-icon_dark.svg",
+   "title": "Claude AI"
+  },
+  {
+   "file": "logo-simpleicons.svg",
+   "kind": "mark",
+   "source": "simple-icons",
+   "url": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/claude.svg",
+   "note": "single-colour mark, official hex #D97757"
+  }
+ ],
+ "note": "Trademark: nominative use only (identify the brand), unmodified official artwork, never recoloured, redrawn or presented as the film's own mark.",
+ "site": "https://claude.ai/",
+ "color": "#D97757",
+ "blocked": "https://claude.ai",
+ "ok": true
+}

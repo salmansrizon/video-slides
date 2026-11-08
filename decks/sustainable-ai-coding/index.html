@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="bn" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>টেকসই AI Coding</title>
+<!-- Live talk with a Cap face cam. Script: scripts/script2.txt (speaker notes, key S). Keys: ← → Slides, ↓ ↑ points, C face-cam guide. -->
+<link rel="stylesheet" href="../../vendor/reveal/reveal.css">
+<link rel="stylesheet" href="../../lib/deck.css">
+<script src="../../vendor/tailwind/tailwind.browser.js"></script>
+<style type="text/tailwindcss">
+  @theme inline { --font-sans: 'Inter', 'Anek Bangla', ui-sans-serif, sans-serif; }
+</style>
+<style>
+  /* Same dark explainer look as decks/ai-agent-system-design. */
+  :root, :root.dark {
+    --background: #09090b; --foreground: #f4f4f5; --card: #121215; --muted: #1a1a1f;
+    --muted-foreground: #8d8d98; --border: #27272d;
+    --red: #f0445a; --green: #8ad134; --yellow: #fbbf24; --blue: #3b82f6;
+    --chart-1: #fbbf24; --chart-3: #fbbf24;
+  }
+  .reveal-viewport {
+    background:
+      radial-gradient(ellipse 70% 60% at 40% 42%, rgba(255,255,255,.04), transparent 70%),
+      linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px) 0 0 / 80px 80px,
+      linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px) 0 0 / 80px 80px,
+      #09090b;
+  }
+
+  /* Face cam: Cap's camera bubble sits bottom-right, so content keeps out of the right 480 px (Landscape)
+     and the bottom 560 px (Vertical). Press C (or open with ?cam) to see the zone while placing the bubble. */
+  .reveal { font-size: 36px; }
+  .reveal .slides > section { padding: 90px 480px 96px 140px; align-items: flex-start; text-align: left; gap: 36px; }
+  html.vertical .reveal .slides > section { padding: 180px 88px 560px; gap: 40px; }
+  .reveal .slides > section.center { align-items: center; text-align: center; }
+  html.cam .reveal .slides::after { content: ''; position: absolute; right: 40px; bottom: 40px; width: 400px; height: 400px;
+    border: 4px dashed rgba(240,68,90,.8); border-radius: 50%; pointer-events: none; z-index: 50; }
+
+  .reveal h1:not(.card *) { font-size: 92px; line-height: 1.2; }
+  .reveal h2:not(.card *) { font-size: 64px; display: flex; align-items: center; gap: 24px; }
+  html.vertical .reveal h1:not(.card *) { font-size: 80px; }
+  html.vertical .reveal h2:not(.card *) { font-size: 56px; }
+
+  .yellow { color: var(--yellow); } .red { color: #ff6b7d; } .green { color: var(--green); } .blue { color: #6aa5ff; }
+  .muted { color: var(--muted-foreground); }
+  .lead { font-size: 40px; line-height: 1.45; color: var(--muted-foreground); max-width: 1300px; }
+  .say { font-size: 46px; font-weight: 600; line-height: 1.4; max-width: 1300px; text-wrap: balance; }
+  .kinetic { font-weight: 800; font-size: 150px; line-height: 1.05; letter-spacing: -0.045em; }
+  html.vertical .kinetic { font-size: 120px; }
+
+  /* Layout */
+  .row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .col { display: flex; flex-direction: column; gap: 18px; }
+  .center .row { justify-content: center; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; width: 100%; align-items: start; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 28px; width: 100%; align-items: start; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; }
+  html.vertical .split, html.vertical .grid2 { grid-template-columns: 1fr; gap: 18px; }
+  .w { width: 100%; }
+
+  .num { display: inline-grid; place-items: center; flex: none; width: 76px; height: 76px; border-radius: 20px;
+         background: var(--yellow); color: #111; font-size: 44px; font-weight: 700; }
+
+  /* Pills */
+  .chip { display: inline-flex; align-items: center; gap: 14px; padding: 12px 26px; border-radius: 999px; white-space: nowrap;
+          background: #17171b; border: 1px solid var(--border); font-size: 30px; font-weight: 500; line-height: 1.3; }
+  .chip svg { width: 30px; height: 30px; flex: none; }
+  .chip img { height: 38px; width: auto; }
+  .chip.red { background: rgba(240,68,90,.14); border-color: rgba(240,68,90,.5); color: #ff8a98; }
+  .chip.green { background: rgba(138,209,52,.12); border-color: rgba(138,209,52,.45); color: #b8ee73; }
+  .chip.yellow { background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.45); color: #fcd34d; }
+  .chip.blue { background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.45); color: #93c0ff; }
+  .chip.lg { font-size: 36px; padding: 16px 32px; }
+
+  /* Cards and list items */
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 30px 36px; text-align: left;
+           box-shadow: 0 40px 100px -40px #000, inset 0 1px 0 rgba(255,255,255,.04); }
+  .panel.red { border-color: rgba(240,68,90,.55); background: rgba(30,10,15,.9); }
+  .panel.green { border-color: rgba(138,209,52,.45); background: rgba(14,24,6,.9); }
+  .panel-h { display: flex; align-items: center; gap: 16px; font-size: 36px; font-weight: 600; margin-bottom: 16px; }
+  .panel-h svg { width: 40px; height: 40px; flex: none; }
+  .panel ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 30px; line-height: 1.4; }
+  .panel li { display: flex; gap: 12px; } .panel li::before { content: '•'; color: var(--muted-foreground); }
+  .item { display: flex; align-items: center; gap: 18px; font-size: 30px; line-height: 1.35; padding: 16px 22px; border-radius: 18px;
+          background: var(--card); border: 1px solid var(--border); }
+  .item svg { width: 36px; height: 36px; flex: none; color: #6aa5ff; }
+  .item.red svg { color: #ff6b7d; } .item.green svg { color: var(--green); } .item.yellow svg { color: var(--yellow); }
+  .items { display: flex; flex-direction: column; gap: 14px; }
+
+  .tile { width: 92px; height: 92px; border-radius: 24px; display: grid; place-items: center; flex: none;
+          background: rgba(59,130,246,.12); border: 2px solid rgba(59,130,246,.5); color: #6aa5ff; }
+  .tile svg { width: 46px; height: 46px; stroke-width: 1.8; }
+  .tile.red { background: rgba(240,68,90,.12); border-color: rgba(240,68,90,.55); color: #ff6b7d; }
+  .tile.green { background: rgba(138,209,52,.1); border-color: rgba(138,209,52,.5); color: var(--green); }
+  .tile.yellow { background: rgba(251,191,36,.1); border-color: rgba(251,191,36,.5); color: var(--yellow); }
+  .ok, .no { width: 40px; height: 40px; border-radius: 50%; display: inline-grid; place-items: center; flex: none; }
+  .ok { background: var(--green); color: #0c1a00; } .no { background: var(--red); color: #fff; }
+  .ok svg, .no svg { width: 24px; height: 24px; stroke-width: 3.2; }
+
+  .stamp { display: inline-block; border: 5px solid currentColor; color: var(--red); border-radius: 14px; padding: 6px 24px 4px;
+           font: 800 42px/1.15 'Inter', 'Anek Bangla', sans-serif; letter-spacing: .08em; text-transform: uppercase;
+           background: rgba(9,9,11,.75); white-space: nowrap; }
+  .col > .stamp { align-self: flex-start; margin: -40px 0 0 48px; }   /* S12: lands on the card's bottom edge */
+  .stamp.y { color: var(--yellow); } .stamp.sm { font-size: 28px; border-width: 4px; padding: 4px 16px 2px; }
+
+  .term { background: #0c0c0f; border: 1px solid var(--border); border-radius: 22px; text-align: left; overflow: hidden; width: 100%;
+          font-family: 'JetBrains Mono', 'Anek Bangla', monospace; box-shadow: 0 40px 100px -40px #000; }
+  .term-bar { display: flex; align-items: center; gap: 10px; padding: 16px 22px; border-bottom: 1px solid var(--border);
+              font-size: 22px; color: var(--muted-foreground); }
+  .term-bar b { width: 13px; height: 13px; border-radius: 50%; background: #2c2c33; }
+  .term-bar span { margin-left: 12px; }
+  .term-body { padding: 22px 30px; font-size: 26px; line-height: 1.7; }
+  .t { color: #55555f; } .lv-i { color: var(--green); } .lv-w { color: var(--yellow); } .lv-e { color: #ff6b7d; } .lv-b { color: #6aa5ff; }
+
+  .rule { display: flex; align-items: center; gap: 20px; text-align: left; padding: 20px 30px; border-radius: 22px; font-size: 32px;
+          line-height: 1.4; background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.4); max-width: 1300px; }
+  .rule svg { width: 42px; height: 42px; color: #6aa5ff; flex: none; }
+  .rule b { color: #93c0ff; font-weight: 600; }
+
+  /* Flows: a row in Landscape, a column in Vertical */
+  .flow { display: flex; align-items: center; gap: 16px; flex-wrap: nowrap; }
+  .flow > div { display: flex; align-items: center; gap: 16px; }
+  .arr { width: 40px; height: 40px; color: #55555f; flex: none; }
+  html.vertical .flow, html.vertical .flow > div { flex-direction: column; align-items: flex-start; }
+  html.vertical .arr { transform: rotate(90deg); margin-left: 24px; }
+
+  /* S4 incidents */
+  .inc { display: grid; grid-template-columns: 130px 1fr; gap: 6px 24px; align-items: baseline; padding: 18px 28px; }
+  .inc .yr { font: 700 40px 'JetBrains Mono', monospace; color: var(--yellow); grid-row: span 2; }
+  .inc b { font-size: 34px; font-weight: 600; } .inc span { font-size: 28px; color: var(--muted-foreground); line-height: 1.4; }
+  /* S6 loop cards */
+  .step-card { display: flex; flex-direction: column; gap: 14px; padding: 24px 26px; }
+  .step-card b { font-size: 34px; } .step-card small { font-size: 26px; color: var(--muted-foreground); line-height: 1.35; }
+  .step-card .n { font: 700 26px 'JetBrains Mono', monospace; color: var(--yellow); }
+  /* S14 backup gap */
+  .gap-line { flex: 1 1 auto; min-width: 200px; display: flex; flex-direction: column; align-items: center; gap: 8px; color: #ff8a98; font-size: 28px; }
+  .gap-line i, .gap-line hr { width: 100%; border: 0; border-top: 5px dashed rgba(240,68,90,.7); margin: 0; }
+  html.vertical .gap-line { width: 100%; }
+  .big { font-size: 120px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: var(--yellow); }
+  html.vertical .big { font-size: 100px; }
+  .rollout .chip { font-family: 'JetBrains Mono', monospace; }
+
+  /* Source line: small, bottom-left, clear of the face cam. Clicking opens the page. */
+  .src { position: absolute; left: 140px; bottom: 34px; max-width: 1300px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+         font: 400 19px/1.5 'JetBrains Mono', 'Anek Bangla', monospace; color: #6b6b76; text-align: left; }
+  .src svg { width: 20px; height: 20px; flex: none; }
+  .src a { color: #8d8d98; text-decoration: none; border-bottom: 1px solid #3a3a42; }
+  html.vertical .src { left: 88px; bottom: 470px; max-width: 904px; }
+</style>
+</head>
+<body>
+
+<div class="reveal"><div class="slides">
+
+<!-- S1 · শিরোনাম -->
+<section class="center">
+  <span class="chip blue" data-enter="rise"><i data-lucide="shield-check"></i>AI Coding · Sustainable Systems</span>
+  <h1 data-enter="words" data-delay="0.15">AI দিয়ে কোড লিখছেন?<br><span class="yellow">সিস্টেম টিকবে তো?</span></h1>
+  <p class="lead" data-enter="rise" data-delay="0.6">বিপদ এলেও যে software টিকে থাকে, সেটা বানানোর নিয়ম</p>
+  <div class="row" data-step="stream" data-gap="0.15">
+    <span class="chip lg"><i data-lucide="code"></i>Developer</span>
+    <span class="chip lg"><i data-lucide="sparkles"></i>Vibe Coder</span>
+  </div>
+  <aside class="notes">
+    <p>সবাইকে স্বাগতম। আজকের বিষয়—AI দিয়ে software বানানো, কিন্তু এমনভাবে, যাতে বিপদ এলেও সেটা টিকে থাকে।</p>
+    <p>▶1 এই আলোচনা দুই ধরনের মানুষের জন্য। যারা পেশাদার developer, আর যারা vibe coding করেন—মানে AI-কে বলে বলে পুরো অ্যাপ বানিয়ে ফেলেন।</p>
+    <p>দুজনের জন্যই আজকের নিয়মগুলো একই রকম জরুরি।</p>
+  </aside>
+</section>
+
+<!-- S2 · Code ≠ System -->
+<section>
+  <div class="row" data-enter="stream" data-gap="0.12">
+    <span class="chip"><img src="assets/logos/cursor/logo.svg" alt="">Cursor</span>
+    <span class="chip"><img src="assets/logos/claude/logo.svg" alt="">Claude Code</span>
+    <span class="chip"><img src="assets/logos/copilot/logo.svg" alt="">GitHub Copilot</span>
+  </div>
+  <h2 data-enter="rise" data-delay="0.3">AI কোড লেখে মিনিটে</h2>
+  <div class="kinetic" data-step="land">Code <span class="red">≠</span> System</div>
+  <div class="rule" data-step="rise"><i data-lucide="house"></i><span>কোড হলো <b>ইট</b>। সিস্টেম হলো পুরো <b>বাড়ি</b>: ভিত, পানির লাইন, আর আগুন লাগলে বের হওয়ার রাস্তা।</span></div>
+  <aside class="notes">
+    <p>Cursor, Claude Code, GitHub Copilot—এই tool-গুলো এখন মিনিটের মধ্যে কোড লিখে দেয়। এটা সত্যিই দারুণ।</p>
+    <p>কিন্তু একটা কথা পরিষ্কার করে নিই।</p>
+    <p>▶1 কোড আর সিস্টেম এক জিনিস নয়।</p>
+    <p>▶2 কোড হলো ইট। সিস্টেম হলো পুরো বাড়ি—ভিত, পানির লাইন, আর আগুন লাগলে বের হওয়ার রাস্তা।</p>
+    <p>AI খুব দ্রুত ইট গাঁথতে পারে। বাড়িটা ভূমিকম্পে টিকবে কি না, সেই নকশা আপনাকেই করতে হবে।</p>
+  </aside>
+</section>
+
+<!-- S3 · দুই ধরনের builder -->
+<section>
+  <h2 data-enter="rise">দুই ধরনের builder</h2>
+  <div class="split">
+    <div class="panel" data-step="rise">
+      <div class="panel-h"><span class="tile"><i data-lucide="code"></i></span>Developer</div>
+      <ul><li><span><span class="green">জানেন:</span> architecture, testing, deploy</span></li>
+          <li><span><span class="red">ঝুঁকি:</span> AI-এর গতিতে review আর test বাদ পড়ে</span></li></ul>
+    </div>
+    <div class="panel" data-step="rise">
+      <div class="panel-h"><span class="tile yellow"><i data-lucide="sparkles"></i></span>Vibe Coder</div>
+      <ul><li><span><span class="green">জানেন:</span> কী বানাতে চান</span></li>
+          <li><span><span class="red">ঝুঁকি:</span> কী জানেন না, সেটাই জানেন না</span></li></ul>
+    </div>
+  </div>
+  <div class="rule" data-step="rise"><i data-lucide="users"></i><span>User-এর কাছে দুটোই এক: ডেটা হারালে বা দুইবার টাকা কাটলে <b>দায় আপনার</b>।</span></div>
+  <aside class="notes">
+    <p>চলুন দেখি, এই দুই দলের শক্তি আর ঝুঁকি কোথায়।</p>
+    <p>▶1 Developer architecture, testing, deploy বোঝেন। কিন্তু AI-এর গতির সাথে তাল মেলাতে গিয়ে অনেক সময় review আর test বাদ পড়ে যায়।</p>
+    <p>▶2 Vibe coder জানেন, তিনি কী বানাতে চান। কিন্তু সবচেয়ে বড় ঝুঁকি হলো—কী জানেন না, সেটাই জানেন না।</p>
+    <p>▶3 আর আপনার user-এর কাছে এই পার্থক্যের কোনো মানে নেই। ডেটা হারালে বা দুইবার টাকা কাটলে দায়টা আপনার।</p>
+  </aside>
+</section>
+
+<!-- S4 · বিপর্যয় স্বাভাবিক ঘটনা -->
+<section>
+  <h2 data-enter="rise">বড়রাও ভাঙে</h2>
+  <div class="col w">
+    <div class="panel inc" data-step="rise"><span class="yr">2012</span><b>Knight Capital</b><span>একটা server-এ পুরনো code রয়ে গেল → ~৪৫ মিনিটে ৪৪০ মিলিয়ন ডলারের বেশি ক্ষতি</span></div>
+    <div class="panel inc" data-step="rise"><span class="yr">2017</span><b>GitLab</b><span>ভুল করে primary database মুছে গেল, backup কাজ করেনি → ~৬ ঘণ্টার ডেটা হারাল</span></div>
+    <div class="panel inc" data-step="rise"><span class="yr">2024</span><b>CrowdStrike</b><span>একটা ত্রুটিপূর্ণ update একসাথে সবার কাছে → ~৮৫ লাখ Windows device বন্ধ</span></div>
+    <div class="panel inc red" data-step="rise"><span class="yr">2025</span><b>Replit AI agent</b><span>Code freeze-এর মধ্যেও production database মুছে দিল</span></div>
+  </div>
+  <div class="src"><i data-lucide="link"></i>সূত্র:
+    <a href="https://www.sec.gov/news/press-release/2013-222">sec.gov</a> ·
+    <a href="https://about.gitlab.com/blog/postmortem-of-database-outage-of-january-31/">about.gitlab.com</a> ·
+    <a href="https://blogs.microsoft.com/blog/2024/07/20/helping-our-customers-through-the-crowdstrike-outage/">blogs.microsoft.com</a> ·
+    <a href="https://www.theregister.com/2025/07/22/replit_saastr_response/">theregister.com</a></div>
+  <aside class="notes">
+    <p>বড় কোম্পানিগুলোও এই ভুলগুলো করেছে। চারটা বাস্তব ঘটনা দেখি।</p>
+    <p>▶1 ২০১২ সালে Knight Capital নতুন trading code deploy করল। একটা server-এ নতুন code পৌঁছায়নি, সেখানে পুরনো code চালু হয়ে গেল। প্রায় ৪৫ মিনিটে ক্ষতি হলো ৪৪০ মিলিয়ন ডলারেরও বেশি।</p>
+    <p>▶2 ২০১৭ সালে GitLab-এ একজন engineer ভুল করে primary database-এর ডেটা মুছে ফেললেন। তারপর দেখা গেল, backup-গুলো ঠিকমতো কাজ করছিল না। প্রায় ছয় ঘণ্টার database পরিবর্তন হারিয়ে গেল।</p>
+    <p>▶3 ২০২৪ সালে CrowdStrike-এর একটা ত্রুটিপূর্ণ update একসাথে অনেক কম্পিউটারে চলে গেল। Microsoft-এর হিসাবে প্রায় ৮৫ লাখ Windows device বন্ধ হয়ে গিয়েছিল।</p>
+    <p>▶4 আর ২০২৫ সালে Replit-এর AI agent একটা code freeze-এর মধ্যেও একজন user-এর production database মুছে দিয়েছিল। Replit-এর CEO নিজেই বলেছিলেন, এটা কখনো সম্ভব হওয়াই উচিত ছিল না।</p>
+    <p>[চারটার সূত্র slide-এর নিচে আর script-এর শেষে। সংখ্যাগুলো "প্রায়" বলুন।]</p>
+  </aside>
+</section>
+
+<!-- S5 · পরিচিত বিপদের তালিকা -->
+<section>
+  <h2 data-enter="rise">পরিচিত বিপদ, জানা সমাধান</h2>
+  <div class="grid2">
+    <div class="items" data-step="stream" data-gap="0.12">
+      <div class="item red"><i data-lucide="trending-up"></i>হঠাৎ traffic</div>
+      <div class="item red"><i data-lucide="clock"></i>পুরনো ডেটা দেখানো</div>
+      <div class="item red"><i data-lucide="layers"></i>Cache stampede</div>
+      <div class="item red"><i data-lucide="eye-off"></i>অন্যের ডেটা দেখা</div>
+      <div class="item red"><i data-lucide="credit-card"></i>দুইবার টাকা কাটা</div>
+    </div>
+    <div class="items" data-step="stream" data-gap="0.12">
+      <div class="item red"><i data-lucide="database"></i>ডেটা হারানো</div>
+      <div class="item red"><i data-lucide="key-round"></i>Agent-এর হাতে master key</div>
+      <div class="item red"><i data-lucide="lock-open"></i>Secret ফাঁস</div>
+      <div class="item red"><i data-lucide="package-x"></i>ভুয়া package</div>
+      <div class="item red"><i data-lucide="rocket"></i>Rollback ছাড়া deploy</div>
+    </div>
+  </div>
+  <p class="say" data-step="rise">প্রতিটার সমাধান আছে। শুধু কোডের <span class="yellow">আগে</span> design-এ রাখতে হয়।</p>
+  <aside class="notes">
+    <p>ভালো খবর হলো—এই বিপদগুলো নতুন নয়। এদের নাম আছে, সমাধানও জানা।</p>
+    <p>▶1 হঠাৎ traffic বেড়ে যাওয়া। পুরনো ডেটা দেখানো। Cache একসাথে মুছে গিয়ে database-এ ভিড়। একজনের ডেটা আরেকজন দেখে ফেলা। একই পেমেন্টে দুইবার টাকা কাটা।</p>
+    <p>▶2 ডেটা হারিয়ে যাওয়া। AI agent-এর হাতে master key। API key বা password ফাঁস হওয়া। AI-এর বানানো ভুয়া package install করা। আর এমন deploy, যেটা ভাঙলে ফেরানোর রাস্তা নেই।</p>
+    <p>▶3 প্রতিটার সমাধান আছে। শুধু কোড লেখার আগে সেটা design-এ রাখতে হয়।</p>
+  </aside>
+</section>
+
+<!-- S6 · টেকসই loop -->
+<section>
+  <h2 data-enter="rise">টেকসই loop</h2>
+  <div class="grid3" data-step="stream" data-gap="0.15">
+    <div class="panel step-card"><span class="n">01</span><b>সিদ্ধান্ত</b><small>কোডের আগে প্রশ্ন</small></div>
+    <div class="panel step-card"><span class="n">02</span><b>লিখে রাখা</b><small>SYSTEM.md, context file</small></div>
+    <div class="panel step-card"><span class="n">03</span><b>ছোট ধাপ</b><small>একেকটা commit</small></div>
+  </div>
+  <div class="grid3" data-step="stream" data-gap="0.15">
+    <div class="panel step-card"><span class="n">04</span><b>যাচাই</b><small>যে test ভুল ধরে</small></div>
+    <div class="panel step-card"><span class="n">05</span><b>পাহারা</b><small>access, secret, release</small></div>
+    <div class="panel step-card"><span class="n">06</span><b>ফিরে আসা</b><small>backup, rollback</small></div>
+  </div>
+  <div class="rule" data-step="rise"><i data-lucide="repeat"></i><span>প্রতিটা নতুন ভুল → <b>নতুন rule</b> + <b>নতুন test</b></span></div>
+  <aside class="notes">
+    <p>আজকের পুরো আলোচনাটা একটা loop-এ বাঁধা।</p>
+    <p>▶1 প্রথমে সিদ্ধান্ত নিন। তারপর সেটা লিখে রাখুন। তারপর ছোট ছোট ধাপে বানান।</p>
+    <p>▶2 প্রতিটা ধাপ test দিয়ে যাচাই করুন। Production-কে পাহারা দিন। আর ভাঙলে দ্রুত ফিরে আসার ব্যবস্থা রাখুন।</p>
+    <p>▶3 সবচেয়ে গুরুত্বপূর্ণ অংশ: প্রতিটা নতুন ভুল থেকে একটা নতুন rule আর একটা নতুন test। এভাবেই সিস্টেম সময়ের সাথে শক্ত হয়।</p>
+  </aside>
+</section>
+
+<!-- S7 · ১. কোডের আগে সিদ্ধান্ত -->
+<section>
+  <h2 data-enter="rise"><span class="num">১</span>কোডের আগে সিদ্ধান্ত</h2>
+  <div class="grid2" data-step="stream" data-gap="0.1">
+    <div class="item"><i data-lucide="users"></i>কারা, কতজন?</div>
+    <div class="item"><i data-lucide="trending-up"></i>সবচেয়ে বেশি ভিড় কত?</div>
+    <div class="item"><i data-lucide="gauge"></i>কোন কাজ কত দ্রুত?</div>
+    <div class="item"><i data-lucide="database"></i>কোন ডেটা হারানো যাবে না?</div>
+    <div class="item"><i data-lucide="server"></i>কিছু বন্ধ হলে কী হবে?</div>
+    <div class="item"><i data-lucide="clock"></i>কতক্ষণ downtime চলবে?</div>
+    <div class="item"><i data-lucide="lock"></i>কোন ডেটা private?</div>
+    <div class="item"><i data-lucide="bell-ring"></i>ভাঙলে কীভাবে টের পাব?</div>
+  </div>
+  <div class="col" data-step="rise">
+    <div class="row"><span class="chip green">MEASURED · মেপে দেখা</span><span class="chip blue">TARGET · যেটা চাই</span><span class="chip yellow">GUESS · অনুমান</span></div>
+    <div class="row"><span class="panel" style="padding:18px 28px;font-size:32px">Peak: একসাথে ৫০০ user</span><span class="stamp y sm" data-step="stamp">GUESS</span></div>
+  </div>
+  <aside class="notes">
+    <p>প্রথম নিয়ম: কোড লেখার আগে কয়েকটা প্রশ্নের উত্তর দিন।</p>
+    <p>▶1 কারা ব্যবহার করবে, কতজন? সবচেয়ে বেশি ভিড় কত? কোন কাজ কত দ্রুত হতে হবে? কোন ডেটা কখনো হারানো যাবে না? কোনো service বন্ধ হলে কী হবে? কতক্ষণ downtime চলবে? কোন ডেটা private? আর কিছু ভাঙলে আমরা কীভাবে টের পাব?</p>
+    <p>▶2 সব উত্তর আপনি জানবেন না, সেটা স্বাভাবিক। তাই প্রতিটা সংখ্যার পাশে একটা label দিন: MEASURED—মেপে দেখা, TARGET—যেটা চাই, আর GUESS—আপাতত অনুমান।</p>
+    <p>▶3 GUESS লেখায় কোনো লজ্জা নেই। বিপদ হলো অনুমানকে সত্যি ধরে নেওয়া।</p>
+  </aside>
+</section>
+
+<!-- S8 · ২. লিখে রাখুন -->
+<section>
+  <h2 data-enter="rise"><span class="num">২</span>লিখে রাখুন</h2>
+  <div class="split">
+    <div class="term" data-step="rise">
+      <div class="term-bar"><b></b><b></b><b></b><span>my-shop/</span></div>
+      <div class="term-body">
+        <div><span class="lv-b">├─</span> AGENTS.md <span class="t"># AI-এর নিয়ম</span></div>
+        <div><span class="lv-b">├─</span> <span class="yellow">SYSTEM.md</span> <span class="t"># সিদ্ধান্ত</span></div>
+        <div><span class="lv-b">├─</span> docs/adr/ <span class="t"># কেন</span></div>
+        <div><span class="lv-b">├─</span> tests/red/</div>
+        <div><span class="lv-b">└─</span> src/</div>
+      </div>
+    </div>
+    <div class="items" data-step="stream" data-gap="0.12">
+      <div class="item"><i data-lucide="network"></i>Architecture</div>
+      <div class="item"><i data-lucide="ruler"></i>Constraints</div>
+      <div class="item"><i data-lucide="database"></i>Data rules</div>
+      <div class="item red"><i data-lucide="ban"></i>কী কখনো করা যাবে না</div>
+    </div>
+  </div>
+  <div class="rule" data-step="rise"><i data-lucide="file-text"></i><span>মাথায় থাকা সিদ্ধান্ত AI পড়তে পারে না। <b>ফাইলে থাকা সিদ্ধান্ত প্রতিবার পড়ে।</b></span></div>
+  <aside class="notes">
+    <p>দ্বিতীয় নিয়ম: সিদ্ধান্তগুলো repository-তে লিখে রাখুন।</p>
+    <p>▶1 যেমন একটা SYSTEM.md, আর AI agent-এর জন্য AGENTS.md বা CLAUDE.md-এর মতো একটা context file।</p>
+    <p>▶2 সেখানে থাকবে architecture, constraints, data rules, আর সবচেয়ে জরুরি—কী কখনো করা যাবে না।</p>
+    <p>▶3 আপনার মাথায় থাকা সিদ্ধান্ত AI পড়তে পারে না। ফাইলে থাকা সিদ্ধান্ত সে প্রতিবার পড়ে।</p>
+  </aside>
+</section>
+
+<!-- S9 · ৩. Prompt-এ সীমা দিন -->
+<section>
+  <h2 data-enter="rise"><span class="num">৩</span>Prompt-এ সীমা দিন</h2>
+  <div class="split">
+    <div class="term" data-step="rise">
+      <div class="term-bar"><span class="no"><i data-lucide="x"></i></span><span>prompt</span></div>
+      <div class="term-body">Build a checkout.<br>Make it production-ready.</div>
+    </div>
+    <div class="term" data-step="rise">
+      <div class="term-bar"><span class="ok"><i data-lucide="check"></i></span><span>prompt</span></div>
+      <div class="term-body" style="font-size:23px">
+        <div>Checkout for ~500 concurrent users <span class="lv-w">(GUESS)</span></div>
+        <div>Charge each order <span class="lv-i">exactly once</span></div>
+        <div>Write a failing test first, then fix</div>
+        <div>Don't touch prod config</div>
+        <div>Unclear? <span class="lv-b">Ask, don't assume</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="say" data-step="rise">AI যেটা জানে না, সেটা <span class="yellow">নিজের মতো ধরে নেয়</span>।</p>
+  <aside class="notes">
+    <p>তৃতীয় নিয়ম: prompt-এ শুধু কী বানাতে হবে নয়, কী মানতে হবে সেটাও বলুন।</p>
+    <p>▶1 "Checkout বানাও, production-ready করো"—এই prompt-এ কত user, পেমেন্ট ব্যর্থ হলে কী হবে, কিছুই বলা নেই।</p>
+    <p>▶2 এবার এটা দেখুন। কত user, সেটা GUESS হিসেবে বলা। পেমেন্ট একবারই কাটবে। আগে failing test, তারপর fix। Production config ছোঁয়া যাবে না। আর অস্পষ্ট হলে অনুমান নয়, জিজ্ঞেস করবে।</p>
+    <p>▶3 মনে রাখবেন, AI যেটা জানে না, সেটা নিজের মতো করে ধরে নেয়।</p>
+  </aside>
+</section>
+
+<!-- S10 · ৪. ছোট ধাপ, প্রতিটা ধাপে git -->
+<section>
+  <h2 data-enter="rise"><span class="num">৪</span>ছোট ধাপ, প্রতিটা ধাপে git</h2>
+  <div class="term">
+    <div class="term-bar"><b></b><b></b><b></b><span>git log --oneline</span></div>
+    <div class="term-body" data-step="stream" data-gap="0.2">
+      <div><span class="yellow">a1f3c2e</span> feat: cart total</div>
+      <div><span class="yellow">b72d9a0</span> test: red test for double charge</div>
+      <div><span class="yellow">c5e8114</span> fix: idempotency key on payments</div>
+      <div><span class="yellow">d09b7f3</span> <span class="lv-e">revert:</span> "migration that dropped orders"</div>
+    </div>
+  </div>
+  <div class="col" data-step="stream" data-gap="0.15">
+    <div class="item green"><i data-lucide="git-commit-horizontal"></i>AI-কে কাজ দেওয়ার আগে commit</div>
+    <div class="item green"><i data-lucide="file-diff"></i>AI-এর diff পুরোটা পড়ুন</div>
+    <div class="item green"><i data-lucide="undo-2"></i>ভাঙলে revert, ভয় নয়</div>
+  </div>
+  <aside class="notes">
+    <p>চতুর্থ নিয়ম: একবারে পুরো feature নয়, ছোট ছোট ধাপে কাজ।</p>
+    <p>▶1 প্রতিটা ধাপ একটা আলাদা commit। ভুল হলে শুধু সেই commit-টা ফেরত নেওয়া যায়।</p>
+    <p>▶2 AI-কে নতুন কাজ দেওয়ার আগে commit করুন। AI যা বদলেছে, সেই diff পুরোটা পড়ুন। আর কিছু ভাঙলে ভয় না পেয়ে revert করুন।</p>
+  </aside>
+</section>
+
+<!-- S11 · ৫. যে test সত্যিই ভুল ধরে -->
+<section>
+  <h2 data-enter="rise"><span class="num">৫</span>যে test সত্যিই ভুল ধরে</h2>
+  <div class="flow">
+    <div data-step="rise"><span class="chip green lg"><i data-lucide="check"></i>test pass</span></div>
+    <div data-step="rise"><i data-lucide="arrow-right" class="arr"></i><span class="chip lg"><i data-lucide="bug"></i>bug ঢোকান</span><i data-lucide="arrow-right" class="arr"></i><span class="chip red lg"><i data-lucide="x"></i>test fail</span></div>
+    <div data-step="rise"><i data-lucide="arrow-right" class="arr"></i><span class="chip green lg"><i data-lucide="check"></i>fix → pass</span></div>
+  </div>
+  <div class="rule" data-step="rise"><i data-lucide="flask-conical"></i><span>সবুজের অর্থ তখনই, যখন তাকে <b>লাল হতে দেখেছেন</b>। এটাই red test workflow।</span></div>
+  <aside class="notes">
+    <p>পঞ্চম নিয়ম: test লেখা আর test দিয়ে ভুল ধরা এক জিনিস নয়।</p>
+    <p>▶1 AI test লিখে দিল, সব সবুজ। কিন্তু test-টা আসলে কিছু ধরতে পারে কি না, জানেন না।</p>
+    <p>▶2 তাই ইচ্ছা করে কোডে সেই ভুলটা ঢোকান, যেটা ধরার জন্য test লেখা। Test লাল হলো—মানে সে ভুলটা ধরতে পারে।</p>
+    <p>▶3 এবার ঠিক করুন। আবার সবুজ।</p>
+    <p>▶4 এই সবুজের অর্থ আছে, কারণ আপনি তাকে লাল হতে দেখেছেন। এটাকে বলে red test workflow।</p>
+  </aside>
+</section>
+
+<!-- S12 · ৬. Agent-এর হাতে কোন চাবি? -->
+<section>
+  <h2 data-enter="rise"><span class="num">৬</span>Agent-এর হাতে কোন চাবি?</h2>
+  <div class="split">
+    <div class="col" data-step="dim" data-to="0.3" data-fragment-index="2">
+      <div class="panel red" data-enter="rise" data-delay="0.2">
+        <div class="panel-h"><span class="tile red"><i data-lucide="key-round"></i></span>Owner credential</div>
+        <ul><li>পড়া</li><li>বদলানো</li><li>মুছে ফেলা</li></ul>
+      </div>
+      <span class="stamp" data-step="stamp" data-fragment-index="1">বিপদ</span>
+    </div>
+    <div class="items" data-step="stream" data-gap="0.15" data-fragment-index="2">
+      <div class="item"><i data-lucide="laptop"></i><span><b>Development:</b> দরকারমতো access</span></div>
+      <div class="item yellow"><i data-lucide="server"></i><span><b>Production:</b> সীমিত</span></div>
+      <div class="item green"><i data-lucide="archive"></i><span><b>Backup:</b> আলাদা account, agent মুছতে পারে না</span></div>
+    </div>
+  </div>
+  <div class="rule" data-step="rise" data-fragment-index="3"><i data-lucide="shield-alert"></i><span>DROP TABLE, rm -rf, migration: <b>মানুষের approval ছাড়া নয়</b>। এটাই least privilege।</span></div>
+  <div class="src"><i data-lucide="link"></i>সূত্র: <a href="https://www.theregister.com/2025/07/22/replit_saastr_response/">theregister.com · Replit, Jul 2025</a></div>
+  <aside class="notes">
+    <p>ষষ্ঠ নিয়ম access নিয়ে। Replit-এর ঘটনাটা মনে আছে?</p>
+    <p>▶1 AI agent যদি production database-এর owner credential পায়, তাহলে সে ডেটা পড়তে, বদলাতে, এমনকি মুছেও ফেলতে পারে।</p>
+    <p>▶2 তাই চাবি আলাদা করুন। Development-এ দরকারমতো access। Production-এ সীমিত, যতটুকু না হলেই নয়। আর backup থাকবে আলাদা account-এ, যেটা app বা agent মুছতে পারবে না।</p>
+    <p>▶3 আর মুছে ফেলার মতো যেকোনো command—DROP TABLE, rm -rf, database migration—মানুষের approval ছাড়া চলবে না। এটাকে বলে least privilege।</p>
+  </aside>
+</section>
+
+<!-- S13 · ৭. Secret আর package -->
+<section>
+  <h2 data-enter="rise"><span class="num">৭</span>Secret আর package</h2>
+  <div class="split">
+    <div class="panel" data-step="rise" data-fragment-index="1">
+      <div class="panel-h"><span class="tile red"><i data-lucide="lock-open"></i></span>Secret</div>
+      <ul><li>শুধু .env-এ, git-এ কখনো নয়</li><li>Secret scanning চালু</li><li>ফাঁস হলে আগে key বদলান</li></ul>
+    </div>
+    <div class="panel" data-step="rise" data-fragment-index="2">
+      <div class="panel-h"><span class="tile yellow"><i data-lucide="package"></i></span>Package</div>
+      <ul><li>আসলে আছে কি না, কে বানাল</li><li>Lockfile commit</li><li>নতুন dependency = review</li></ul>
+    </div>
+  </div>
+  <div class="row" data-step="rise" data-fragment-index="3">
+    <span class="big"><span data-step="count" data-to="19.7" data-decimals="1" data-locale="bn-BD" data-fragment-index="3">০</span>%</span>
+    <span class="lead" style="max-width:820px">AI-এর সুপারিশ করা package <span class="red">ছিলই না</span>। সেই নামে ক্ষতিকর package বানানো যায়: <b class="yellow">slopsquatting</b></span>
+  </div>
+  <div class="src"><i data-lucide="link"></i>সূত্র: <a href="https://www.usenix.org/conference/usenixsecurity25/presentation/spracklen">Spracklen et al., USENIX Security 2025</a></div>
+  <aside class="notes">
+    <p>সপ্তম নিয়ম: দুটো জিনিস চুপচাপ ফাঁস হয়—secret আর dependency।</p>
+    <p>▶1 API key, password শুধু environment variable-এ রাখুন, git-এ কখনো নয়। Secret scanning চালু রাখুন। আর ফাঁস হলে আগে key বদলান, তারপর অন্য কাজ।</p>
+    <p>▶2 AI যে package install করতে বলছে, সেটা আসলে আছে কি না, আর কারা বানিয়েছে—দেখে নিন। Lockfile commit করুন। নতুন dependency মানেই review।</p>
+    <p>▶3 কেন? ২০২৫ সালের একটা গবেষণায় দেখা গেছে, code লেখা AI model-গুলোর সুপারিশ করা package-এর প্রায় ২০ শতাংশ আসলে ছিলই না। হামলাকারীরা ঠিক সেই নামে ক্ষতিকর package বানিয়ে রাখতে পারে। এর নাম slopsquatting।</p>
+  </aside>
+</section>
+
+<!-- S14 · ৮. Backup নয়, restore -->
+<section>
+  <h2 data-enter="rise"><span class="num">৮</span>Backup নয়, restore</h2>
+  <div class="flow w" data-step="stream" data-gap="0.25">
+    <span class="chip green lg"><i data-lucide="archive"></i>Backup · দুপুর ২টা</span>
+    <div class="gap-line"><hr><span>৯ ঘণ্টার ডেটা কোথায়?</span></div>
+    <span class="chip red lg"><i data-lucide="zap"></i>Failure · রাত ১১টা</span>
+  </div>
+  <div class="split" data-step="stream" data-gap="0.15">
+    <div class="panel"><div class="panel-h"><span class="tile"><i data-lucide="database"></i></span>RPO</div><span class="muted">সর্বোচ্চ কতটুকু ডেটা হারানো মেনে নেবেন</span></div>
+    <div class="panel"><div class="panel-h"><span class="tile"><i data-lucide="timer"></i></span>RTO</div><span class="muted">আবার চালু করতে সর্বোচ্চ কত সময়</span></div>
+  </div>
+  <p class="say" data-step="rise">যে backup কখনো restore করে দেখেননি, সেটা backup নয়—<span class="red">শুধু আশা</span>।</p>
+  <div class="src"><i data-lucide="link"></i>সূত্র: <a href="https://about.gitlab.com/blog/postmortem-of-database-outage-of-january-31/">GitLab postmortem, Jan 2017</a></div>
+  <aside class="notes">
+    <p>অষ্টম নিয়ম ডেটা নিয়ে।</p>
+    <p>▶1 ধরুন, backup হয় প্রতিদিন দুপুর দুটায়। সমস্যা হলো রাত এগারোটায়। মাঝের নয় ঘণ্টার ডেটা কোথায়?</p>
+    <p>▶2 তাই আগে দুটো সংখ্যা ঠিক করুন। RPO—সর্বোচ্চ কতটুকু ডেটা হারানো মেনে নেবেন। RTO—আবার চালু করতে সর্বোচ্চ কত সময় নেবেন। Point-in-time recovery থাকলে এই ফাঁক অনেক ছোট করা যায়।</p>
+    <p>▶3 আর GitLab-এর শিক্ষা: যে backup কখনো restore করে দেখেননি, সেটা backup নয়—সেটা শুধু আশা।</p>
+  </aside>
+</section>
+
+<!-- S15 · ৯. টাকা একবারই কাটবে -->
+<section>
+  <h2 data-enter="rise"><span class="num">৯</span>টাকা একবারই কাটবে</h2>
+  <div class="flow" data-step="stream" data-gap="0.3">
+    <span class="chip green"><i data-lucide="credit-card"></i>টাকা কাটল</span>
+    <i data-lucide="arrow-right" class="arr"></i>
+    <span class="chip red"><i data-lucide="server-crash"></i>Worker বন্ধ</span>
+    <i data-lucide="arrow-right" class="arr"></i>
+    <span class="chip"><i data-lucide="refresh-ccw"></i>Retry</span>
+    <i data-lucide="arrow-right" class="arr"></i>
+    <span class="chip red"><i data-lucide="x"></i>আবার কাটল</span>
+  </div>
+  <div class="panel green w" data-step="rise">
+    <div class="panel-h"><span class="tile green"><i data-lucide="key"></i></span>Idempotency key</div>
+    <span style="font:400 28px 'JetBrains Mono',monospace">Idempotency-Key: <span class="yellow">order-88430</span></span>
+    <span class="muted"> → একই key আবার এলে provider নতুন করে কাটে না</span>
+  </div>
+  <div class="rule" data-step="rise"><span class="stamp y sm">UNCERTAIN</span><span>নিশ্চিত না হলে retry নয়। <b>আগে payment status মিলিয়ে নিন।</b></span></div>
+  <aside class="notes">
+    <p>নবম নিয়ম পেমেন্ট নিয়ে।</p>
+    <p>▶1 Payment provider টাকা কাটল। ঠিক তখনই আপনার server-এর worker বন্ধ হয়ে গেল, ফলাফল লেখার আগেই। সিস্টেম retry করল, আর আবার টাকা কাটল।</p>
+    <p>▶2 সমাধান idempotency key। প্রতিটা payment attempt-এর জন্য একটা নির্দিষ্ট key। একই key আবার এলে provider নতুন করে টাকা কাটে না।</p>
+    <p>▶3 আর provider এটা support না করলে, retry করার আগে payment status মিলিয়ে নিন। নিশ্চিত না হলে সেটাকে UNCERTAIN হিসেবে রাখুন, আবার টাকা কাটবেন না।</p>
+  </aside>
+</section>
+
+<!-- S16 · ১০. Traffic আর cache -->
+<section>
+  <h2 data-enter="rise"><span class="num">১০</span>Traffic আর cache</h2>
+  <div class="split">
+    <div class="panel" data-step="rise">
+      <div class="panel-h"><span class="tile"><i data-lucide="trending-up"></i></span>Traffic</div>
+      <ul><li>গড় নয়, সবচেয়ে বেশি ভিড় ধরে capacity</li><li>সেলের দিনের মতো load test</li><li>প্রতিটা call-এ timeout</li></ul>
+    </div>
+    <div class="panel" data-step="rise">
+      <div class="panel-h"><span class="tile"><i data-lucide="layers"></i></span>Cache</div>
+      <ul><li>Cache কখনো source of truth নয়</li><li>Stampede ঠেকাতে single-flight</li><li>ব্যক্তিগত page shared cache-এ নয়</li></ul>
+    </div>
+  </div>
+  <aside class="notes">
+    <p>দশম নিয়ম: ভিড় আর cache।</p>
+    <p>▶1 গড় traffic দেখে capacity ঠিক করবেন না, সবচেয়ে বেশি ভিড়ের দিন ধরে করুন। ঈদের সেলের মতো load দিয়ে আগে test করুন। আর প্রতিটা call-এ timeout রাখুন।</p>
+    <p>▶2 Cache হলো টেবিলের ওপর রাখা নোট, আসল কাগজ নয়—তাই cache কখনো source of truth নয়। জনপ্রিয় data-র cache একসাথে মুছে গেলে single-flight ব্যবহার করুন। আর কারও ব্যক্তিগত page—ইনভয়স, প্রোফাইল—কখনো shared cache-এ নয়।</p>
+  </aside>
+</section>
+
+<!-- S17 · ১১. নিরাপদে release -->
+<section>
+  <h2 data-enter="rise"><span class="num">১১</span>নিরাপদে release</h2>
+  <div class="item green" data-step="rise"><i data-lucide="shield-check"></i>CI gate: test pass না করলে merge নয়</div>
+  <div class="flow rollout" data-step="stream" data-gap="0.2">
+    <span class="chip">1%</span><i data-lucide="arrow-right" class="arr"></i>
+    <span class="chip">10%</span><i data-lucide="arrow-right" class="arr"></i>
+    <span class="chip">50%</span><i data-lucide="arrow-right" class="arr"></i>
+    <span class="chip green">100%</span>
+  </div>
+  <div class="rule" data-step="rise"><i data-lucide="undo-2"></i><span><b>এক ক্লিকে rollback।</b> Knight Capital আর CrowdStrike: সমস্যা হঠাৎ সব জায়গায় ছড়িয়েছিল।</span></div>
+  <div class="src"><i data-lucide="link"></i>সূত্র:
+    <a href="https://www.sec.gov/news/press-release/2013-222">sec.gov · Knight Capital</a> ·
+    <a href="https://blogs.microsoft.com/blog/2024/07/20/helping-our-customers-through-the-crowdstrike-outage/">blogs.microsoft.com · CrowdStrike</a></div>
+  <aside class="notes">
+    <p>এগারো নম্বর নিয়ম: release-কে নিরাপদ করুন।</p>
+    <p>▶1 Test pass না করলে merge হবে না—এটা CI-তে বেঁধে দিন, যাতে কেউ ভুলে বা তাড়াহুড়ায় পার না পায়।</p>
+    <p>▶2 নতুন version একসাথে সবার কাছে না দিয়ে ধাপে ধাপে দিন: আগে এক শতাংশ, তারপর দশ, তারপর অর্ধেক, তারপর সবাই। প্রতিটা ধাপে দেখুন, কিছু ভাঙছে কি না।</p>
+    <p>▶3 আর এক ক্লিকে আগের version-এ ফেরার ব্যবস্থা রাখুন। Knight Capital আর CrowdStrike দুটো ঘটনাতেই সমস্যা হঠাৎ সব জায়গায় ছড়িয়ে পড়েছিল।</p>
+  </aside>
+</section>
+
+<!-- S18 · ১২. চোখ রাখুন -->
+<section>
+  <h2 data-enter="rise"><span class="num">১২</span>চোখ রাখুন</h2>
+  <div class="grid2" data-step="stream" data-gap="0.12">
+    <div class="item"><i data-lucide="scroll-text"></i>Logs</div>
+    <div class="item"><i data-lucide="activity"></i>Metrics</div>
+    <div class="item"><i data-lucide="bell-ring"></i>Alerts</div>
+    <div class="item"><i data-lucide="bug"></i>Error tracking</div>
+  </div>
+  <div class="col w" data-step="rise">
+    <div class="term"><div class="term-body"><span class="lv-e">ALERT</span> checkout p95 &gt; 3s for 5m <span class="t">→ on-call-কে জানানো হলো</span></div></div>
+    <p class="say">সমস্যার কথা customer-এর আগে <span class="yellow">আপনি</span> জানবেন।</p>
+  </div>
+  <aside class="notes">
+    <p>বারো নম্বর নিয়ম: production-এ কী ঘটছে, সেটা দেখার ব্যবস্থা রাখুন।</p>
+    <p>▶1 Logs, metrics, alerts, আর error tracking। এগুলোকে একসাথে বলে observability।</p>
+    <p>▶2 লক্ষ্য একটাই: সমস্যার কথা customer-এর কাছ থেকে নয়, আপনার alert থেকে আগে জানবেন।</p>
+  </aside>
+</section>
+
+<!-- S19 · ভাঙলে কী করবেন -->
+<section>
+  <h2 data-enter="rise"><i data-lucide="siren" style="width:64px;height:64px;color:#ff6b7d"></i>ভাঙলে কী করবেন</h2>
+  <div class="items w">
+    <div class="item red" data-step="rise"><i data-lucide="octagon-x"></i><span><b>থামান:</b> rollback বা feature বন্ধ</span></div>
+    <div class="item yellow" data-step="rise"><i data-lucide="megaphone"></i><span><b>জানান:</b> team আর user-দের</span></div>
+    <div class="item" data-step="rise"><i data-lucide="history"></i><span><b>ফেরত আনুন:</b> restore, তারপর ডেটা মিলিয়ে দেখুন</span></div>
+    <div class="item" data-step="rise"><i data-lucide="search"></i><span><b>কারণ খুঁজুন, দোষী নয়:</b> blameless postmortem</span></div>
+    <div class="item green" data-step="rise"><i data-lucide="repeat"></i><span><b>শিখুন:</b> নতুন rule + নতুন test</span></div>
+  </div>
+  <aside class="notes">
+    <p>সব করার পরও কিছু ভাঙবে। তখন কী করবেন, সেটা আগে থেকে লিখে রাখুন।</p>
+    <p>▶1 এক: ক্ষতি থামান। Rollback করুন, বা feature বন্ধ করে দিন।</p>
+    <p>▶2 দুই: জানান। আপনার team-কে, আর দরকার হলে user-দের।</p>
+    <p>▶3 তিন: ফেরত আনুন। Backup থেকে restore, তারপর ডেটা মিলিয়ে দেখুন।</p>
+    <p>▶4 চার: কারণ খুঁজুন, দোষী নয়। একে বলে blameless postmortem।</p>
+    <p>▶5 পাঁচ: শিখুন। প্রতিটা incident থেকে একটা নতুন rule আর একটা নতুন test।</p>
+  </aside>
+</section>
+
+<!-- S20 · Vibe coder-এর survival kit -->
+<section>
+  <h2 data-enter="rise"><span class="tile yellow"><i data-lucide="sparkles"></i></span>Vibe coder-এর survival kit</h2>
+  <div class="grid2">
+    <div class="items" data-step="stream" data-gap="0.12">
+      <div class="item green"><i data-lucide="check"></i>Login, payment, database: managed service</div>
+      <div class="item green"><i data-lucide="check"></i>AI-কে production-এর key নয়</div>
+      <div class="item green"><i data-lucide="check"></i>প্রতিটা AI পরিবর্তনের আগে git commit</div>
+      <div class="item green"><i data-lucide="check"></i>Backup চালু, একবার restore করে দেখা</div>
+    </div>
+    <div class="items" data-step="stream" data-gap="0.12">
+      <div class="item green"><i data-lucide="check"></i>Secret শুধু .env-এ</div>
+      <div class="item green"><i data-lucide="check"></i>AI-কে জিজ্ঞেস: "এটা কীভাবে ভাঙতে পারে?"</div>
+      <div class="item green"><i data-lucide="check"></i>Test-এর জন্য আলাদা কপি</div>
+      <div class="item green"><i data-lucide="check"></i>টাকা ও login-এর কোড developer-কে দেখান</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p>যারা vibe coding করেন, তাদের জন্য আটটা সহজ নিয়ম। Technical গভীরতা না থাকলেও এগুলো মানা যায়।</p>
+    <p>▶1 Login, payment আর database-এর জন্য নিজে না বানিয়ে পরিচিত managed service ব্যবহার করুন। AI-কে কখনো production-এর key দেবেন না। প্রতিটা AI পরিবর্তনের আগে git commit করুন। আর backup চালু রেখে অন্তত একবার restore করে দেখুন।</p>
+    <p>▶2 Secret শুধু .env ফাইলে, git-এ নয়। প্রতিটা feature-এর পরে AI-কে জিজ্ঞেস করুন: "এটা কীভাবে ভাঙতে পারে?" Test করার জন্য আলাদা একটা কপি রাখুন। আর টাকা বা login-এর কোড অন্তত একবার একজন developer-কে দিয়ে দেখিয়ে নিন।</p>
+  </aside>
+</section>
+
+<!-- S21 · Developer-এর playbook -->
+<section>
+  <h2 data-enter="rise"><span class="tile"><i data-lucide="code"></i></span>Developer-এর playbook</h2>
+  <div class="grid2">
+    <div class="items" data-step="stream" data-gap="0.12">
+      <div class="item"><i data-lucide="book-open"></i>ADR: কেন এই সিদ্ধান্ত</div>
+      <div class="item"><i data-lucide="file-text"></i>Context file repo-তে</div>
+      <div class="item"><i data-lucide="flask-conical"></i>CI-তে red test</div>
+      <div class="item"><i data-lucide="list-checks"></i>AI diff review checklist</div>
+    </div>
+    <div class="items" data-step="stream" data-gap="0.12">
+      <div class="item"><i data-lucide="gauge"></i>SLO: কতটা নির্ভরযোগ্য</div>
+      <div class="item"><i data-lucide="history"></i>নিয়মিত restore drill</div>
+      <div class="item"><i data-lucide="shield"></i>Threat model: কে কী ছুঁতে পারে</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p>আর developer-দের জন্য আরেকটু গভীর তালিকা।</p>
+    <p>▶1 গুরুত্বপূর্ণ সিদ্ধান্তের কারণ ADR-এ লিখুন। Context file repo-তে রাখুন। CI-তে red test চালান। আর AI-এর diff review করার জন্য একটা checklist রাখুন।</p>
+    <p>▶2 SLO ঠিক করুন—কতটা নির্ভরযোগ্য হতে হবে। নিয়মিত restore drill করুন। আর threat model করুন: কে কোন ডেটায় হাত দিতে পারে।</p>
+  </aside>
+</section>
+
+<!-- S22 · সাত দিনের শুরু -->
+<section>
+  <h2 data-enter="rise"><i data-lucide="calendar-days" style="width:64px;height:64px;color:var(--yellow)"></i>সাত দিনের শুরু</h2>
+  <div class="grid2">
+    <div class="items" data-step="stream" data-gap="0.12">
+      <div class="item"><span class="yellow">Day 1</span>Requirements ও assumptions</div>
+      <div class="item"><span class="yellow">Day 2</span>Traffic ও capacity</div>
+      <div class="item"><span class="yellow">Day 3</span>Data rules</div>
+      <div class="item"><span class="yellow">Day 4</span>Failure-এর তালিকা</div>
+    </div>
+    <div class="items" data-step="stream" data-gap="0.12">
+      <div class="item"><span class="yellow">Day 5</span>Access ও secret</div>
+      <div class="item"><span class="yellow">Day 6</span>Red test</div>
+      <div class="item"><span class="yellow">Day 7</span>Restore ও rollback অনুশীলন</div>
+    </div>
+  </div>
+  <div class="rule" data-step="rise"><i data-lucide="repeat"></i><span>তারপর: AI-এর প্রতিটা নতুন ভুল → <b>একটা rule</b> + <b>একটা test</b></span></div>
+  <aside class="notes">
+    <p>কোথা থেকে শুরু করবেন? সাত দিনের একটা ছোট পরিকল্পনা।</p>
+    <p>▶1 প্রথম দিন requirements আর assumptions লিখুন। দ্বিতীয় দিন traffic আর capacity-র হিসাব। তৃতীয় দিন data rules। চতুর্থ দিন failure-গুলোর তালিকা।</p>
+    <p>▶2 পঞ্চম দিন access আর secret যাচাই। ষষ্ঠ দিন সবচেয়ে বড় failure-গুলোর red test। সপ্তম দিন একবার restore আর rollback অনুশীলন।</p>
+    <p>▶3 তারপর থেকে নিয়ম একটাই: AI নতুন কোনো ভুল করলে, তার জন্য একটা rule আর একটা test।</p>
+  </aside>
+</section>
+
+<!-- S23 · শেষ কথা -->
+<section class="center">
+  <h1 data-enter="words">AI কোড লেখে।</h1>
+  <h1 class="yellow" data-step="rise">সিস্টেম টিকিয়ে রাখা আপনার দায়িত্ব।</h1>
+  <span class="chip blue lg" data-step="rise"><i data-lucide="message-circle"></i>কমেন্টে: আপনার প্রজেক্টের সবচেয়ে বড় GUESS কোনটা?</span>
+  <aside class="notes">
+    <p>শেষ করি একটা কথা দিয়ে।</p>
+    <p>▶1 AI আপনার জন্য কোড লিখতে পারে। কিন্তু সিস্টেম টিকিয়ে রাখার দায়িত্ব আপনার।</p>
+    <p>▶2 কমেন্টে জানান: আপনার প্রজেক্টে সবচেয়ে বড় GUESS কোনটা? সেটা দিয়েই পরের আলোচনা শুরু করব।</p>
+  </aside>
+</section>
+
+</div></div>
+
+<script src="../../vendor/gsap/gsap.min.js"></script>
+<script src="../../vendor/gsap/SplitText.min.js"></script>
+<script src="../../vendor/gsap/DrawSVGPlugin.min.js"></script>
+<script src="../../vendor/reveal/reveal.js"></script>
+<script src="../../vendor/reveal/notes.js"></script>
+<script src="../../vendor/lucide/lucide.min.js"></script>
+<script src="../../lib/deck.js"></script>
+<script>
+// Live talk keys: ← / → change Slides, ↓ / ↑ show / hide one point. Space, PageDown and N also go forward; PageUp and P back.
+// Forward opens the next Slide at its first point; back returns to the previous Slide with every point showing.
+// C (or ?cam in the URL) outlines the bottom-right face-cam zone, for lining up Cap's camera bubble before recording.
+function go(d) {
+  const h = Reveal.getIndices().h + d, slide = Reveal.getSlide(h);
+  if (!slide) return;
+  const frags = [...slide.querySelectorAll('.fragment')];
+  frags.forEach(f => f.classList.toggle('visible', d < 0));
+  const last = Math.max(-1, ...frags.map(f => +f.dataset.fragmentIndex || 0));
+  Reveal.slide(h, 0, d < 0 ? last : -1);
+}
+const cam = () => document.documentElement.classList.toggle('cam');
+if (new URLSearchParams(location.search).has('cam')) cam();
+const keys = { 40: () => Reveal.nextFragment(), 38: () => Reveal.prevFragment(), 67: cam };
+[39, 32, 34, 78].forEach(k => keys[k] = () => go(1));
+[37, 33, 80].forEach(k => keys[k] = () => go(-1));
+Deck.start({ keyboard: keys });
+</script>
+</body>
+</html>

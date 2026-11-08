@@ -342,18 +342,10 @@
 <!-- ================= ACT 1 ================= -->
 
 <!-- S1 · Cold open -->
-<section data-background-color="#050506">
+<section data-auto="6.5 14.4 27.0 30.7" data-background-color="#050506">
   <div class="stack">
     <!-- Silent ~4 s: the log streams, then the six failures flash in by themselves. Click 1 pushes it all back. -->
-    <div class="stack" data-step="dim" data-to="0.08" data-fragment-index="1">
-    <div class="mini-fails" data-enter="flash" data-delay="4" style="z-index:1">
-      <div class="mini"><span class="no"><i data-lucide="x"></i></span>চেকআউট আটকে গেল</div>
-      <div class="mini"><span class="no"><i data-lucide="x"></i></span>অর্ডার দেখা যাচ্ছে না</div>
-      <div class="mini"><span class="no"><i data-lucide="x"></i></span>পণ্যের পেজ ডাউন</div>
-      <div class="mini"><span class="no"><i data-lucide="x"></i></span>অন্যের ইনভয়স</div>
-      <div class="mini"><span class="no"><i data-lucide="x"></i></span>দুইবার টাকা কাটা</div>
-      <div class="mini"><span class="no"><i data-lucide="x"></i></span>৩১৪টা অর্ডার নেই</div>
-    </div>
+    <div class="col" data-step="dim" data-to="0.08" data-fragment-index="1">
     <div class="term cold-log">
       <div class="term-bar"><b></b><b></b><b></b><span>rafi-shop · production.log</span></div>
       <div class="term-body" data-enter="stream" data-gap="0.34" data-delay="0.3">
@@ -368,6 +360,14 @@
         <div><span class="t">23:41:31</span> <span class="lv-e">FATAL</span> worker crashed before commit</div>
         <div><span class="t">23:41:40</span> <span class="lv-e">FATAL</span> 314 orders missing after restore</div>
       </div>
+    </div>
+    <div class="mini-fails" data-enter="flash" data-delay="4">
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>চেকআউট আটকে গেল</div>
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>অর্ডার দেখা যাচ্ছে না</div>
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>পণ্যের পেজ ডাউন</div>
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>অন্যের ইনভয়স</div>
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>দুইবার টাকা কাটা</div>
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>৩১৪টা অর্ডার নেই</div>
     </div>
     </div>
     <div class="col cold-over">
@@ -385,7 +385,7 @@
   </div>
   <aside class="notes">
     <p>[auto: প্রথম চার সেকেন্ড চুপ। log চলবে, তারপর ছয়টা failure নিজে থেকেই একে একে আসবে।]</p>
-    <p>▶1 এটা একজন মানুষের সবচেয়ে খারাপ রাত।</p>
+    <p>▶1 এটা একজন developer সবচেয়ে খারাপ রাত।</p>
     <p>তার নাম রাফি। তিন ঘণ্টা আগেও তার অনলাইন দোকান ঠিকঠাক চলছিল।</p>
     <p>▶2 এখন কাস্টমার অর্ডার করতে পারছে না, কেউ নিজের অর্ডার দেখতে পাচ্ছে না, আর কারও কারও অ্যাকাউন্ট থেকে দুইবার টাকা কেটে গেছে।</p>
     <p>সবচেয়ে অদ্ভুত ব্যাপার জানেন?</p>
@@ -395,7 +395,7 @@
 </section>
 
 <!-- S2 · Title -->
-<section>
+<section data-auto="13.4 16.9 27.6">
   <div class="row" data-enter="stream" data-gap="0.14">
     <span class="chip"><img src="assets/logos/cursor/logo.svg" alt="">Cursor</span>
     <span class="chip"><img src="assets/logos/claude/logo.svg" alt="">Claude Code</span>
@@ -420,7 +420,7 @@
 </section>
 
 <!-- S3 · রাফির দোকান -->
-<section>
+<section data-auto="9.7 14.0 21.6 22.8">
   <div class="split">
     <div class="col">
       <div class="person" data-enter="land">
@@ -462,7 +462,7 @@
 </section>
 
 <!-- S4 · সেই একটি Prompt -->
-<section>
+<section data-auto="13.8 27.1 30.0 35.7">
   <div class="panel prompt" data-enter="rise">
     <div class="panel-h"><i data-lucide="terminal" class="yellow"></i>রাফি → AI agent</div>
     <p class="typed mono" data-enter="type" data-delay="0.5" data-cps="40">Build an online store with product listings, user authentication, shopping cart, checkout, payment integration, inventory management and order notifications. Use a modern UI and a database. Make it production-ready.</p>
@@ -486,7 +486,7 @@
 </section>
 
 <!-- S5 · Demo-তে সব ঠিক -->
-<section>
+<section data-auto="9.7 10.3 22.5">
   <div class="flow">
     <div class="node" data-enter="land" data-delay="0.2"><span class="tile"><i data-lucide="shopping-cart"></i></span><b>কার্টে গেল</b><span class="ok"><i data-lucide="check"></i></span></div>
     <svg class="arrow" viewBox="0 0 130 40" data-enter="draw" data-delay="0.5"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
@@ -513,7 +513,7 @@
 </section>
 
 <!-- S6 · তিন সপ্তাহের আত্মবিশ্বাস -->
-<section>
+<section data-auto="3.2 12.9 17.5">
   <div class="panel chart-panel" data-enter="rise">
     <div class="panel-h"><i data-lucide="trending-up" class="green"></i>দৈনিক অর্ডার · প্রথম তিন সপ্তাহ</div>
     <div class="chart-row">
@@ -538,7 +538,7 @@
 </section>
 
 <!-- S7 · কোডের আগে আটটি প্রশ্ন -->
-<section>
+<section data-auto="15.8 19.9 23.7 27.6 30.9 34.8 38.9 43.2 47.0 59.4">
   <div class="stack" style="width:100%">
     <div class="col" data-step="hide" data-fragment-index="1">
       <div class="row" style="gap:40px">
@@ -583,7 +583,7 @@
 </section>
 
 <!-- S8 · খামের পেছনের হিসাব -->
-<section>
+<section data-auto="4.8 10.7 13.3 21.2">
   <div class="panel calc" data-enter="rise">
     <p class="eq" data-enter="stream" data-delay="0.3" data-gap="0.35"><span>১ মাস</span><span class="muted">=</span><span>৩০ দিন</span><span class="muted">≈</span><span class="yellow">২৬ লাখ সেকেন্ড</span></p>
     <div class="slider">
@@ -613,7 +613,7 @@
 </section>
 
 <!-- S9 · তিনটা স্টিকার -->
-<section>
+<section data-auto="10.8 13.7 16.4 19.0 23.2 25.4 28.5">
   <h2 data-enter="rise">প্রতিটি সংখ্যার পাশে একটা লেবেল</h2>
   <div class="labels">
     <div class="panel label-card" data-step="rise"><span class="stamp g" style="transform:rotate(-6deg)">Measured</span><p>যেটা আপনি সত্যি মেপেছেন</p></div>
@@ -637,7 +637,7 @@
 </section>
 
 <!-- S10 · যে ফাইলটা ছিল না -->
-<section>
+<section data-auto="6.8 10.9 13.1 21.1 23.2">
   <div class="split">
     <div class="panel" data-enter="rise">
       <div class="panel-h"><i data-lucide="folder-git-2" class="blue"></i><span class="mono">rafi-shop/</span></div>
@@ -674,7 +674,7 @@
 </section>
 
 <!-- S11 · ঈদের ক্যাম্পেইন -->
-<section>
+<section data-auto="1.8 7.0 11.3">
   <div class="split">
     <div class="col">
       <span class="chip" data-enter="rise"><i data-lucide="moon"></i>ঈদের আগের রাত</span>
@@ -704,7 +704,7 @@
 </section>
 
 <!-- S12 · ছয়টি failure -->
-<section>
+<section data-auto="4.3 5.8 8.9 10.7 14.3 18.8">
   <span class="chip red" data-enter="rise"><i data-lucide="timer"></i>এরপর মাত্র ১৩ মিনিটে ৬টা সমস্যা</span>
   <div class="fails">
     <div class="panel fail" data-step="land"><span class="tile red"><i data-lucide="shopping-cart"></i></span><div><b>চেকআউট আটকে গেল</b><span class="mono">504 · checkout timeout</span></div></div>
@@ -726,7 +726,7 @@
 </section>
 
 <!-- S13 · পরদিন সকাল -->
-<section>
+<section data-auto="13.9 21.9">
   <div class="row" style="gap:56px; flex-wrap:nowrap">
     <div class="person" data-enter="land">
       <div class="rafi" data-enter="lottie" data-anim="rafi-error"></div>
@@ -756,7 +756,7 @@
 <!-- ================= ACT 2 ================= -->
 
 <!-- S14 · মেরামত শুরু -->
-<section>
+<section data-auto="5.7">
   <h2 data-enter="words">রাফি দোকান বন্ধ করেনি</h2>
   <div class="flow" data-step="stream" data-gap="0.2">
     <div class="node"><span class="tile red"><i data-lucide="siren"></i></span><b>সমস্যা</b><small>আবার ঘটিয়ে দেখা</small></div>
@@ -775,7 +775,7 @@
 </section>
 
 <!-- S15 · মেরামত ১ — Test সত্যিই কাজ করছে? -->
-<section class="repair">
+<section data-auto="12.3 22.4 31.1 36.9 41.2 42.4 44.5" class="repair">
   <h2 data-enter="rise"><span class="num">১</span>Test সত্যিই কাজ করছে?</h2>
   <div class="split">
     <div class="col">
@@ -819,7 +819,7 @@
 </section>
 
 <!-- S16 · মেরামত ২ — চেকআউট আটকে গেল -->
-<section class="repair">
+<section data-auto="10.3 20.9 30.3 35.0 50.9 61.5" class="repair">
   <h2 data-enter="rise"><span class="num">২</span>চেকআউট আটকে গেল</h2>
   <div class="panel little" data-step="rise" data-fragment-index="1">
     <div class="eqn">
@@ -852,7 +852,7 @@
 </section>
 
 <!-- S17 · মেরামত ৩ — টাকা কাটল, অর্ডার কই? -->
-<section class="repair">
+<section data-auto="7.3 12.3 24.3 39.4 46.9 54.9" class="repair">
   <h2 data-enter="rise"><span class="num">৩</span>টাকা কাটল, অর্ডার কই?</h2>
   <div class="flow">
     <div class="node"><span class="tile"><i data-lucide="user"></i></span><b>কাস্টমার</b><span class="chip red sm" data-step="rise" data-fragment-index="2">refresh: অর্ডার নেই!</span></div>
@@ -883,7 +883,7 @@
 </section>
 
 <!-- S18 · মেরামত ৪ — একসাথে সবাই একই জায়গায় -->
-<section class="repair">
+<section data-auto="18.6 23.1 29.6 33.3 35.9 43.7 53.5" class="repair">
   <h2 data-enter="rise"><span class="num">৪</span>পণ্যের পেজ কেন ডাউন?</h2>
   <div class="flow flow3">
     <div class="node n-req"><span class="tile"><i data-lucide="users"></i></span><b>১০০ request</b><small>একই পণ্য</small></div>
@@ -917,7 +917,7 @@
 </section>
 
 <!-- S19 · মেরামত ৫ — অন্যের ইনভয়স -->
-<section class="repair">
+<section data-auto="20.8 25.6 32.2 43.5 58.9" class="repair">
   <h2 data-enter="rise"><span class="num">৫</span>অন্যের ইনভয়স</h2>
   <div class="flow">
     <div class="node"><span class="tile"><i data-lucide="user"></i></span><b>কাস্টমার A</b><div class="slot"></div></div>
@@ -950,7 +950,7 @@
 </section>
 
 <!-- S20 · মেরামত ৬ — একই পেমেন্ট দুইবার -->
-<section class="repair">
+<section data-auto="9.8 13.2 29.1 43.9 56.8 69.3" class="repair">
   <h2 data-enter="rise"><span class="num">৬</span>একই পেমেন্ট দুইবার</h2>
   <div class="flow">
     <div class="node"><span class="tile"><i data-lucide="shopping-cart"></i></span><b>Checkout</b></div>
@@ -984,7 +984,7 @@
 </section>
 
 <!-- S21 · মেরামত ৭ — তিনশ চৌদ্দটা অর্ডার কোথায় গেল? -->
-<section class="repair">
+<section data-auto="4.1 11.5 26.7 36.3 56.4 61.2" class="repair">
   <h2 data-enter="rise"><span class="num">৭</span>৩১৪টা অর্ডার কোথায় গেল?</h2>
   <div class="panel tl-panel" data-enter="rise" data-delay="0.15">
     <!-- Times follow the script: backup at 2 PM, failure at 11 PM = the 9 lost hours. x = 40 + hour/24 * 1320. -->
@@ -1029,7 +1029,7 @@
 </section>
 
 <!-- S22 · মেরামত ৮ — এজেন্টের হাতে কোন চাবি? -->
-<section class="repair">
+<section data-auto="10.3 26.3 42.1 48.4" class="repair">
   <h2 data-enter="rise"><span class="num">৮</span>এজেন্টের হাতে কোন চাবি?</h2>
   <div class="split">
     <div class="col">
@@ -1065,7 +1065,7 @@
 <!-- ================= ACT 3 ================= -->
 
 <!-- S23 · আটটি Red Test -->
-<section>
+<section data-auto="5.4 18.9 23.3">
   <div class="term tests" data-enter="rise">
     <div class="term-bar"><b></b><b></b><b></b><span>rafi-shop/tests/red/</span></div>
     <div class="term-body" data-step="stream" data-gap="0.25">
@@ -1090,7 +1090,7 @@
 </section>
 
 <!-- S24 · সাত দিনের পরিকল্পনা -->
-<section>
+<section data-auto="5.3 9.2 12.6 16.6 20.7 24.8 29.1 36.2">
   <h2 data-enter="rise">সাত দিনের পরিকল্পনা</h2>
   <div class="days">
     <div class="panel day" data-step="rise"><b>Day ১</b>Requirements, users, constraints লিখুন</div>
@@ -1118,7 +1118,7 @@
 </section>
 
 <!-- S25 · সীমাবদ্ধতা (plain on purpose) -->
-<section data-background-color="#0c0c0e">
+<section data-auto="2.8 8.0 15.2 29.5" data-background-color="#0c0c0e">
   <h2 data-enter="rise">এই পদ্ধতির সীমাবদ্ধতা</h2>
   <ul class="limits">
     <li data-step="rise">Test শুধু সেই ভুল ধরে, যেটা ধরার জন্য আপনি test লিখেছেন।</li>
@@ -1136,7 +1136,7 @@
 </section>
 
 <!-- S26 · শেষ কথা -->
-<section>
+<section data-auto="2.5 4.9">
   <div class="rafi lg" data-enter="lottie" data-anim="rafi-like" data-delay="0.6"></div>
   <div class="row" data-enter="stream" data-gap="0.15">
     <span class="chip green"><i data-lucide="check"></i>Checkout</span>
@@ -1154,7 +1154,7 @@
 </section>
 
 <!-- S27 · CTA -->
-<section>
+<section data-auto="2.1 12.9 18.4 21.1">
   <div class="row" data-enter="stream" data-gap="0.15" style="flex-wrap:nowrap">
     <div class="panel fcard"><i data-lucide="file-text" class="blue"></i><b>SYSTEM.md</b></div>
     <div class="panel fcard"><i data-lucide="file-text" class="blue"></i><b>MODULES.md</b></div>
@@ -1274,7 +1274,30 @@ Deck.preset('run', el => {
   return tl;
 });
 
-Deck.start();
+// One click per Slide: a Slide's Steps play by themselves at the times in its data-auto (seconds after it appears).
+// Times come from where each Cue fell in the spoken Script, read at ~12 characters a second.
+// → (Space PageDown N) jumps to the next Slide; ← (PageUp P) replays the previous one from the start.
+// ↓ / ↑ show / hide one Step by hand; that stops the Slide's timer so the two don't double up.
+// ?pace=1.2 stretches every time for a slower read; ?auto=0 turns the timers off (Steps by ↓ / ↑ only).
+const q = new URLSearchParams(location.search), pace = +(q.get('pace') || 1);
+const auto = q.get('auto') !== '0' && !q.has('receiver');   // speaker-view previews follow the main window
+let timers = [];
+function autoplay() {
+  timers.forEach(t => t.kill());
+  timers = (Reveal.getCurrentSlide().dataset.auto || '').split(' ').filter(Boolean)
+    .map(t => gsap.delayedCall(t * pace, () => Reveal.nextFragment()));
+}
+function go(d) {
+  const h = Reveal.getIndices().h + d, slide = Reveal.getSlide(h);
+  if (!slide) return;
+  slide.querySelectorAll('.fragment').forEach(f => f.classList.remove('visible', 'current-fragment'));
+  Reveal.slide(h, 0, -1);
+}
+const step = d => { timers.forEach(t => t.kill()); d > 0 ? Reveal.nextFragment() : Reveal.prevFragment(); };
+const keys = { 40: () => step(1), 38: () => step(-1) };
+[39, 32, 34, 78].forEach(k => keys[k] = () => go(1));
+[37, 33, 80].forEach(k => keys[k] = () => go(-1));
+Deck.start({ keyboard: keys }).then(() => { if (auto) { Reveal.on('slidechanged', autoplay); autoplay(); } });
 </script>
 </body>
 </html>

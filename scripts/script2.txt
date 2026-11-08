@@ -1,0 +1,274 @@
+# AI দিয়ে কোড লিখছেন? সিস্টেম টিকবে তো?
+
+**Format:** Live talk, Cap screen recording with face cam (bottom-right)
+**Estimated duration:** 20–25 minutes
+**Audience:** Developers and vibe coders who build with AI coding agents
+**Core message:** AI কোড লেখে। কিন্তু সিস্টেম কীভাবে টিকে থাকবে, ভাঙলে কীভাবে ফিরে আসবে—সেটা আগে থেকে design করতে হয়।
+**Deck:** `decks/sustainable-ai-coding/index.html` (২৩টি slide, ৬৪টি ▶)
+
+---
+
+## কীভাবে পড়বেন
+
+| চিহ্ন | মানে | কী করবেন |
+|---|---|---|
+| `⏭ Slide N` | নতুন slide | → চাপুন |
+| `▶1`, `▶2` … | একই slide-এ পরের point | ↓ চাপুন (↑ চাপলে উল্টো দিকে যাবে) |
+| `[…]` | নিজের জন্য নোট | বলবেন না |
+
+- → আগে চাপলে বাকি point-গুলো বাদ পড়ে যাবে। তাই slide-এর সব ▶ শেষ করে তারপর →।
+- ← চাপলে আগের slide পুরোটা দেখানো অবস্থায় ফিরে আসবে।
+- `S` চাপলে speaker view খুলবে, এই লেখাগুলো notes-এ দেখা যাবে। Cap-এ শুধু deck-এর window record করুন, speaker view নয়।
+- `C` চাপলে নিচে ডানে face cam-এর জায়গাটা দাগ দিয়ে দেখাবে। Cap-এর camera bubble সেখানে বসিয়ে আবার `C` চাপুন।
+- এই ফাইল বদলালে: `node tools/sync-notes.mjs scripts/script2.txt decks/sustainable-ai-coding/index.html`
+
+---
+
+# পর্ব ১ — সমস্যাটা কোথায়
+
+## S1 · শিরোনাম
+⏭ Slide 1 · ▶ ×1
+
+**VO:**
+
+সবাইকে স্বাগতম। আজকের বিষয়—AI দিয়ে software বানানো, কিন্তু এমনভাবে, যাতে বিপদ এলেও সেটা টিকে থাকে।
+▶1 এই আলোচনা দুই ধরনের মানুষের জন্য। যারা পেশাদার developer, আর যারা vibe coding করেন—মানে AI-কে বলে বলে পুরো অ্যাপ বানিয়ে ফেলেন।
+দুজনের জন্যই আজকের নিয়মগুলো একই রকম জরুরি।
+
+## S2 · Code ≠ System
+⏭ Slide 2 · ▶ ×2
+
+**VO:**
+
+Cursor, Claude Code, GitHub Copilot—এই tool-গুলো এখন মিনিটের মধ্যে কোড লিখে দেয়। এটা সত্যিই দারুণ।
+কিন্তু একটা কথা পরিষ্কার করে নিই।
+▶1 কোড আর সিস্টেম এক জিনিস নয়।
+▶2 কোড হলো ইট। সিস্টেম হলো পুরো বাড়ি—ভিত, পানির লাইন, আর আগুন লাগলে বের হওয়ার রাস্তা।
+AI খুব দ্রুত ইট গাঁথতে পারে। বাড়িটা ভূমিকম্পে টিকবে কি না, সেই নকশা আপনাকেই করতে হবে।
+
+## S3 · দুই ধরনের builder
+⏭ Slide 3 · ▶ ×3
+
+**VO:**
+
+চলুন দেখি, এই দুই দলের শক্তি আর ঝুঁকি কোথায়।
+▶1 Developer architecture, testing, deploy বোঝেন। কিন্তু AI-এর গতির সাথে তাল মেলাতে গিয়ে অনেক সময় review আর test বাদ পড়ে যায়।
+▶2 Vibe coder জানেন, তিনি কী বানাতে চান। কিন্তু সবচেয়ে বড় ঝুঁকি হলো—কী জানেন না, সেটাই জানেন না।
+▶3 আর আপনার user-এর কাছে এই পার্থক্যের কোনো মানে নেই। ডেটা হারালে বা দুইবার টাকা কাটলে দায়টা আপনার।
+
+## S4 · বিপর্যয় স্বাভাবিক ঘটনা
+⏭ Slide 4 · ▶ ×4
+
+**VO:**
+
+বড় কোম্পানিগুলোও এই ভুলগুলো করেছে। চারটা বাস্তব ঘটনা দেখি।
+▶1 ২০১২ সালে Knight Capital নতুন trading code deploy করল। একটা server-এ নতুন code পৌঁছায়নি, সেখানে পুরনো code চালু হয়ে গেল। প্রায় ৪৫ মিনিটে ক্ষতি হলো ৪৪০ মিলিয়ন ডলারেরও বেশি।
+▶2 ২০১৭ সালে GitLab-এ একজন engineer ভুল করে primary database-এর ডেটা মুছে ফেললেন। তারপর দেখা গেল, backup-গুলো ঠিকমতো কাজ করছিল না। প্রায় ছয় ঘণ্টার database পরিবর্তন হারিয়ে গেল।
+▶3 ২০২৪ সালে CrowdStrike-এর একটা ত্রুটিপূর্ণ update একসাথে অনেক কম্পিউটারে চলে গেল। Microsoft-এর হিসাবে প্রায় ৮৫ লাখ Windows device বন্ধ হয়ে গিয়েছিল।
+▶4 আর ২০২৫ সালে Replit-এর AI agent একটা code freeze-এর মধ্যেও একজন user-এর production database মুছে দিয়েছিল। Replit-এর CEO নিজেই বলেছিলেন, এটা কখনো সম্ভব হওয়াই উচিত ছিল না।
+[চারটার সূত্র slide-এর নিচে আর script-এর শেষে। সংখ্যাগুলো "প্রায়" বলুন।]
+
+## S5 · পরিচিত বিপদের তালিকা
+⏭ Slide 5 · ▶ ×3
+
+**VO:**
+
+ভালো খবর হলো—এই বিপদগুলো নতুন নয়। এদের নাম আছে, সমাধানও জানা।
+▶1 হঠাৎ traffic বেড়ে যাওয়া। পুরনো ডেটা দেখানো। Cache একসাথে মুছে গিয়ে database-এ ভিড়। একজনের ডেটা আরেকজন দেখে ফেলা। একই পেমেন্টে দুইবার টাকা কাটা।
+▶2 ডেটা হারিয়ে যাওয়া। AI agent-এর হাতে master key। API key বা password ফাঁস হওয়া। AI-এর বানানো ভুয়া package install করা। আর এমন deploy, যেটা ভাঙলে ফেরানোর রাস্তা নেই।
+▶3 প্রতিটার সমাধান আছে। শুধু কোড লেখার আগে সেটা design-এ রাখতে হয়।
+
+---
+
+# পর্ব ২ — টেকসই সিস্টেমের নিয়ম
+
+## S6 · টেকসই loop
+⏭ Slide 6 · ▶ ×3
+
+**VO:**
+
+আজকের পুরো আলোচনাটা একটা loop-এ বাঁধা।
+▶1 প্রথমে সিদ্ধান্ত নিন। তারপর সেটা লিখে রাখুন। তারপর ছোট ছোট ধাপে বানান।
+▶2 প্রতিটা ধাপ test দিয়ে যাচাই করুন। Production-কে পাহারা দিন। আর ভাঙলে দ্রুত ফিরে আসার ব্যবস্থা রাখুন।
+▶3 সবচেয়ে গুরুত্বপূর্ণ অংশ: প্রতিটা নতুন ভুল থেকে একটা নতুন rule আর একটা নতুন test। এভাবেই সিস্টেম সময়ের সাথে শক্ত হয়।
+
+## S7 · ১. কোডের আগে সিদ্ধান্ত
+⏭ Slide 7 · ▶ ×3
+
+**VO:**
+
+প্রথম নিয়ম: কোড লেখার আগে কয়েকটা প্রশ্নের উত্তর দিন।
+▶1 কারা ব্যবহার করবে, কতজন? সবচেয়ে বেশি ভিড় কত? কোন কাজ কত দ্রুত হতে হবে? কোন ডেটা কখনো হারানো যাবে না? কোনো service বন্ধ হলে কী হবে? কতক্ষণ downtime চলবে? কোন ডেটা private? আর কিছু ভাঙলে আমরা কীভাবে টের পাব?
+▶2 সব উত্তর আপনি জানবেন না, সেটা স্বাভাবিক। তাই প্রতিটা সংখ্যার পাশে একটা label দিন: MEASURED—মেপে দেখা, TARGET—যেটা চাই, আর GUESS—আপাতত অনুমান।
+▶3 GUESS লেখায় কোনো লজ্জা নেই। বিপদ হলো অনুমানকে সত্যি ধরে নেওয়া।
+
+## S8 · ২. লিখে রাখুন
+⏭ Slide 8 · ▶ ×3
+
+**VO:**
+
+দ্বিতীয় নিয়ম: সিদ্ধান্তগুলো repository-তে লিখে রাখুন।
+▶1 যেমন একটা SYSTEM.md, আর AI agent-এর জন্য AGENTS.md বা CLAUDE.md-এর মতো একটা context file।
+▶2 সেখানে থাকবে architecture, constraints, data rules, আর সবচেয়ে জরুরি—কী কখনো করা যাবে না।
+▶3 আপনার মাথায় থাকা সিদ্ধান্ত AI পড়তে পারে না। ফাইলে থাকা সিদ্ধান্ত সে প্রতিবার পড়ে।
+
+## S9 · ৩. Prompt-এ সীমা দিন
+⏭ Slide 9 · ▶ ×3
+
+**VO:**
+
+তৃতীয় নিয়ম: prompt-এ শুধু কী বানাতে হবে নয়, কী মানতে হবে সেটাও বলুন।
+▶1 "Checkout বানাও, production-ready করো"—এই prompt-এ কত user, পেমেন্ট ব্যর্থ হলে কী হবে, কিছুই বলা নেই।
+▶2 এবার এটা দেখুন। কত user, সেটা GUESS হিসেবে বলা। পেমেন্ট একবারই কাটবে। আগে failing test, তারপর fix। Production config ছোঁয়া যাবে না। আর অস্পষ্ট হলে অনুমান নয়, জিজ্ঞেস করবে।
+▶3 মনে রাখবেন, AI যেটা জানে না, সেটা নিজের মতো করে ধরে নেয়।
+
+## S10 · ৪. ছোট ধাপ, প্রতিটা ধাপে git
+⏭ Slide 10 · ▶ ×2
+
+**VO:**
+
+চতুর্থ নিয়ম: একবারে পুরো feature নয়, ছোট ছোট ধাপে কাজ।
+▶1 প্রতিটা ধাপ একটা আলাদা commit। ভুল হলে শুধু সেই commit-টা ফেরত নেওয়া যায়।
+▶2 AI-কে নতুন কাজ দেওয়ার আগে commit করুন। AI যা বদলেছে, সেই diff পুরোটা পড়ুন। আর কিছু ভাঙলে ভয় না পেয়ে revert করুন।
+
+## S11 · ৫. যে test সত্যিই ভুল ধরে
+⏭ Slide 11 · ▶ ×4
+
+**VO:**
+
+পঞ্চম নিয়ম: test লেখা আর test দিয়ে ভুল ধরা এক জিনিস নয়।
+▶1 AI test লিখে দিল, সব সবুজ। কিন্তু test-টা আসলে কিছু ধরতে পারে কি না, জানেন না।
+▶2 তাই ইচ্ছা করে কোডে সেই ভুলটা ঢোকান, যেটা ধরার জন্য test লেখা। Test লাল হলো—মানে সে ভুলটা ধরতে পারে।
+▶3 এবার ঠিক করুন। আবার সবুজ।
+▶4 এই সবুজের অর্থ আছে, কারণ আপনি তাকে লাল হতে দেখেছেন। এটাকে বলে red test workflow।
+
+## S12 · ৬. Agent-এর হাতে কোন চাবি?
+⏭ Slide 12 · ▶ ×3
+
+**VO:**
+
+ষষ্ঠ নিয়ম access নিয়ে। Replit-এর ঘটনাটা মনে আছে?
+▶1 AI agent যদি production database-এর owner credential পায়, তাহলে সে ডেটা পড়তে, বদলাতে, এমনকি মুছেও ফেলতে পারে।
+▶2 তাই চাবি আলাদা করুন। Development-এ দরকারমতো access। Production-এ সীমিত, যতটুকু না হলেই নয়। আর backup থাকবে আলাদা account-এ, যেটা app বা agent মুছতে পারবে না।
+▶3 আর মুছে ফেলার মতো যেকোনো command—DROP TABLE, rm -rf, database migration—মানুষের approval ছাড়া চলবে না। এটাকে বলে least privilege।
+
+## S13 · ৭. Secret আর package
+⏭ Slide 13 · ▶ ×3
+
+**VO:**
+
+সপ্তম নিয়ম: দুটো জিনিস চুপচাপ ফাঁস হয়—secret আর dependency।
+▶1 API key, password শুধু environment variable-এ রাখুন, git-এ কখনো নয়। Secret scanning চালু রাখুন। আর ফাঁস হলে আগে key বদলান, তারপর অন্য কাজ।
+▶2 AI যে package install করতে বলছে, সেটা আসলে আছে কি না, আর কারা বানিয়েছে—দেখে নিন। Lockfile commit করুন। নতুন dependency মানেই review।
+▶3 কেন? ২০২৫ সালের একটা গবেষণায় দেখা গেছে, code লেখা AI model-গুলোর সুপারিশ করা package-এর প্রায় ২০ শতাংশ আসলে ছিলই না। হামলাকারীরা ঠিক সেই নামে ক্ষতিকর package বানিয়ে রাখতে পারে। এর নাম slopsquatting।
+
+## S14 · ৮. Backup নয়, restore
+⏭ Slide 14 · ▶ ×3
+
+**VO:**
+
+অষ্টম নিয়ম ডেটা নিয়ে।
+▶1 ধরুন, backup হয় প্রতিদিন দুপুর দুটায়। সমস্যা হলো রাত এগারোটায়। মাঝের নয় ঘণ্টার ডেটা কোথায়?
+▶2 তাই আগে দুটো সংখ্যা ঠিক করুন। RPO—সর্বোচ্চ কতটুকু ডেটা হারানো মেনে নেবেন। RTO—আবার চালু করতে সর্বোচ্চ কত সময় নেবেন। Point-in-time recovery থাকলে এই ফাঁক অনেক ছোট করা যায়।
+▶3 আর GitLab-এর শিক্ষা: যে backup কখনো restore করে দেখেননি, সেটা backup নয়—সেটা শুধু আশা।
+
+## S15 · ৯. টাকা একবারই কাটবে
+⏭ Slide 15 · ▶ ×3
+
+**VO:**
+
+নবম নিয়ম পেমেন্ট নিয়ে।
+▶1 Payment provider টাকা কাটল। ঠিক তখনই আপনার server-এর worker বন্ধ হয়ে গেল, ফলাফল লেখার আগেই। সিস্টেম retry করল, আর আবার টাকা কাটল।
+▶2 সমাধান idempotency key। প্রতিটা payment attempt-এর জন্য একটা নির্দিষ্ট key। একই key আবার এলে provider নতুন করে টাকা কাটে না।
+▶3 আর provider এটা support না করলে, retry করার আগে payment status মিলিয়ে নিন। নিশ্চিত না হলে সেটাকে UNCERTAIN হিসেবে রাখুন, আবার টাকা কাটবেন না।
+
+## S16 · ১০. Traffic আর cache
+⏭ Slide 16 · ▶ ×2
+
+**VO:**
+
+দশম নিয়ম: ভিড় আর cache।
+▶1 গড় traffic দেখে capacity ঠিক করবেন না, সবচেয়ে বেশি ভিড়ের দিন ধরে করুন। ঈদের সেলের মতো load দিয়ে আগে test করুন। আর প্রতিটা call-এ timeout রাখুন।
+▶2 Cache হলো টেবিলের ওপর রাখা নোট, আসল কাগজ নয়—তাই cache কখনো source of truth নয়। জনপ্রিয় data-র cache একসাথে মুছে গেলে single-flight ব্যবহার করুন। আর কারও ব্যক্তিগত page—ইনভয়স, প্রোফাইল—কখনো shared cache-এ নয়।
+
+## S17 · ১১. নিরাপদে release
+⏭ Slide 17 · ▶ ×3
+
+**VO:**
+
+এগারো নম্বর নিয়ম: release-কে নিরাপদ করুন।
+▶1 Test pass না করলে merge হবে না—এটা CI-তে বেঁধে দিন, যাতে কেউ ভুলে বা তাড়াহুড়ায় পার না পায়।
+▶2 নতুন version একসাথে সবার কাছে না দিয়ে ধাপে ধাপে দিন: আগে এক শতাংশ, তারপর দশ, তারপর অর্ধেক, তারপর সবাই। প্রতিটা ধাপে দেখুন, কিছু ভাঙছে কি না।
+▶3 আর এক ক্লিকে আগের version-এ ফেরার ব্যবস্থা রাখুন। Knight Capital আর CrowdStrike দুটো ঘটনাতেই সমস্যা হঠাৎ সব জায়গায় ছড়িয়ে পড়েছিল।
+
+## S18 · ১২. চোখ রাখুন
+⏭ Slide 18 · ▶ ×2
+
+**VO:**
+
+বারো নম্বর নিয়ম: production-এ কী ঘটছে, সেটা দেখার ব্যবস্থা রাখুন।
+▶1 Logs, metrics, alerts, আর error tracking। এগুলোকে একসাথে বলে observability।
+▶2 লক্ষ্য একটাই: সমস্যার কথা customer-এর কাছ থেকে নয়, আপনার alert থেকে আগে জানবেন।
+
+---
+
+# পর্ব ৩ — ভাঙলে কী করবেন, আর কোথা থেকে শুরু
+
+## S19 · ভাঙলে কী করবেন
+⏭ Slide 19 · ▶ ×5
+
+**VO:**
+
+সব করার পরও কিছু ভাঙবে। তখন কী করবেন, সেটা আগে থেকে লিখে রাখুন।
+▶1 এক: ক্ষতি থামান। Rollback করুন, বা feature বন্ধ করে দিন।
+▶2 দুই: জানান। আপনার team-কে, আর দরকার হলে user-দের।
+▶3 তিন: ফেরত আনুন। Backup থেকে restore, তারপর ডেটা মিলিয়ে দেখুন।
+▶4 চার: কারণ খুঁজুন, দোষী নয়। একে বলে blameless postmortem।
+▶5 পাঁচ: শিখুন। প্রতিটা incident থেকে একটা নতুন rule আর একটা নতুন test।
+
+## S20 · Vibe coder-এর survival kit
+⏭ Slide 20 · ▶ ×2
+
+**VO:**
+
+যারা vibe coding করেন, তাদের জন্য আটটা সহজ নিয়ম। Technical গভীরতা না থাকলেও এগুলো মানা যায়।
+▶1 Login, payment আর database-এর জন্য নিজে না বানিয়ে পরিচিত managed service ব্যবহার করুন। AI-কে কখনো production-এর key দেবেন না। প্রতিটা AI পরিবর্তনের আগে git commit করুন। আর backup চালু রেখে অন্তত একবার restore করে দেখুন।
+▶2 Secret শুধু .env ফাইলে, git-এ নয়। প্রতিটা feature-এর পরে AI-কে জিজ্ঞেস করুন: "এটা কীভাবে ভাঙতে পারে?" Test করার জন্য আলাদা একটা কপি রাখুন। আর টাকা বা login-এর কোড অন্তত একবার একজন developer-কে দিয়ে দেখিয়ে নিন।
+
+## S21 · Developer-এর playbook
+⏭ Slide 21 · ▶ ×2
+
+**VO:**
+
+আর developer-দের জন্য আরেকটু গভীর তালিকা।
+▶1 গুরুত্বপূর্ণ সিদ্ধান্তের কারণ ADR-এ লিখুন। Context file repo-তে রাখুন। CI-তে red test চালান। আর AI-এর diff review করার জন্য একটা checklist রাখুন।
+▶2 SLO ঠিক করুন—কতটা নির্ভরযোগ্য হতে হবে। নিয়মিত restore drill করুন। আর threat model করুন: কে কোন ডেটায় হাত দিতে পারে।
+
+## S22 · সাত দিনের শুরু
+⏭ Slide 22 · ▶ ×3
+
+**VO:**
+
+কোথা থেকে শুরু করবেন? সাত দিনের একটা ছোট পরিকল্পনা।
+▶1 প্রথম দিন requirements আর assumptions লিখুন। দ্বিতীয় দিন traffic আর capacity-র হিসাব। তৃতীয় দিন data rules। চতুর্থ দিন failure-গুলোর তালিকা।
+▶2 পঞ্চম দিন access আর secret যাচাই। ষষ্ঠ দিন সবচেয়ে বড় failure-গুলোর red test। সপ্তম দিন একবার restore আর rollback অনুশীলন।
+▶3 তারপর থেকে নিয়ম একটাই: AI নতুন কোনো ভুল করলে, তার জন্য একটা rule আর একটা test।
+
+## S23 · শেষ কথা
+⏭ Slide 23 · ▶ ×2
+
+**VO:**
+
+শেষ করি একটা কথা দিয়ে।
+▶1 AI আপনার জন্য কোড লিখতে পারে। কিন্তু সিস্টেম টিকিয়ে রাখার দায়িত্ব আপনার।
+▶2 কমেন্টে জানান: আপনার প্রজেক্টে সবচেয়ে বড় GUESS কোনটা? সেটা দিয়েই পরের আলোচনা শুরু করব।
+
+---
+
+# Sources (মুখে বলার আগে দেখে নিন)
+
+- Knight Capital, 1 Aug 2012: loss in ~45 minutes after a deployment left old code active on one server; press reports said ~$440M, the SEC order says over $460M. SEC press release 2013-222: https://www.sec.gov/news/press-release/2013-222
+- GitLab.com, 31 Jan 2017: primary database data accidentally removed; backups failed; ~6 hours of database changes lost. GitLab postmortem, 10 Feb 2017: https://about.gitlab.com/blog/postmortem-of-database-outage-of-january-31/
+- CrowdStrike, 19 Jul 2024: faulty content update; Microsoft estimated ~8.5M Windows devices affected (less than 1%). https://blogs.microsoft.com/blog/2024/07/20/helping-our-customers-through-the-crowdstrike-outage/
+- Replit / SaaStr, July 2025: Replit's agent deleted a production database during a code freeze; CEO Amjad Masad called it "unacceptable and should never be possible" and announced dev/prod database separation. The Register, 22 Jul 2025: https://www.theregister.com/2025/07/22/replit_saastr_response/
+- Package hallucinations: Spracklen et al., "We Have a Package for You!", USENIX Security 2025: 19.7% of packages recommended by 16 code models did not exist. https://www.usenix.org/conference/usenixsecurity25/presentation/spracklen
