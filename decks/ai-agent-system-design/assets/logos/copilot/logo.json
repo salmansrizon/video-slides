@@ -1,0 +1,36 @@
+{
+ "brand": "GitHub Copilot",
+ "domain": "github.com",
+ "files": [
+  {
+   "file": "logo.svg",
+   "kind": "mark",
+   "source": "svgl",
+   "url": "https://svgl.app/library/copilot_dark.svg",
+   "title": "GitHub Copilot"
+  },
+  {
+   "file": "logo-light.svg",
+   "kind": "mark-for-light-bg",
+   "source": "svgl",
+   "url": "https://svgl.app/library/copilot.svg"
+  },
+  {
+   "file": "logo-simpleicons.svg",
+   "kind": "mark",
+   "source": "simple-icons",
+   "url": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/githubcopilot.svg",
+   "note": "single-colour mark, official hex #000000"
+  },
+  {
+   "file": "logo-site.svg",
+   "kind": "mark",
+   "source": "site-icon",
+   "url": "https://github.githubassets.com/assets/pinned-octocat-093da3e6fa40.svg"
+  }
+ ],
+ "note": "Trademark: nominative use only (identify the brand), unmodified official artwork, never recoloured, redrawn or presented as the film's own mark.",
+ "site": "https://github.com/features/copilot",
+ "color": "#000000",
+ "ok": true
+}

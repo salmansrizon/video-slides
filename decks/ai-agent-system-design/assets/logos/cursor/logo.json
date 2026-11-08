@@ -1,0 +1,43 @@
+{
+ "brand": "Cursor",
+ "domain": "cursor.com",
+ "files": [
+  {
+   "file": "logo.svg",
+   "kind": "mark",
+   "source": "svgl",
+   "url": "https://svgl.app/library/cursor_dark.svg",
+   "title": "Cursor"
+  },
+  {
+   "file": "wordmark.svg",
+   "kind": "wordmark",
+   "source": "svgl",
+   "url": "https://svgl.app/library/cursor_wordmark_dark.svg",
+   "title": "Cursor"
+  },
+  {
+   "file": "logo-light.svg",
+   "kind": "mark-for-light-bg",
+   "source": "svgl",
+   "url": "https://svgl.app/library/cursor_light.svg"
+  },
+  {
+   "file": "logo-simpleicons.svg",
+   "kind": "mark",
+   "source": "simple-icons",
+   "url": "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/cursor.svg",
+   "note": "single-colour mark, official hex #000000"
+  },
+  {
+   "file": "logo-site.svg",
+   "kind": "mark",
+   "source": "site-icon",
+   "url": "https://cursor.com/marketing-static/favicon-light.svg"
+  }
+ ],
+ "note": "Trademark: nominative use only (identify the brand), unmodified official artwork, never recoloured, redrawn or presented as the film's own mark.",
+ "site": "https://www.cursor.com",
+ "color": "#000000",
+ "ok": true
+}

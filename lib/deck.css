@@ -1,0 +1,73 @@
+/* Deck look: shadcn tokens from Basecoat + Inter, sized in px for the fixed canvas
+   (Landscape 1920x1080, Vertical 1080x1920). Reveal scales the whole canvas to the window. */
+@font-face {
+  font-family: 'Inter';
+  src: url('../vendor/fonts/InterVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: block;
+}
+/* Bangla: Inter has no Bengali glyphs, so the browser falls through to Anek Bangla for them. */
+@font-face {
+  font-family: 'Anek Bangla';
+  src: url('../vendor/fonts/AnekBangla-Bengali-Variable.woff2') format('woff2');
+  font-weight: 100 800;
+  font-display: block;
+  unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA, U+1CED, U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC, U+A8F1;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../vendor/fonts/JetBrainsMono-Variable.woff2') format('woff2');
+  font-weight: 100 800;
+  font-display: block;
+}
+
+html, body, .reveal-viewport { background: var(--background); }
+
+.reveal {
+  font-family: 'Inter', 'Anek Bangla', ui-sans-serif, system-ui, sans-serif;
+  font-size: 44px;
+  line-height: 1.35;
+  letter-spacing: -0.011em;
+  color: var(--foreground);
+}
+.reveal .slides { text-align: left; }
+.reveal .slides > section {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 120px 144px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 48px;
+}
+html.vertical .reveal .slides > section { padding: 200px 88px; }
+
+/* Slide headings; Basecoat components keep their own sizes. */
+.reveal :is(h1, h2, h3):not(.card *) { margin: 0; color: var(--foreground); text-wrap: balance; }
+/* Line heights leave room for Bengali vowel signs above and below the line. */
+.reveal h1:not(.card *) { font-size: 112px; line-height: 1.15; font-weight: 640; letter-spacing: -0.04em; }
+.reveal h2:not(.card *) { font-size: 80px; line-height: 1.2; font-weight: 600; letter-spacing: -0.03em; }
+.reveal h3:not(.card *) { font-size: 52px; line-height: 1.25; font-weight: 600; letter-spacing: -0.015em; }
+/* Word masks from the `words` preset: pad so Bengali marks aren't clipped. */
+.reveal .w-mask { padding: 0.2em 0.04em; margin: -0.2em -0.04em; }
+.reveal code, .reveal pre, .reveal .mono { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; }
+.reveal p, .reveal ul, .reveal ol { margin: 0; }
+.reveal .hero-number { font-size: 260px; line-height: 0.9; font-weight: 700; letter-spacing: -0.06em; font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted-foreground); }
+
+/* Two columns in Landscape, stacked in Vertical. */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 96px; align-items: center; }
+html.vertical .split { grid-template-columns: 1fr; gap: 64px; }
+
+/* GSAP owns every Step; Reveal's 0.2s CSS transition would fight it. */
+.reveal .fragment.custom { transition: none; }
+/* Hidden until the runtime has built its animation, so async presets never flash their raw content. */
+.reveal :is([data-enter], [data-step]):not([data-built]) { visibility: hidden; }
+
+/* Code */
+.reveal pre { margin: 0; width: 100%; font-size: 30px; line-height: 1.5; box-shadow: none; }
+.reveal pre code { max-height: none; padding: 40px 48px; border-radius: calc(var(--radius) * 2); }
+
+/* Basecoat components are built for 16px screens; scale them up for the canvas. */
+.reveal :is(.card, .table-container, .badge):not(:is(.card, .table-container) *) { zoom: 2; }
+
+svg text { font-family: 'Inter', 'Anek Bangla', ui-sans-serif, sans-serif; }

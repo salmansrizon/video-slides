@@ -1,0 +1,1280 @@
+<!doctype html>
+<html lang="bn" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Coding Agent ও System Design</title>
+<!-- Script: scripts/script1.txt. Press S for speaker view: each Slide's notes hold its VO, ▶ = click. -->
+<link rel="stylesheet" href="../../vendor/reveal/reveal.css">
+<link rel="stylesheet" href="../../lib/deck.css">
+<script src="../../vendor/tailwind/tailwind.browser.js"></script>
+<style type="text/tailwindcss">
+  @theme inline { --font-sans: 'Inter', 'Anek Bangla', ui-sans-serif, sans-serif; }
+</style>
+<style>
+  /* Look taken from the reference video: near-black ground, dark bordered cards, pills, blue icon tiles,
+     red ✕ / green ✓ status, yellow numbers, rubber stamps. */
+  :root, :root.dark {
+    --background: #09090b; --foreground: #f4f4f5; --card: #121215; --muted: #1a1a1f;
+    --muted-foreground: #8d8d98; --border: #27272d;
+    --red: #f0445a; --green: #8ad134; --yellow: #fbbf24; --blue: #3b82f6;
+    --chart-1: #fbbf24; --chart-3: #fbbf24;
+  }
+  .reveal-viewport {
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 42%, rgba(255,255,255,.04), transparent 70%),
+      linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px) 0 0 / 80px 80px,
+      linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px) 0 0 / 80px 80px,
+      #09090b;
+  }
+  .reveal { font-size: 40px; }
+  .reveal .slides { text-align: center; }
+  .reveal .slides > section { align-items: center; gap: 40px; }
+  .reveal .slides > section.repair { gap: 32px; }
+  html.vertical .reveal .slides > section { gap: 48px; }
+
+  /* Colours */
+  .yellow { color: var(--yellow); } .red { color: var(--red); } .green { color: var(--green); } .blue { color: #6aa5ff; }
+  .muted { color: var(--muted-foreground); }
+
+  /* Layout helpers */
+  .row { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 28px; }
+  .stack { display: grid; place-items: center; }
+  .stack > * { grid-area: 1 / 1; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; width: 100%; }
+  html.vertical .split { grid-template-columns: 1fr; gap: 48px; }
+
+  /* Type */
+  .kinetic { font-weight: 800; font-size: 150px; line-height: 1.05; letter-spacing: -0.045em; text-transform: uppercase; }
+  html.vertical .kinetic { font-size: 104px; }
+  .say { font-size: 54px; font-weight: 600; line-height: 1.35; text-wrap: balance; max-width: 1500px; }
+  html.vertical .say { font-size: 50px; }
+  .reveal .repair h2 { font-size: 64px; display: flex; align-items: center; gap: 24px; justify-content: center; }
+  .num { display: inline-grid; place-items: center; flex: none; width: 84px; height: 84px; border-radius: 22px;
+         background: var(--yellow); color: #111; font-size: 50px; font-weight: 700; }
+
+  /* Pills */
+  .chip { display: inline-flex; align-items: center; gap: 14px; padding: 12px 28px; border-radius: 999px; white-space: nowrap;
+          background: #17171b; border: 1px solid var(--border); font-size: 32px; font-weight: 500; line-height: 1.3; }
+  .chip svg { width: 32px; height: 32px; flex: none; }
+  .chip img { height: 40px; width: auto; }
+  .chip.light { background: #f4f4f5; color: #0b0b0c; border-color: transparent; }
+  .chip.red { background: rgba(240,68,90,.14); border-color: rgba(240,68,90,.5); color: #ff8a98; }
+  .chip.green { background: rgba(138,209,52,.12); border-color: rgba(138,209,52,.45); color: #b8ee73; }
+  .chip.yellow { background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.45); color: #fcd34d; }
+  .chip.blue { background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.45); color: #93c0ff; }
+  .chip.sm { font-size: 26px; padding: 8px 20px; }
+  .chip.wrap { white-space: normal; text-align: left; }
+
+  /* Cards */
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 26px; padding: 36px 44px; text-align: left;
+           box-shadow: 0 40px 100px -40px #000, inset 0 1px 0 rgba(255,255,255,.04); }
+  .panel-h { display: flex; align-items: center; gap: 18px; font-size: 36px; font-weight: 600; margin-bottom: 24px; }
+  .panel-h svg { width: 40px; height: 40px; }
+  .win { padding: 0; overflow: hidden; }
+  .win-bar, .term-bar { display: flex; align-items: center; gap: 10px; padding: 18px 24px; border-bottom: 1px solid var(--border);
+                        font-size: 24px; color: var(--muted-foreground); }
+  .win-bar b, .term-bar b { width: 14px; height: 14px; border-radius: 50%; background: #2c2c33; }
+  .win-bar span, .term-bar span { margin-left: 14px; font-family: 'JetBrains Mono', monospace; }
+
+  /* Icon tiles and status dots */
+  .tile { width: 112px; height: 112px; border-radius: 28px; display: grid; place-items: center; flex: none;
+          background: rgba(59,130,246,.12); border: 2px solid rgba(59,130,246,.5); color: #6aa5ff; }
+  .tile svg { width: 56px; height: 56px; stroke-width: 1.8; }
+  .tile.red { background: rgba(240,68,90,.12); border-color: rgba(240,68,90,.55); color: #ff6b7d; }
+  .tile.green { background: rgba(138,209,52,.1); border-color: rgba(138,209,52,.5); color: var(--green); }
+  .tile.yellow { background: rgba(251,191,36,.1); border-color: rgba(251,191,36,.5); color: var(--yellow); }
+  .tile.xl { width: 180px; height: 180px; border-radius: 44px; } .tile.xl svg { width: 92px; height: 92px; }
+  .ok, .no { width: 44px; height: 44px; border-radius: 50%; display: inline-grid; place-items: center; flex: none; }
+  .ok { background: var(--green); color: #0c1a00; } .no { background: var(--red); color: #fff; }
+  .ok svg, .no svg { width: 26px; height: 26px; stroke-width: 3.2; }
+
+  /* Rubber stamp (reference: SENSITIVE / RENTED) */
+  .stamp { display: inline-block; border: 5px solid currentColor; color: var(--red); border-radius: 14px; padding: 6px 26px 4px;
+           font: 800 46px/1.15 'Inter', 'Anek Bangla', sans-serif; letter-spacing: .08em; text-transform: uppercase;
+           transform: rotate(-8deg); background: rgba(9,9,11,.75); white-space: nowrap; }
+  .stamp.g { color: var(--green); } .stamp.b { color: #6aa5ff; } .stamp.y { color: var(--yellow); }
+  .stamp.sm { font-size: 30px; border-width: 4px; padding: 4px 18px 2px; }
+
+  /* Terminal */
+  .term { background: #0c0c0f; border: 1px solid var(--border); border-radius: 22px; text-align: left; overflow: hidden;
+          font-family: 'JetBrains Mono', 'Anek Bangla', monospace; box-shadow: 0 40px 100px -40px #000; }
+  .term-body { padding: 26px 34px; font-size: 26px; line-height: 1.65; }
+  .t { color: #55555f; } .lv-i { color: var(--green); } .lv-w { color: var(--yellow); } .lv-e { color: var(--red); }
+
+  /* Flow diagrams: a row of nodes in Landscape, a column of compact rows in Vertical */
+  .flow { display: flex; align-items: flex-start; justify-content: center; gap: 20px; }
+  .node { display: flex; flex-direction: column; align-items: center; gap: 16px; min-width: 260px; font-size: 32px; }
+  .node > b { font-weight: 600; }
+  .node small { font-size: 26px; color: var(--muted-foreground); }
+  .arrow { width: 130px; height: 40px; flex: none; margin-top: 36px; overflow: visible; }
+  .arrow path { fill: none; stroke: #4a4a55; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+  .arrow.dash path:first-child { stroke-dasharray: 10 10; }
+  html.vertical .flow { flex-direction: column; align-items: center; gap: 8px; }
+  html.vertical .node { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; text-align: left; width: 860px; gap: 20px; }
+  html.vertical .arrow { transform: rotate(90deg); margin: 0; width: 80px; }
+
+  /* Fix + test row shared by every repair */
+  .rule { display: flex; align-items: center; gap: 22px; text-align: left; padding: 22px 32px; border-radius: 22px; font-size: 32px;
+          background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.4); max-width: 1150px; }
+  .rule svg { width: 44px; height: 44px; color: #6aa5ff; flex: none; }
+  .rule b { color: #93c0ff; font-weight: 600; }
+  .testok { display: inline-flex; align-items: center; gap: 18px; padding: 18px 28px; border-radius: 20px; font-size: 30px;
+            background: rgba(138,209,52,.08); border: 1px solid rgba(138,209,52,.4); font-family: 'JetBrains Mono', monospace; }
+  .testok .pass { color: var(--green); font-weight: 700; }
+
+  /* S1 */
+  .cold-log { width: 1380px; } html.vertical .cold-log { width: 904px; }
+  html.vertical .cold-log .term-body { font-size: 21px; }
+  .cold-over { gap: 32px; }
+  .mini-fails { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; width: 1240px; }
+  html.vertical .mini-fails { grid-template-columns: 1fr 1fr; width: 860px; }
+  .mini { display: flex; align-items: center; gap: 16px; padding: 22px 26px; border-radius: 18px; font-size: 30px; text-align: left;
+          background: rgba(30,10,15,.96); border: 1px solid rgba(240,68,90,.55); box-shadow: 0 30px 60px -20px #000; }
+  /* Rafi: Aleksandr's LottieFiles character on a light disc, so its dark outlines read on the dark ground. */
+  .rafi { width: 220px; height: 220px; border-radius: 50%; border: 6px solid #f4f4f5; overflow: hidden; flex: none;
+          background: radial-gradient(circle at 50% 35%, #f5f3ff, #ddd6fe); }
+  .rafi.lg { width: 300px; height: 300px; }
+  .person { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+  /* S2 */
+  .qgrid { display: grid; grid-template-columns: repeat(2, auto); gap: 20px 24px; justify-content: center; }
+  html.vertical .qgrid { grid-template-columns: auto; }
+
+  /* S3 shop window */
+  .shop { width: 100%; max-width: 860px; }
+  .shop-body { display: grid; grid-template-columns: 250px 1fr; min-height: 380px; }
+  .side { list-style: none; margin: 0; padding: 20px 14px; border-right: 1px solid var(--border); font-size: 26px; }
+  .side li { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; color: var(--muted-foreground); }
+  .side li svg { width: 28px; height: 28px; }
+  .side li.on { background: rgba(59,130,246,.14); color: #93c0ff; }
+  .prods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding: 24px; align-content: start; }
+  .prod { background: #17171b; border: 1px solid var(--border); border-radius: 18px; padding: 14px; font-size: 22px; display: flex; flex-direction: column; gap: 6px; }
+  .prod .img { height: 110px; border-radius: 12px; display: grid; place-items: center; color: rgba(255,255,255,.55); }
+  .prod .img svg { width: 48px; height: 48px; }
+  .prod span { color: var(--yellow); font-weight: 600; }
+  .weeks { display: flex; gap: 14px; }
+  .weeks b { width: 104px; height: 104px; border-radius: 20px; display: grid; place-items: center; background: var(--yellow); color: #111;
+             font-size: 30px; font-weight: 700; line-height: 1.1; }
+  .weeks b:last-child { background: transparent; color: var(--yellow); border: 3px dashed var(--yellow); }
+
+  /* S4 */
+  .prompt { width: 100%; max-width: 1480px; position: relative; }
+  .typed { font-size: 32px; line-height: 1.6; color: #e4e4e7; margin: 0; }
+  .typed::before { content: '> '; color: var(--yellow); }
+  .prompt .stamp { position: absolute; right: -20px; top: -36px; }
+
+  /* S6 */
+  .chart-panel { width: 100%; max-width: 1500px; }
+  .chart-row { display: grid; grid-template-columns: auto 1fr; gap: 56px; align-items: center; }
+  html.vertical .chart-row { grid-template-columns: 1fr; }
+  .big-num { font-size: 200px; font-weight: 800; line-height: .95; letter-spacing: -0.05em; color: var(--yellow); }
+  .line-chart { width: 100%; height: auto; overflow: visible; }
+  .line-chart .base { stroke: #2c2c33; stroke-width: 2; }
+  .line-chart .ln { fill: none; stroke: var(--green); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* S7 */
+  .qlist { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 28px; width: 100%; max-width: 1620px; }
+  html.vertical .qlist { grid-template-columns: 1fr; }
+  .qlist h3 { grid-column: 1 / -1; text-align: center; margin-bottom: 8px !important; }
+  .q { display: flex; align-items: center; gap: 22px; text-align: left; font-size: 32px; line-height: 1.35;
+       background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px 24px; }
+  .q b { width: 56px; height: 56px; border-radius: 14px; flex: none; display: grid; place-items: center; background: var(--yellow); color: #111; font-size: 32px; }
+
+  /* S8 */
+  .calc { width: 100%; max-width: 1400px; display: flex; flex-direction: column; gap: 44px; }
+  .eq { display: flex; gap: 22px; align-items: baseline; justify-content: center; flex-wrap: wrap; font-size: 52px; font-weight: 600; margin: 0; }
+  .slider { position: relative; padding: 0 40px 56px; }
+  .track { position: relative; height: 16px; border-radius: 99px; background: #26262c; }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 99px; background: var(--yellow); }
+  .knob { position: absolute; top: 50%; left: 0; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%;
+          background: #f4f4f5; border: 6px solid var(--yellow); box-shadow: 0 8px 30px rgba(0,0,0,.6); }
+  .ticks { position: absolute; left: 40px; right: 40px; top: 36px; }
+  .ticks span { position: absolute; transform: translateX(-50%); font: 500 28px 'JetBrains Mono', monospace; color: var(--muted-foreground); }
+  .readout { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 18px 22px; font-size: 36px; }
+  .readout .monthly { font-size: 84px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .readout .rps { font-size: 56px; font-weight: 700; color: var(--yellow); }
+  .readout .approx { font-size: 44px; font-weight: 700; min-width: 300px; text-align: left; }
+  html.vertical .readout .monthly { font-size: 64px; }
+
+  /* S9 */
+  .labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; width: 100%; max-width: 1560px; }
+  html.vertical .labels { grid-template-columns: 1fr; }
+  .label-card { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 40px 28px 34px; }
+  .label-card p { margin: 0; font-size: 32px; text-align: center; }
+  .example { display: flex; align-items: center; gap: 36px; flex-wrap: wrap; justify-content: center; font-size: 36px; }
+  .example .mono { font-size: 56px; font-weight: 700; }
+
+  /* S10 */
+  .files { list-style: none; margin: 0; padding: 0; font-size: 30px; display: flex; flex-direction: column; gap: 14px; }
+  .files li { display: flex; align-items: center; gap: 16px; }
+  .files svg { width: 32px; height: 32px; color: var(--muted-foreground); }
+  .missing { color: var(--red); border: 3px dashed var(--red); border-radius: 12px; padding: 4px 16px; display: inline-flex; gap: 14px; align-items: center; }
+  .missing svg, .newfile svg { color: inherit !important; }
+  .newfile { color: var(--green); border: 3px solid var(--green); border-radius: 12px; padding: 4px 16px; display: inline-flex; gap: 14px; align-items: center; background: #0f160a; }
+  .md { display: flex; flex-direction: column; gap: 16px; font-size: 28px; }
+  .md div span { color: var(--muted-foreground); font-family: 'Inter', 'Anek Bangla', sans-serif; }
+  .md div b { color: #93c0ff; font-weight: 600; }
+
+  /* S11 */
+  .clock { font: 700 170px/1 'JetBrains Mono', monospace; letter-spacing: -0.04em; color: var(--yellow); }
+  .clock small { font-size: 60px; margin-left: 16px; color: var(--muted-foreground); }
+  .banner { display: flex; align-items: center; gap: 20px; padding: 22px 40px; border-radius: 20px; font-size: 44px; font-weight: 700;
+            background: linear-gradient(135deg, #3a0d16, #1a0a0e); border: 2px solid rgba(240,68,90,.6); }
+  .live { width: 22px; height: 22px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 8px rgba(240,68,90,.25); }
+  .traffic { width: 100%; }
+  .traffic .ln { fill: none; stroke: var(--red); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+  .tcount { display: flex; align-items: baseline; gap: 18px; margin-top: 20px; font-size: 32px; flex-wrap: wrap; }
+  .tcount .mono { font-size: 84px; font-weight: 800; color: var(--red); }
+
+  /* S12 */
+  .fails { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; width: 100%; }
+  html.vertical .fails { grid-template-columns: 1fr 1fr; }
+  .fail { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; text-align: left; min-height: 270px;
+          border-color: rgba(240,68,90,.35); background: linear-gradient(180deg, #1a0d10, var(--card) 70%); }
+  .fail b { font-size: 36px; font-weight: 600; line-height: 1.3; display: block; }
+  .fail .mono { font-size: 24px; color: #ff8a98; }
+
+  /* S13 */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+  html.vertical .stats { grid-template-columns: 1fr; width: 100%; }
+  .stat { text-align: left; border-color: rgba(240,68,90,.35); min-width: 330px; }
+  .stat b { display: block; font-size: 110px; line-height: 1; font-weight: 800; letter-spacing: -0.04em; color: var(--red); }
+  .stat > span { font-size: 32px; color: #d4d4d8; }
+  html.vertical .stat { display: flex; align-items: baseline; gap: 28px; }
+  html.vertical .stat b { font-size: 96px; }
+
+  /* S15 */
+  .runner { width: 100%; }
+  .trow { display: flex; align-items: center; gap: 20px; padding: 8px 0; }
+  .code { margin-top: 18px; border-radius: 14px; overflow: hidden; width: 100%; place-items: stretch; }
+  .code code { display: block; padding: 16px 22px; font-size: 26px; background: #15151a; }
+  .code .bug { background: #2a0f15; color: #ff8a98; }
+  .code .fixd { background: #121a0c; color: #c6f08f; }
+
+  /* S16 */
+  .little { width: 100%; max-width: 1460px; }
+  .eqn { display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap; font-size: 56px; font-weight: 300; color: var(--muted-foreground); }
+  .term-i { display: flex; align-items: center; gap: 16px; color: var(--foreground); font-weight: 400; }
+  .term-i svg { width: 56px; height: 56px; color: var(--yellow); }
+  .term-i b { font-size: 76px; font-weight: 800; }
+  .term-i small { font-size: 30px; color: var(--muted-foreground); }
+  .law { text-align: center; font-size: 30px; margin: 20px 0 0; }
+  .bars { width: 100%; max-width: 1460px; display: grid; grid-template-columns: auto 1fr auto; gap: 22px 28px; align-items: center; font-size: 32px; }
+  .bar { position: relative; height: 54px; border-radius: 14px; background: #1c1c21; }
+  .bar .fill { border-radius: 14px; }
+  .bar .fill.g { background: var(--green); } .bar .fill.r { background: var(--red); }
+  .bar .cap { position: absolute; left: 40%; top: -16px; bottom: -16px; border-left: 4px dashed #f4f4f5; }
+  .bar .cap span { position: absolute; left: 14px; top: -42px; font-size: 24px; white-space: nowrap; color: #f4f4f5; }
+
+  /* S17 */
+  .consist { grid-template-columns: 1fr 1fr; max-width: 1560px; }
+  .consist .panel { padding: 26px 34px; font-size: 30px; }
+  .consist .panel-h { font-size: 32px; margin-bottom: 14px; }
+  .consist p { margin: 10px 0 0; font-size: 28px; }
+
+  /* S18 */
+  .flow3 { position: relative; }
+  .dot { position: absolute; left: 0; top: 0; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; pointer-events: none; }
+  .dot.r { background: var(--red); box-shadow: 0 0 12px rgba(240,68,90,.8); }
+  .dot.s { background: var(--yellow); box-shadow: 0 0 12px rgba(251,191,36,.7); }
+
+  /* S19 */
+  .slot { width: 330px; min-height: 160px; display: grid; place-items: center; position: relative; }
+  .invoice { background: #f4f4f5; color: #111; border-radius: 16px; padding: 18px 22px; text-align: left; font-size: 24px;
+             display: flex; flex-direction: column; gap: 4px; width: 300px; box-shadow: 0 20px 50px rgba(0,0,0,.6); }
+  .invoice b { font-size: 28px; }
+  .slot .stamp { position: absolute; z-index: 2; }
+  html.vertical .slot { width: 330px; }
+
+  /* S20 */
+  .idem { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; justify-content: center; padding: 26px 40px; font-size: 32px; }
+  .idem .mono { color: var(--yellow); font-size: 32px; }
+
+  /* S21 */
+  .tl-panel { width: 100%; max-width: 1560px; padding: 30px 40px 20px; }
+  .tl { width: 100%; height: auto; overflow: visible; }
+  .tl text { font-size: 30px; fill: var(--muted-foreground); }
+  html.vertical .tl text { font-size: 50px; }
+  .tl .base { stroke: #3a3a42; stroke-width: 4; }
+  .tl .gap { fill: rgba(240,68,90,.22); stroke: rgba(240,68,90,.7); stroke-width: 2; }
+  .tl .wal rect { fill: var(--green); }
+  .rpo { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; width: 100%; max-width: 1560px; }
+  html.vertical .rpo { grid-template-columns: 1fr; }
+  .rpo .panel { padding: 24px 32px; font-size: 30px; }
+  .rpo .panel b { font-size: 40px; color: var(--yellow); margin-right: 14px; }
+
+  /* S22 */
+  .keys { display: flex; flex-direction: column; gap: 18px; width: 100%; }
+  .key { display: flex; align-items: center; gap: 22px; padding: 22px 28px; text-align: left; font-size: 30px; }
+  .key b { display: block; font-size: 34px; }
+  .key span { color: var(--muted-foreground); }
+
+  /* S23 */
+  .tests { width: 100%; max-width: 1100px; }
+  .tests .term-body { font-size: 32px; }
+  .pend { width: 44px; height: 44px; border-radius: 50%; border: 3px solid #3a3a42; }
+
+  /* S24 */
+  .days { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 26px; width: 100%; max-width: 1640px; }
+  html.vertical .days { grid-template-columns: 1fr; }
+  .day { display: flex; align-items: center; gap: 24px; text-align: left; padding: 20px 26px; font-size: 32px; }
+  .day b { flex: none; padding: 10px 18px; border-radius: 14px; background: var(--yellow); color: #111; font-size: 28px; }
+
+  /* S25: plain on purpose (the script asks for no effects here) */
+  .limits { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 34px; max-width: 1400px; text-align: left; font-size: 40px; line-height: 1.45; }
+  .limits li { padding-left: 40px; border-left: 4px solid #3a3a42; }
+
+  /* S26 / S27 */
+  .closing { font-size: 120px !important; }
+  html.vertical .closing { font-size: 96px !important; }
+  .closing2 { font-size: 48px; line-height: 1.45; max-width: 1400px; margin: 0; text-wrap: balance; }
+  .fcard { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 34px 44px; min-width: 330px; }
+  .fcard svg { width: 72px; height: 72px; }
+  .fcard b { font: 600 34px 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div class="reveal"><div class="slides">
+
+<!-- ================= ACT 1 ================= -->
+
+<!-- S1 · Cold open -->
+<section data-background-color="#050506">
+  <div class="stack">
+    <!-- Silent ~4 s: the log streams, then the six failures flash in by themselves. Click 1 pushes it all back. -->
+    <div class="stack" data-step="dim" data-to="0.08" data-fragment-index="1">
+    <div class="mini-fails" data-enter="flash" data-delay="4" style="z-index:1">
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>চেকআউট আটকে গেল</div>
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>অর্ডার দেখা যাচ্ছে না</div>
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>পণ্যের পেজ ডাউন</div>
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>অন্যের ইনভয়স</div>
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>দুইবার টাকা কাটা</div>
+      <div class="mini"><span class="no"><i data-lucide="x"></i></span>৩১৪টা অর্ডার নেই</div>
+    </div>
+    <div class="term cold-log">
+      <div class="term-bar"><b></b><b></b><b></b><span>rafi-shop · production.log</span></div>
+      <div class="term-body" data-enter="stream" data-gap="0.34" data-delay="0.3">
+        <div><span class="t">23:41:02</span> <span class="lv-i">INFO </span> campaign "eid-sale" live</div>
+        <div><span class="t">23:41:07</span> <span class="lv-w">WARN </span> db pool exhausted (20/20 in use)</div>
+        <div><span class="t">23:41:09</span> <span class="lv-e">ERROR</span> POST /checkout timeout after 30000ms</div>
+        <div><span class="t">23:41:12</span> <span class="lv-e">ERROR</span> GET /orders/88412 404 not found</div>
+        <div><span class="t">23:41:15</span> <span class="lv-e">ERROR</span> GET /product/eid-panjabi 503</div>
+        <div><span class="t">23:41:18</span> <span class="lv-w">WARN </span> cache miss x100 product:eid-panjabi</div>
+        <div><span class="t">23:41:22</span> <span class="lv-e">ERROR</span> /invoice/7731 served to wrong user</div>
+        <div><span class="t">23:41:26</span> <span class="lv-e">ERROR</span> charge captured twice: order 88430</div>
+        <div><span class="t">23:41:31</span> <span class="lv-e">FATAL</span> worker crashed before commit</div>
+        <div><span class="t">23:41:40</span> <span class="lv-e">FATAL</span> 314 orders missing after restore</div>
+      </div>
+    </div>
+    </div>
+    <div class="col cold-over">
+      <div class="person" data-step="land" data-fragment-index="1">
+        <div class="rafi" data-enter="lottie" data-anim="rafi-error"></div>
+        <span class="chip light">রাফি</span>
+      </div>
+      <div class="row" data-step="stream" data-gap="0.5" data-fragment-index="2">
+        <span class="chip red"><i data-lucide="shopping-cart"></i>অর্ডার করা যাচ্ছে না</span>
+        <span class="chip red"><i data-lucide="package-search"></i>অর্ডার দেখা যাচ্ছে না</span>
+        <span class="chip red"><i data-lucide="credit-card"></i>দুইবার টাকা কাটা</span>
+      </div>
+      <p class="say" data-step="rise" data-fragment-index="3">এর একটাও সাধারণ অর্থে কোডের <span data-step="mark" data-mark="strike" data-color="#f0445a" data-fragment-index="4">bug</span> ছিল না</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p>[auto: প্রথম চার সেকেন্ড চুপ। log চলবে, তারপর ছয়টা failure নিজে থেকেই একে একে আসবে।]</p>
+    <p>▶1 এটা একজন মানুষের সবচেয়ে খারাপ রাত।</p>
+    <p>তার নাম রাফি। তিন ঘণ্টা আগেও তার অনলাইন দোকান ঠিকঠাক চলছিল।</p>
+    <p>▶2 এখন কাস্টমার অর্ডার করতে পারছে না, কেউ নিজের অর্ডার দেখতে পাচ্ছে না, আর কারও কারও অ্যাকাউন্ট থেকে দুইবার টাকা কেটে গেছে।</p>
+    <p>সবচেয়ে অদ্ভুত ব্যাপার জানেন?</p>
+    <p>▶3 এই সমস্যাগুলোর একটাও সাধারণ অর্থে কোডের bug ▶4 ছিল না।</p>
+    <p>আজ দেখব, কীভাবে একটা AI দিয়ে বানানো অ্যাপ দেখতে ঠিকঠাক চললেও বাস্তবে ভেঙে পড়তে পারে। আর কীভাবে সেটা ঠেকানো যায়।</p>
+  </aside>
+</section>
+
+<!-- S2 · Title -->
+<section>
+  <div class="row" data-enter="stream" data-gap="0.14">
+    <span class="chip"><img src="assets/logos/cursor/logo.svg" alt="">Cursor</span>
+    <span class="chip"><img src="assets/logos/claude/logo.svg" alt="">Claude Code</span>
+    <span class="chip"><img src="assets/logos/copilot/logo.svg" alt="">GitHub Copilot</span>
+  </div>
+  <h1 class="kinetic" data-step="words">Code ≠<br><span class="yellow">System Design</span></h1>
+  <div class="qgrid" data-step="stream" data-gap="0.6">
+    <span class="chip"><i data-lucide="users" class="blue"></i>কত মানুষ ব্যবহার করবে?</span>
+    <span class="chip"><i data-lucide="database" class="blue"></i>ডেটা কোথায় থাকবে?</span>
+    <span class="chip"><i data-lucide="zap" class="blue"></i>একসাথে অনেক request এলে?</span>
+    <span class="chip"><i data-lucide="server-crash" class="blue"></i>কোনো সার্ভিস বন্ধ হলে?</span>
+  </div>
+  <p class="say" data-step="rise">এই সিদ্ধান্তগুলোর সমষ্টিই <span class="yellow">System Design</span></p>
+  <aside class="notes">
+    <p>আপনি যদি Cursor, Claude Code বা Copilot ব্যবহার করেন, তাহলে নিশ্চয়ই দেখেছেন—AI আপনার চেয়ে অনেক দ্রুত কোড লিখতে পারে।</p>
+    <p>তাহলে একজন ডেভেলপারের আসল কাজটা কী?</p>
+    <p>▶1 শুধু কোড লেখা নয়। বরং সিদ্ধান্ত নেওয়া।</p>
+    <p>▶2 কত মানুষ ব্যবহার করবে? ডেটা কোথায় থাকবে? একসাথে অনেক request এলে কী হবে? আর কোনো একটা সার্ভিস বন্ধ হয়ে গেলে কীভাবে অ্যাপ চলবে?</p>
+    <p>▶3 এই সিদ্ধান্তগুলোর সমষ্টিই হলো System Design।</p>
+    <p>চলুন, রাফির গল্পে ফিরে যাই।</p>
+  </aside>
+</section>
+
+<!-- S3 · রাফির দোকান -->
+<section>
+  <div class="split">
+    <div class="col">
+      <div class="person" data-enter="land">
+        <div class="rafi lg" data-enter="lottie" data-anim="rafi-working" data-loop></div>
+        <span class="chip light"><i data-lucide="map-pin"></i>রাফি · ঢাকা</span>
+      </div>
+      <span class="chip blue" data-step="rise"><i data-lucide="bot"></i>টিমে রাফি + একটা AI coding agent</span>
+      <div class="col" data-step="rise" style="gap:18px">
+        <div class="weeks"><b>১</b><b>২</b><b>৩</b><b>৪</b><b>ঈদ</b></div>
+        <span class="muted">মাত্র ৪ সপ্তাহ, ঈদের সেলের আগেই লাইভ</span>
+      </div>
+    </div>
+    <div class="panel win shop" data-enter="rise" data-delay="0.25">
+      <div class="win-bar"><b></b><b></b><b></b><span>rafi-shop.com</span></div>
+      <div class="shop-body">
+        <ul class="side">
+          <li class="on"><i data-lucide="store"></i>পণ্য</li>
+          <li><i data-lucide="shopping-cart"></i>Cart</li>
+          <li><i data-lucide="credit-card"></i>Checkout</li>
+          <li><i data-lucide="wallet"></i>Payment</li>
+          <li><i data-lucide="boxes"></i>স্টক</li>
+        </ul>
+        <div class="prods">
+          <div class="prod"><div class="img" style="background:linear-gradient(135deg,#1e3a5f,#0f1d33)"><i data-lucide="shirt"></i></div>ঈদ পাঞ্জাবি<span>৳ ১,৮৫০</span></div>
+          <div class="prod"><div class="img" style="background:linear-gradient(135deg,#4a1d3a,#24101d)"><i data-lucide="sparkles"></i></div>জামদানি<span>৳ ৪,২০০</span></div>
+          <div class="prod"><div class="img" style="background:linear-gradient(135deg,#3d3410,#1f1a08)"><i data-lucide="gift"></i></div>আতর<span>৳ ৬৫০</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="say" data-step="rise">সে শুধু <span data-step="mark" data-color="#f0445a">দ্রুত</span> কাজ শেষ করতে চেয়েছিল</p>
+  <aside class="notes">
+    <p>রাফি ঢাকায় থাকে। সে একটা ছোট অনলাইন দোকান বানাচ্ছে। পণ্য থাকবে, অর্ডার হবে, পেমেন্ট হবে, স্টকের হিসাব থাকবে।</p>
+    <p>▶1 টিমে রাফি একাই। তার সঙ্গে আছে একটা AI coding agent।</p>
+    <p>▶2 হাতে সময় মাত্র চার সপ্তাহ। ঈদের সেলের আগেই অ্যাপ লাইভ করতে হবে।</p>
+    <p>রাফি অলস নয়, অদক্ষও নয়। ▶3 সে শুধু দ্রুত ▶4 কাজ শেষ করতে চেয়েছিল।</p>
+    <p>সমস্যাটা সেখানেই।</p>
+  </aside>
+</section>
+
+<!-- S4 · সেই একটি Prompt -->
+<section>
+  <div class="panel prompt" data-enter="rise">
+    <div class="panel-h"><i data-lucide="terminal" class="yellow"></i>রাফি → AI agent</div>
+    <p class="typed mono" data-enter="type" data-delay="0.5" data-cps="40">Build an online store with product listings, user authentication, shopping cart, checkout, payment integration, inventory management and order notifications. Use a modern UI and a database. Make it production-ready.</p>
+    <span class="stamp" data-step="stamp" data-rotate="7" data-fragment-index="2">উত্তর নেই</span>
+  </div>
+  <div class="qgrid" data-step="stream" data-gap="0.7" data-fragment-index="1">
+    <span class="chip red"><i data-lucide="users"></i>প্রতিদিন কতজন আসবে?</span>
+    <span class="chip red"><i data-lucide="shopping-cart"></i>একসাথে কতজন checkout করবে?</span>
+    <span class="chip red"><i data-lucide="server-crash"></i>পেমেন্টের পর সার্ভার বন্ধ হলে?</span>
+    <span class="chip red"><i data-lucide="credit-card"></i>দুইবার টাকা কাটলে?</span>
+  </div>
+  <p class="say" data-step="rise" data-fragment-index="3">যা জানাননি, AI তা <span data-step="mark" data-fragment-index="4">নিজের মতো ধরে নিতে</span> পারে</p>
+  <aside class="notes">
+    <p>রাফি এজেন্টকে বলল— [auto: prompt টাইপ হচ্ছে, শেষ হওয়া পর্যন্ত থামুন]</p>
+    <p>Prompt-টা খারাপ নয়। কী বানাতে হবে, সেটা পরিষ্কার।</p>
+    <p>কিন্তু কী কী জানা নেই, একবার দেখুন।</p>
+    <p>▶1 প্রতিদিন কতজন ব্যবহারকারী আসবে? একসাথে কতজন checkout করবে? পেমেন্ট সফল হওয়ার পর সার্ভার বন্ধ হয়ে গেলে কী হবে? একই অর্ডারের জন্য দুইবার টাকা কেটে গেলে কী হবে?</p>
+    <p>▶2 এই প্রশ্নগুলোর উত্তর Prompt-এ নেই।</p>
+    <p>▶3 AI-কে আপনি যত ভালো নির্দেশই দেন, যে সিদ্ধান্তগুলো জানাননি—সেগুলো সে ▶4 নিজের মতো করে ধরে নিতে পারে।</p>
+  </aside>
+</section>
+
+<!-- S5 · Demo-তে সব ঠিক -->
+<section>
+  <div class="flow">
+    <div class="node" data-enter="land" data-delay="0.2"><span class="tile"><i data-lucide="shopping-cart"></i></span><b>কার্টে গেল</b><span class="ok"><i data-lucide="check"></i></span></div>
+    <svg class="arrow" viewBox="0 0 130 40" data-enter="draw" data-delay="0.5"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node" data-enter="land" data-delay="0.7"><span class="tile"><i data-lucide="credit-card"></i></span><b>পেমেন্ট হলো</b><span class="ok"><i data-lucide="check"></i></span></div>
+    <svg class="arrow" viewBox="0 0 130 40" data-enter="draw" data-delay="1"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node" data-enter="land" data-delay="1.2"><span class="tile green"><i data-lucide="package-check"></i></span><b>অর্ডার কনফার্ম</b><span class="ok"><i data-lucide="check"></i></span></div>
+  </div>
+  <p class="kinetic green" data-step="land" style="font-size:120px">সব ঠিক!</p>
+  <div class="row" data-step="stream" data-gap="0.35">
+    <span class="chip"><i data-lucide="user"></i>১ জন user</span>
+    <span class="chip"><i data-lucide="laptop"></i>১টা laptop</span>
+    <span class="chip"><i data-lucide="database"></i>১টা database</span>
+    <span class="chip muted"><i data-lucide="wifi-off"></i>ভিড় নেই, failure নেই</span>
+  </div>
+  <p class="say" data-step="rise">Demo সফল <span class="muted">≠</span> <span class="yellow">system নির্ভরযোগ্য</span></p>
+  <aside class="notes">
+    <p>তিন দিন পর অ্যাপ তৈরি। [auto: কার্ট → পেমেন্ট → অর্ডার নিজে থেকেই সবুজ হবে]</p>
+    <p>রাফি নিজে একটা অর্ডার দিয়ে দেখল। পণ্য কার্টে গেল, পেমেন্ট হলো, অর্ডার কনফার্মেশনও এল।</p>
+    <p>▶1 সব ঠিক!</p>
+    <p>▶2 কিন্তু একটু খেয়াল করুন—এখানে একজন ব্যবহারকারী, একটা ল্যাপটপ, আর একটা ডাটাবেইজ।</p>
+    <p>কোনো ভিড় নেই, কোনো সার্ভার সমস্যা নেই, কোনো network failure নেই।</p>
+    <p>▶3 একটা demo সফল হওয়া আর একটা system বাস্তবে নির্ভরযোগ্য হওয়া—দুটো এক জিনিস নয়।</p>
+  </aside>
+</section>
+
+<!-- S6 · তিন সপ্তাহের আত্মবিশ্বাস -->
+<section>
+  <div class="panel chart-panel" data-enter="rise">
+    <div class="panel-h"><i data-lucide="trending-up" class="green"></i>দৈনিক অর্ডার · প্রথম তিন সপ্তাহ</div>
+    <div class="chart-row">
+      <div><span class="big-num" data-step="count" data-to="400" data-locale="bn-BD" data-duration="1.6" data-fragment-index="1">০</span><div class="muted">অর্ডার / দিন</div></div>
+      <svg class="line-chart" viewBox="0 0 800 300">
+        <path class="base" d="M0 296 H800"/>
+        <path class="ln" data-step="draw" data-duration="1.6" data-fragment-index="1" d="M0 285 L40 280 L80 274 L120 268 L160 256 L200 250 L240 236 L280 228 L320 212 L360 205 L400 188 L440 176 L480 160 L520 150 L560 128 L600 118 L640 96 L680 84 L720 64 L760 52 L800 30"/>
+      </svg>
+    </div>
+  </div>
+  <div class="row">
+    <span class="chip yellow" data-step="rise" data-fragment-index="2"><i data-lucide="megaphone"></i>ঈদের আগে বড় ক্যাম্পেইন</span>
+    <span class="chip red" data-step="rise" data-fragment-index="3"><i data-lucide="x"></i>সিস্টেম কতটা চাপ নিতে পারে: পরীক্ষা হয়নি</span>
+  </div>
+  <aside class="notes">
+    <p>প্রথম তিন সপ্তাহ বেশ ভালোই গেল।</p>
+    <p>▶1 প্রতিদিন অর্ডার বাড়ছে। চারশ অর্ডার পর্যন্ত পৌঁছে গেল। ওয়েবসাইট দ্রুত, কাস্টমারও খুশি।</p>
+    <p>রাফির আত্মবিশ্বাস বেড়ে গেল।</p>
+    <p>▶2 সে সিদ্ধান্ত নিল, ঈদের আগে বড় একটা ক্যাম্পেইন চালাবে।</p>
+    <p>▶3 কিন্তু সে একটা জিনিস পরীক্ষা করেনি—এই সিস্টেমটা আসলে কতটা চাপ নিতে পারবে।</p>
+  </aside>
+</section>
+
+<!-- S7 · কোডের আগে আটটি প্রশ্ন -->
+<section>
+  <div class="stack" style="width:100%">
+    <div class="col" data-step="hide" data-fragment-index="1">
+      <div class="row" style="gap:40px">
+        <span class="tile xl red" data-enter="land"><i data-lucide="brick-wall"></i></span>
+        <span class="stamp" data-enter="stamp" data-delay="0.5">নকশা নেই</span>
+      </div>
+      <div class="row" data-enter="stream" data-delay="0.9" data-gap="0.3">
+        <span class="chip">কতজন থাকবে?</span><span class="chip">কয়তলা হবে?</span><span class="chip">কতটা ওজন নেবে?</span>
+      </div>
+    </div>
+    <div class="qlist" data-step="rise" data-fragment-index="1">
+      <h3>কোড লেখার আগে অন্তত এই ৮টা প্রশ্ন</h3>
+      <div class="q" data-step="rise" data-fragment-index="2"><b>১</b>কারা ব্যবহার করবে, আর কতজন?</div>
+      <div class="q" data-step="rise" data-fragment-index="3"><b>২</b>স্বাভাবিক ও সর্বোচ্চ traffic কত?</div>
+      <div class="q" data-step="rise" data-fragment-index="4"><b>৩</b>কোন কাজ কত দ্রুত শেষ হওয়া দরকার?</div>
+      <div class="q" data-step="rise" data-fragment-index="5"><b>৪</b>কোন ডেটা হারানো বা দেরিতে দেখানো যাবে না?</div>
+      <div class="q" data-step="rise" data-fragment-index="6"><b>৫</b>কোনো সার্ভিস বন্ধ হলে সিস্টেম কীভাবে চলবে?</div>
+      <div class="q" data-step="rise" data-fragment-index="7"><b>৬</b>কতক্ষণ downtime বা data loss মেনে নেওয়া যাবে?</div>
+      <div class="q" data-step="rise" data-fragment-index="8"><b>৭</b>কোন ডেটা private, কে কোন access পাবে?</div>
+      <div class="q" data-step="rise" data-fragment-index="9"><b>৮</b>কোন failure কীভাবে বুঝব, কীভাবে recover করব?</div>
+    </div>
+    <span class="stamp" data-step="stamp" data-rotate="-6" data-fragment-index="10" style="font-size:64px">রাফির উত্তর ছিল না</span>
+  </div>
+  <aside class="notes">
+    <p>[auto: ইটের দেয়াল, "নকশা নেই" stamp আর তিনটা প্রশ্ন নিজে থেকেই আসবে]</p>
+    <p>একটা বাড়ি বানানোর আগে রাজমিস্ত্রি কি জিজ্ঞেস না করেই কাজ শুরু করে?</p>
+    <p>বাড়িতে কতজন থাকবে, কয়তলা হবে, কতটা ওজন নিতে হবে—এসব না জেনে বাড়ি বানানো কি ঠিক?</p>
+    <p>সফটওয়্যারের ক্ষেত্রেও একই কথা।</p>
+    <p>▶1 কোড লেখার আগে অন্তত এই আটটা প্রশ্নের উত্তর দরকার।</p>
+    <p>▶2 এক: কারা ব্যবহার করবে, আর কতজন ব্যবহার করবে?</p>
+    <p>▶3 দুই: স্বাভাবিক ও সর্বোচ্চ traffic কত হতে পারে?</p>
+    <p>▶4 তিন: কোন কাজ কত দ্রুত শেষ হওয়া দরকার?</p>
+    <p>▶5 চার: কোন ডেটা হারানো বা দেরিতে দেখানো যাবে না?</p>
+    <p>▶6 পাঁচ: কোনো সার্ভিস বন্ধ হলে সিস্টেম কীভাবে চলবে?</p>
+    <p>▶7 ছয়: কতক্ষণ downtime বা data loss মেনে নেওয়া যাবে?</p>
+    <p>▶8 সাত: কোন ডেটা private, আর কে কোন access পাবে?</p>
+    <p>▶9 আট: কোন failure হলে কীভাবে বুঝব এবং কীভাবে recover করব?</p>
+    <p>এই প্রশ্নগুলোর উত্তর শুরুতেই একদম নিখুঁত হতে হবে না।</p>
+    <p>কিন্তু উত্তরগুলো কোথাও লেখা থাকতে হবে।</p>
+    <p>▶10 রাফির প্রজেক্টে এই প্রশ্নগুলোর উত্তর ছিল না।</p>
+  </aside>
+</section>
+
+<!-- S8 · খামের পেছনের হিসাব -->
+<section>
+  <div class="panel calc" data-enter="rise">
+    <p class="eq" data-enter="stream" data-delay="0.3" data-gap="0.35"><span>১ মাস</span><span class="muted">=</span><span>৩০ দিন</span><span class="muted">≈</span><span class="yellow">২৬ লাখ সেকেন্ড</span></p>
+    <div class="slider">
+      <div class="track"><div class="fill"></div><div class="knob"></div></div>
+      <div class="ticks"><span style="left:8%">1</span><span style="left:64.6%">40</span><span style="left:100%">400</span></div>
+    </div>
+    <div class="readout">
+      <span class="rps">০</span><span class="muted">request/সেকেন্ড →</span>
+      <span class="monthly">০</span><span class="muted">/মাস</span><span class="approx yellow"></span>
+    </div>
+    <span data-step="rate" data-from="0" data-rate="1"></span>
+    <span data-step="rate" data-from="1" data-rate="40"></span>
+    <span data-step="rate" data-from="40" data-rate="400"></span>
+  </div>
+  <div class="row" data-step="stream" data-gap="0.8">
+    <span class="chip green"><i data-lucide="check"></i>বিশাল scaling হয়তো এখনো দরকারই নেই</span>
+    <span class="chip red"><i data-lucide="triangle-alert"></i>অথবা সমস্যা অনেক কাছেই</span>
+  </div>
+  <aside class="notes">
+    <p>এবার একটু হিসাব করি।</p>
+    <p>এক মাসে প্রায় ২৬ লাখ সেকেন্ড। [auto: সমীকরণ নিজে থেকেই আসবে]</p>
+    <p>▶1 তার মানে, প্রতি সেকেন্ডে একটা request এলে মাসে প্রায় ২৬ লাখ request। ▶2 ৪০ request হলে প্রায় ১০ কোটি। ▶3 আর ৪০০ হলে প্রায় ১০৪ কোটি।</p>
+    <p>আপনার প্রজেক্টে traffic কত হতে পারে, সেটা আগে আনুমানিক হিসাব করুন।</p>
+    <p>▶4 অনেক সময় দেখা যাবে, আপনি যে বিশাল scaling নিয়ে চিন্তা করছেন, আপনার বর্তমান traffic-এ সেটা এখনো দরকারই নেই।</p>
+    <p>আবার হিসাব করলে হয়তো বুঝবেন—আপনার ধারণার চেয়ে সমস্যা অনেক কাছেই।</p>
+  </aside>
+</section>
+
+<!-- S9 · তিনটা স্টিকার -->
+<section>
+  <h2 data-enter="rise">প্রতিটি সংখ্যার পাশে একটা লেবেল</h2>
+  <div class="labels">
+    <div class="panel label-card" data-step="rise"><span class="stamp g" style="transform:rotate(-6deg)">Measured</span><p>যেটা আপনি সত্যি মেপেছেন</p></div>
+    <div class="panel label-card" data-step="rise"><span class="stamp b" style="transform:rotate(4deg)">Target</span><p>যেটা আপনি অর্জন করতে চান</p></div>
+    <div class="panel label-card" data-step="rise"><span class="stamp y" style="transform:rotate(-4deg)">Guess</span><p>যেটা আপাতত আপনার অনুমান</p></div>
+  </div>
+  <div class="panel example" data-step="rise">
+    <span>একসাথে কতজন ব্যবহারকারী আসবে?</span><b class="mono">১,০০০</b>
+    <span class="stamp y sm" data-step="stamp" data-rotate="-8">Guess</span>
+  </div>
+  <p class="say" data-step="rise" style="font-size:46px">GUESS লেখা লজ্জার নয়। <span data-step="mark" data-color="#f0445a">অনুমানকে সত্যি ধরে নেওয়াটাই</span> বিপজ্জনক।</p>
+  <aside class="notes">
+    <p>কিন্তু একটা সমস্যা আছে। সব সংখ্যা তো আপনি জানবেন না।</p>
+    <p>সেটা স্বাভাবিক। তাই প্রতিটি সংখ্যার পাশে তিনটার যেকোনো একটা label দিন।</p>
+    <p>▶1 MEASURED—যেটা আপনি সত্যি মেপেছেন।</p>
+    <p>▶2 TARGET—যেটা আপনি অর্জন করতে চান।</p>
+    <p>▶3 GUESS—যেটা আপাতত আপনার অনুমান।</p>
+    <p>▶4 ধরুন, আপনি জানেন না একসাথে কতজন ব্যবহারকারী আসবে। ▶5 তাহলে সেখানে GUESS লিখুন।</p>
+    <p>▶6 GUESS লেখা কোনো লজ্জার বিষয় নয়। বরং ▶7 অনুমানকে সত্যি ধরে নেওয়াটাই বিপজ্জনক।</p>
+  </aside>
+</section>
+
+<!-- S10 · যে ফাইলটা ছিল না -->
+<section>
+  <div class="split">
+    <div class="panel" data-enter="rise">
+      <div class="panel-h"><i data-lucide="folder-git-2" class="blue"></i><span class="mono">rafi-shop/</span></div>
+      <ul class="files mono" data-enter="stream" data-delay="0.3" data-gap="0.1">
+        <li><i data-lucide="folder"></i>src/</li>
+        <li><i data-lucide="folder"></i>tests/</li>
+        <li><i data-lucide="file-code"></i>package.json</li>
+        <li><i data-lucide="file-text"></i>README.md</li>
+        <li><i data-lucide="file-lock"></i>.env.example</li>
+        <li class="stack" style="place-items:start">
+          <span data-step="hide" data-fragment-index="2"><span class="missing" data-step="rise" data-fragment-index="1"><i data-lucide="file-question-mark"></i>SYSTEM.md ?</span></span>
+          <span class="newfile" data-step="land" data-fragment-index="2"><i data-lucide="file-plus"></i>SYSTEM.md</span>
+        </li>
+      </ul>
+    </div>
+    <div class="panel" data-step="rise" data-fragment-index="3">
+      <div class="panel-h"><i data-lucide="file-text" class="green"></i><span class="mono">SYSTEM.md</span></div>
+      <div class="md mono" data-step="stream" data-gap="0.3" data-fragment-index="3">
+        <div><b>## Architecture</b> <span>কীভাবে সাজানো</span></div>
+        <div><b>## Decisions</b> <span>কোন সিদ্ধান্ত, কেন</span></div>
+        <div><b>## Constraints</b> <span>সীমা ও শর্ত</span></div>
+        <div><b>## Data rules</b> <span>ডেটার নিয়ম</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="say" data-step="rise" data-fragment-index="4">মাথায় থাকা সিদ্ধান্ত AI <span data-step="mark" data-color="#f0445a" data-fragment-index="5">পড়তে পারে না</span>, তাই সে অনুমান করে</p>
+  <aside class="notes">
+    <p>রাফির প্রজেক্টে আরেকটা সমস্যা ছিল।</p>
+    <p>তার সিদ্ধান্তগুলো তার নিজের মাথায় ছিল। ▶1 কিন্তু রিপোজিটরিতে সেগুলোর কোনো লিখিত রূপ ছিল না।</p>
+    <p>▶2 যেমন একটা SYSTEM.md ফাইল।</p>
+    <p>▶3 আপনার architecture, গুরুত্বপূর্ণ সিদ্ধান্ত, constraints, data rules—এসব সেখানে লেখা থাকতে পারে।</p>
+    <p>▶4 মাথায় থাকা সিদ্ধান্ত AI ▶5 পড়তে পারে না। তাই সে অনুমান করে।</p>
+  </aside>
+</section>
+
+<!-- S11 · ঈদের ক্যাম্পেইন -->
+<section>
+  <div class="split">
+    <div class="col">
+      <span class="chip" data-enter="rise"><i data-lucide="moon"></i>ঈদের আগের রাত</span>
+      <div class="clock" data-enter="land">11:<span data-step="count" data-from="30" data-to="37" data-duration="1.8" data-fragment-index="2">30</span><small>PM</small></div>
+      <div class="banner" data-step="land" data-fragment-index="1"><span class="live"></span>ঈদ সেল · LIVE</div>
+    </div>
+    <div class="panel traffic" data-enter="rise" data-delay="0.2">
+      <div class="panel-h"><i data-lucide="activity" class="red"></i>Traffic</div>
+      <svg class="line-chart" viewBox="0 0 800 340">
+        <path class="base" d="M0 336 H800"/>
+        <path class="ln" data-step="draw" data-duration="1.8" data-fragment-index="2" d="M0 322 L100 320 L200 318 L300 314 L400 302 L480 284 L560 246 L620 196 L680 136 L740 76 L800 20"/>
+      </svg>
+      <div class="tcount">
+        <span class="mono" data-step="count" data-from="50" data-to="1400" data-locale="bn-BD" data-duration="1.8" data-fragment-index="2">৫০</span>
+        <span class="muted">জন একসাথে</span>
+        <span class="chip red sm" data-step="rise" data-fragment-index="3"><i data-lucide="timer"></i>মাত্র ৭ মিনিটে</span>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p>ঈদের আগের রাত।</p>
+    <p>▶1 সাড়ে এগারোটায় রাফির ক্যাম্পেইন লাইভ হলো।</p>
+    <p>প্রথমে সব ঠিকই ছিল।</p>
+    <p>▶2 তারপর traffic বাড়তে শুরু করল।</p>
+    <p>পঞ্চাশ থেকে চৌদ্দশ। ▶3 মাত্র সাত মিনিটে।</p>
+  </aside>
+</section>
+
+<!-- S12 · ছয়টি failure -->
+<section>
+  <span class="chip red" data-enter="rise"><i data-lucide="timer"></i>এরপর মাত্র ১৩ মিনিটে ৬টা সমস্যা</span>
+  <div class="fails">
+    <div class="panel fail" data-step="land"><span class="tile red"><i data-lucide="shopping-cart"></i></span><div><b>চেকআউট আটকে গেল</b><span class="mono">504 · checkout timeout</span></div></div>
+    <div class="panel fail" data-step="land"><span class="tile red"><i data-lucide="package-search"></i></span><div><b>নিজের অর্ডার দেখা যাচ্ছে না</b><span class="mono">404 · order not found</span></div></div>
+    <div class="panel fail" data-step="land"><span class="tile red"><i data-lucide="monitor-x"></i></span><div><b>পণ্যের পেজ খুলছে না</b><span class="mono">503 · service unavailable</span></div></div>
+    <div class="panel fail" data-step="land"><span class="tile red"><i data-lucide="eye"></i></span><div><b>অন্যের ইনভয়স দেখা যাচ্ছে</b><span class="mono">privacy leak</span></div></div>
+    <div class="panel fail" data-step="land"><span class="tile red"><i data-lucide="credit-card"></i></span><div><b>৪৭ জনের দুইবার টাকা কাটা</b><span class="mono">double charge x47</span></div></div>
+    <div class="panel fail" data-step="land"><span class="tile red"><i data-lucide="database-zap"></i></span><div><b>৩১৪টা অর্ডার হারিয়ে গেল</b><span class="mono">data loss · 314 orders</span></div></div>
+  </div>
+  <aside class="notes">
+    <p>এরপর মাত্র তেরো মিনিটে ছয়টা সমস্যা দেখা দিল।</p>
+    <p>▶1 চেকআউট আটকে গেল।</p>
+    <p>▶2 কাস্টমার নিজের অর্ডার দেখতে পারছে না।</p>
+    <p>▶3 পণ্যের পেজ খুলছে না।</p>
+    <p>▶4 একজন কাস্টমার অন্যজনের ইনভয়স দেখতে পাচ্ছে।</p>
+    <p>▶5 সাতচল্লিশ জনের অ্যাকাউন্ট থেকে দুইবার টাকা কেটে গেল।</p>
+    <p>▶6 আর তিনশ চৌদ্দটা অর্ডারের তথ্য হারিয়ে গেল।</p>
+  </aside>
+</section>
+
+<!-- S13 · পরদিন সকাল -->
+<section>
+  <div class="row" style="gap:56px; flex-wrap:nowrap">
+    <div class="person" data-enter="land">
+      <div class="rafi" data-enter="lottie" data-anim="rafi-error"></div>
+      <span class="chip light">পরদিন সকাল</span>
+    </div>
+    <div class="stats">
+      <div class="panel stat" data-enter="rise" data-delay="0.2"><b><span data-enter="count" data-to="314" data-locale="bn-BD" data-delay="0.3">০</span></b><span>অর্ডার নেই</span></div>
+      <div class="panel stat" data-enter="rise" data-delay="0.35"><b><span data-enter="count" data-to="47" data-locale="bn-BD" data-delay="0.45">০</span></b><span>জনের টাকা দুইবার কাটা</span></div>
+      <div class="panel stat" data-enter="rise" data-delay="0.5"><b><span data-enter="count" data-to="9" data-locale="bn-BD" data-delay="0.6">০</span> ঘণ্টা</b><span>ডেটা ফেরত নেই</span></div>
+    </div>
+  </div>
+  <p class="say" data-step="rise">প্রতিটার পেছনে শুধু কোড নয়, একটা <span class="yellow">design decision</span></p>
+  <div class="row" data-step="stream" data-gap="0.7">
+    <span class="chip red"><i data-lucide="x"></i>আগে নেওয়া হয়নি</span>
+    <span class="chip red"><i data-lucide="x"></i>কোথাও লেখা ছিল না</span>
+    <span class="chip red"><i data-lucide="x"></i>কখনো পরীক্ষা হয়নি</span>
+  </div>
+  <aside class="notes">
+    <p>সকালে রাফি হিসাব করে দেখল—তিনশ চৌদ্দটা অর্ডার নেই, সাতচল্লিশজন কাস্টমারের টাকা দুইবার কাটা হয়েছে, আর নয় ঘণ্টার ডেটা ফেরত পাওয়া যাচ্ছে না।</p>
+    <p>এবার আসল কথাটা বলি।</p>
+    <p>▶1 এই সমস্যাগুলোর পেছনে শুধু কোডের ভুল ছিল না।</p>
+    <p>প্রতিটা সমস্যার পেছনে ছিল একটা করে design decision— ▶2 যেটা আগে নেওয়া হয়নি, কোথাও লেখা ছিল না, আর কখনো পরীক্ষা করাও হয়নি।</p>
+    <p>এবার দেখি, রাফি কীভাবে একটার পর একটা সমস্যা ঠিক করল।</p>
+  </aside>
+</section>
+
+<!-- ================= ACT 2 ================= -->
+
+<!-- S14 · মেরামত শুরু -->
+<section>
+  <h2 data-enter="words">রাফি দোকান বন্ধ করেনি</h2>
+  <div class="flow" data-step="stream" data-gap="0.2">
+    <div class="node"><span class="tile red"><i data-lucide="siren"></i></span><b>সমস্যা</b><small>আবার ঘটিয়ে দেখা</small></div>
+    <svg class="arrow" viewBox="0 0 130 40"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node"><span class="tile yellow"><i data-lucide="lightbulb"></i></span><b>সহজ ব্যাখ্যা</b><small>কেন ভাঙল</small></div>
+    <svg class="arrow" viewBox="0 0 130 40"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node"><span class="tile"><i data-lucide="scroll-text"></i></span><b>Design rule</b><small>লিখে রাখা নিয়ম</small></div>
+    <svg class="arrow" viewBox="0 0 130 40"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node"><span class="tile green"><i data-lucide="flask-conical"></i></span><b>Test</b><small>নিয়মটা যাচাই</small></div>
+  </div>
+  <aside class="notes">
+    <p>রাফি দোকান বন্ধ করেনি।</p>
+    <p>সে সমস্যাগুলো একটার পর একটা ঠিক করেছে।</p>
+    <p>▶1 প্রতিটি সমস্যার জন্য একটা design rule তৈরি করেছে, আর সেই নিয়ম ঠিকমতো কাজ করছে কি না, সেটা যাচাই করার জন্য একটা test লিখেছে।</p>
+  </aside>
+</section>
+
+<!-- S15 · মেরামত ১ — Test সত্যিই কাজ করছে? -->
+<section class="repair">
+  <h2 data-enter="rise"><span class="num">১</span>Test সত্যিই কাজ করছে?</h2>
+  <div class="split">
+    <div class="col">
+      <span class="tile xl red" data-enter="land"><i data-lucide="siren"></i></span>
+      <span class="chip" data-enter="rise" data-delay="0.3">৩ বছরে একবারও বাজেনি</span>
+      <span class="chip yellow" data-step="rise" data-fragment-index="1">চুপ থাকা মানেই কি ঠিক আছে?</span>
+    </div>
+    <div class="term runner" data-step="rise" data-fragment-index="2">
+      <div class="term-bar"><b></b><b></b><b></b><span>npm test</span></div>
+      <div class="term-body">
+        <div class="trow">
+          <span class="stack"><span class="ok"><i data-lucide="check"></i></span><span class="no" data-step="land" data-fragment-index="3"><i data-lucide="x"></i></span><span class="ok" data-step="land" data-fragment-index="5"><i data-lucide="check"></i></span></span>
+          <span>same order key → same order</span>
+        </div>
+        <div class="trow"><span class="ok"><i data-lucide="check"></i></span><span>cart total includes stock</span></div>
+        <div class="code stack">
+          <code>if (await exists(key)) return order</code>
+          <code class="bug" data-step="land" data-fragment-index="3">// if (await exists(key)) return order</code>
+          <code class="fixd" data-step="land" data-fragment-index="5">if (await exists(key)) return order</code>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <span class="chip red" data-step="rise" data-fragment-index="4"><i data-lucide="bug"></i>ইচ্ছা করে bug → test লাল: ভুলটা ধরতে পারছে</span>
+    <span class="chip green" data-step="rise" data-fragment-index="6"><i data-lucide="check"></i>এবার এই সবুজের অর্থ আছে</span>
+  </div>
+  <div class="rule" data-step="rise" data-fragment-index="7"><i data-lucide="scroll-text"></i><span><b>Red test workflow:</b> আগে দেখুন test ভুলটা ধরতে পারে কি না, তারপর ঠিক করুন। SYSTEM.md সিদ্ধান্ত বোঝায়, test সেটা যাচাই করে।</span></div>
+  <aside class="notes">
+    <p>শুরুতেই রাফি একটা বিষয় বুঝল—টেস্ট লেখা আর টেস্ট দিয়ে ভুল ধরা এক জিনিস নয়।</p>
+    <p>ধরুন, আপনার বাসায় একটা fire alarm আছে। তিন বছরে একবারও বাজেনি।</p>
+    <p>▶1 এখন আপনি কীভাবে বুঝবেন, সেটা ঠিকমতো কাজ করছে? শুধু চুপচাপ আছে বলে তো নিশ্চিত হওয়া যায় না।</p>
+    <p>সফটওয়্যারের টেস্টও একই রকম।</p>
+    <p>▶2 AI-কে টেস্ট লিখতে বললে সে লিখে দিতে পারে। কিন্তু টেস্টটা সত্যিই ভুল ধরতে পারে কি না, সেটা কীভাবে বুঝবেন? [সব test green]</p>
+    <p>▶3 এখন ইচ্ছা করে কোডে সেই ভুলটা ঢোকান, যেটা ধরার জন্য টেস্ট লেখা হয়েছে।</p>
+    <p>▶4 এবার টেস্ট ফেল করেছে। অর্থাৎ, সে ভুলটা ধরতে পারছে।</p>
+    <p>▶5 এখন আবার সবুজ। ▶6 এবার এই সবুজের অর্থ আছে।</p>
+    <p>▶7 এটাকেই বলা হয় red test workflow—আগে ভুলটা ধরতে পারে কি না নিশ্চিত করুন, তারপর ঠিক করুন।</p>
+    <p>আর একটা কথা: শুধু SYSTEM.md বা context file তৈরি করলেই হবে না। ফাইল AI-কে সিদ্ধান্ত বুঝতে সাহায্য করে, আর test যাচাই করে সেই সিদ্ধান্ত বাস্তবে ঠিক আছে কি না।</p>
+  </aside>
+</section>
+
+<!-- S16 · মেরামত ২ — চেকআউট আটকে গেল -->
+<section class="repair">
+  <h2 data-enter="rise"><span class="num">২</span>চেকআউট আটকে গেল</h2>
+  <div class="panel little" data-step="rise" data-fragment-index="1">
+    <div class="eqn">
+      <span class="term-i"><i data-lucide="users"></i><b>১০</b><small>জন / মিনিট</small></span><span>×</span>
+      <span class="term-i"><i data-lucide="clock"></i><b>২</b><small>মিনিট</small></span><span>=</span>
+      <span class="term-i"><i data-lucide="coffee"></i><b class="yellow">২০</b><small>জন অপেক্ষায়</small></span>
+    </div>
+    <p class="law muted" data-step="rise" data-fragment-index="2"><b class="yellow">Little's Law:</b> কাজের চাপ = আসার হার × কাজ শেষ হতে লাগা সময়</p>
+  </div>
+  <div class="bars" data-step="rise" data-fragment-index="3">
+    <span>গড় চাপ</span><div class="bar"><div class="fill g" data-step="grow" data-w="40" data-fragment-index="3"></div><div class="cap"><span>DB connection pool: ২০</span></div></div><b>২০</b>
+    <span>ক্যাম্পেইনের ভিড়</span><div class="bar"><div class="fill r" data-step="grow" data-w="100" data-fragment-index="4"></div><div class="cap"></div></div><b class="red">৫০+</b>
+  </div>
+  <div class="row">
+    <div class="rule" data-step="rise" data-fragment-index="5"><i data-lucide="scroll-text"></i><span>শুধু average দেখে capacity নয়: <b>peak traffic, waiting time, timeout, load test</b></span></div>
+    <span class="testok" data-step="land" data-fragment-index="6"><span class="ok"><i data-lucide="check"></i></span>traffic-capacity.test <span class="pass">PASS</span></span>
+  </div>
+  <aside class="notes">
+    <p>সেই রাতে প্রথম যে সমস্যাটা দেখা দিয়েছিল, সেটা হলো checkout আটকে যাওয়া।</p>
+    <p>বিষয়টা বুঝতে একটা চায়ের দোকানের কথা ভাবুন।</p>
+    <p>▶1 প্রতি মিনিটে দশজন কাস্টমার আসে। আর প্রত্যেকের চা বানাতে দুই মিনিট লাগে।</p>
+    <p>তাহলে গড়ে বিশজন কাস্টমার একসাথে অপেক্ষায় থাকতে পারে।</p>
+    <p>▶2 এটাই Little's Law-এর সহজ উদাহরণ: কাজের চাপ = আসার হার × কাজ শেষ হতে লাগা সময়।</p>
+    <p>কিন্তু এখানেই একটা ভুল হতে পারে।</p>
+    <p>▶3 গড়ে বিশজন আছে বলে কি আপনার দোকানে বিশটা কাপ থাকলেই হবে?</p>
+    <p>▶4 না। হঠাৎ একসাথে পঞ্চাশজন চলে এলে কী হবে?</p>
+    <p>রাফির সিস্টেমেও একই সমস্যা হয়েছিল। তার database connection pool স্বাভাবিক চাপ ধরে তৈরি করা ছিল, কিন্তু campaign-এর সময় একসাথে অনেক request চলে আসে।</p>
+    <p>▶5 শিক্ষা হলো—শুধু average traffic দেখে capacity ঠিক করবেন না। peak traffic, waiting time, timeout এবং load test-ও বিবেচনায় নিন। ▶6 [traffic-capacity.test PASS]</p>
+  </aside>
+</section>
+
+<!-- S17 · মেরামত ৩ — টাকা কাটল, অর্ডার কই? -->
+<section class="repair">
+  <h2 data-enter="rise"><span class="num">৩</span>টাকা কাটল, অর্ডার কই?</h2>
+  <div class="flow">
+    <div class="node"><span class="tile"><i data-lucide="user"></i></span><b>কাস্টমার</b><span class="chip red sm" data-step="rise" data-fragment-index="2">refresh: অর্ডার নেই!</span></div>
+    <svg class="arrow" viewBox="0 0 130 40" data-step="draw" data-fragment-index="1"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node"><span class="tile green"><i data-lucide="database"></i></span><b>মূল ডাটাবেইজ</b><span class="chip green sm" data-step="rise" data-fragment-index="1">অর্ডার লেখা হলো</span></div>
+    <svg class="arrow dash" viewBox="0 0 130 40" data-step="draw" data-fragment-index="2"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node"><span class="tile"><i data-lucide="copy"></i></span><b>আরেকটি কপি</b><span class="chip red sm" data-step="rise" data-fragment-index="2">নতুন অর্ডার পৌঁছায়নি</span></div>
+  </div>
+  <div class="row" data-step="stream" data-gap="0.5" data-fragment-index="3">
+    <span class="chip yellow mono">replication lag</span>
+    <span class="chip yellow mono">read-your-writes</span>
+  </div>
+  <div class="split consist">
+    <div class="panel" data-step="rise" data-fragment-index="4"><div class="panel-h"><i data-lucide="shield-check" class="green"></i>নির্ভরযোগ্যতা বেশি দরকার</div>payment · order · permission · stock<p class="green">→ primary থেকে পড়ুন</p></div>
+    <div class="panel" data-step="rise" data-fragment-index="5"><div class="panel-h"><i data-lucide="heart" class="muted"></i>কিছুক্ষণ পরে হলেও চলে</div>like count · view count<p class="muted">→ কপি থেকে পড়লেও সমস্যা কম</p></div>
+  </div>
+  <span class="testok" data-step="land" data-fragment-index="6"><span class="ok"><i data-lucide="check"></i></span>read-your-writes.test <span class="pass">PASS</span></span>
+  <aside class="notes">
+    <p>সেই রাতে কাস্টমারদের সবচেয়ে পরিচিত প্রশ্ন ছিল—“টাকা কাটল, কিন্তু অর্ডার কোথায়?”</p>
+    <p>▶1 আসলে অর্ডার তৈরি হয়েছিল। মূল ডাটাবেইজে সেটি লেখা হয়েছিল।</p>
+    <p>▶2 কিন্তু কাস্টমার যখন আবার পেজ refresh করল, তখন অ্যাপটি ডাটাবেইজের আরেকটি কপি থেকে তথ্য পড়ল।</p>
+    <p>সমস্যা হলো, সেই কপিতে নতুন অর্ডারটি তখনো পৌঁছায়নি।</p>
+    <p>▶3 এটাকে বলে replication lag। আর কাস্টমার নিজের লেখা তথ্য সঙ্গে সঙ্গে পড়তে না পারলে সেটি read-your-writes সমস্যা তৈরি করে।</p>
+    <p>তাই সব ডেটার জন্য একই consistency rule ব্যবহার করা উচিত নয়।</p>
+    <p>▶4 পেমেন্ট, অর্ডার, permission বা stock-এর মতো গুরুত্বপূর্ণ ডেটায় নির্ভরযোগ্যতা বেশি দরকার।</p>
+    <p>▶5 অন্যদিকে like count বা view count-এর মতো ডেটা কিছুক্ষণ পরে update হলেও অনেক সময় সমস্যা হয় না। ▶6 [read-your-writes.test PASS]</p>
+  </aside>
+</section>
+
+<!-- S18 · মেরামত ৪ — একসাথে সবাই একই জায়গায় -->
+<section class="repair">
+  <h2 data-enter="rise"><span class="num">৪</span>পণ্যের পেজ কেন ডাউন?</h2>
+  <div class="flow flow3">
+    <div class="node n-req"><span class="tile"><i data-lucide="users"></i></span><b>১০০ request</b><small>একই পণ্য</small></div>
+    <svg class="arrow" viewBox="0 0 130 40"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node n-cache"><span class="stack"><span class="tile yellow"><i data-lucide="sticky-note"></i></span><span class="tile red" data-step="land" data-fragment-index="2"><i data-lucide="timer-off"></i></span></span><b>Cache</b><small>টেবিলের ওপর নোট</small></div>
+    <svg class="arrow" viewBox="0 0 130 40"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node n-db"><span class="stack"><span class="tile"><i data-lucide="archive"></i></span><span class="tile red db-hot"><i data-lucide="archive"></i></span></span><b>Database</b><small>ফাইল ক্যাবিনেট</small></div>
+    <span data-step="rush" data-fragment-index="3"></span>
+    <span data-step="single" data-fragment-index="5"></span>
+  </div>
+  <div class="row">
+    <span class="chip blue" data-step="rise" data-fragment-index="1">Database = ক্যাবিনেট · Cache = টেবিলের নোট</span>
+    <span class="chip red" data-step="rise" data-fragment-index="4"><i data-lucide="zap"></i>cache stampede</span>
+    <span class="chip green" data-step="rise" data-fragment-index="5"><i data-lucide="check"></i>single-flight: একজন আনে, বাকিরা অপেক্ষা করে</span>
+  </div>
+  <div class="row">
+    <div class="rule" data-step="rise" data-fragment-index="6"><i data-lucide="scroll-text"></i><span>cache মুছে গেলেও মূল ডেটা থাকবে: <b>cache কখনো একমাত্র source of truth নয়</b></span></div>
+    <span class="testok" data-step="land" data-fragment-index="7"><span class="ok"><i data-lucide="check"></i></span>cache-stampede.test <span class="pass">PASS</span></span>
+  </div>
+  <aside class="notes">
+    <p>এবার প্রশ্ন—পণ্যের পেজটা কেন ডাউন হয়ে গেল?</p>
+    <p>ভাবুন, অফিসে একটা ফাইল ক্যাবিনেট আছে। সেখানে সব আসল কাগজ রাখা।</p>
+    <p>কিন্তু যে কাগজটা বারবার দরকার হয়, সেটার একটা নোট আপনি টেবিলের ওপর রাখেন। যাতে বারবার ক্যাবিনেট খুলতে না হয়।</p>
+    <p>▶1 ডাটাবেইজ হলো সেই ক্যাবিনেট, আর cache হলো টেবিলের নোট।</p>
+    <p>▶2 রাফির দোকানে জনপ্রিয় একটা পণ্যের cache একসাথে expire হয়ে গেল।</p>
+    <p>তারপর কী হলো?</p>
+    <p>▶3 একশটা request একই সময়ে আসল ডাটাবেইজে ছুটল। ▶4 এই সমস্যাকে বলে cache stampede।</p>
+    <p>▶5 সমাধানের একটা উপায় হলো single-flight। একজন ডেটা আনবে, বাকিরা সেই ফলাফলের জন্য অপেক্ষা করবে।</p>
+    <p>▶6 আর মনে রাখবেন—cache মুছে গেলেও যেন মূল ডেটা হারিয়ে না যায়। cache কখনো আপনার একমাত্র source of truth হওয়া উচিত নয়। ▶7 [cache-stampede.test PASS]</p>
+  </aside>
+</section>
+
+<!-- S19 · মেরামত ৫ — অন্যের ইনভয়স -->
+<section class="repair">
+  <h2 data-enter="rise"><span class="num">৫</span>অন্যের ইনভয়স</h2>
+  <div class="flow">
+    <div class="node"><span class="tile"><i data-lucide="user"></i></span><b>কাস্টমার A</b><div class="slot"></div></div>
+    <svg class="arrow" viewBox="0 0 130 40"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node"><span class="tile yellow"><i data-lucide="cloud"></i></span><b>CDN cache</b>
+      <div class="slot"><div data-step="flyto" data-to=".slot-b" data-fragment-index="2"><div class="invoice" data-step="rise" data-fragment-index="1"><b>Invoice · কাস্টমার A</b><span>ঠিকানা: মিরপুর ১০, ঢাকা</span><span>৳ ৪,২০০</span></div></div></div>
+    </div>
+    <svg class="arrow" viewBox="0 0 130 40"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node"><span class="tile"><i data-lucide="user"></i></span><b>কাস্টমার B</b><div class="slot slot-b"><span class="stamp" data-step="stamp" data-rotate="-10" data-fragment-index="3">Data leak</span></div></div>
+  </div>
+  <div class="row">
+    <span class="chip red" data-step="rise" data-fragment-index="3"><i data-lucide="shield-alert"></i>শুধু display error নয়, privacy সমস্যা</span>
+    <span class="chip mono yellow" data-step="rise" data-fragment-index="4">Cache-Control: private, no-store</span>
+  </div>
+  <div class="row">
+    <div class="rule" data-step="rise" data-fragment-index="4"><i data-lucide="scroll-text"></i><span>যে response ব্যবহারকারীভেদে বদলায় <b>(ইনভয়স, প্রোফাইল, অর্ডার)</b>, সেটা shared cache-এ নয়</span></div>
+    <span class="testok" data-step="land" data-fragment-index="5"><span class="ok"><i data-lucide="check"></i></span>private-cache-isolation.test <span class="pass">PASS</span></span>
+  </div>
+  <aside class="notes">
+    <p>এবারের সমস্যাটা ছিল সবচেয়ে বিপজ্জনক।</p>
+    <p>ধরুন, ফটোকপির দোকানে একজন কাস্টমার নিজের কাগজের কপি করালেন।</p>
+    <p>দোকানদার সেই কপিটা রেখে দিলেন। পরের কাস্টমার একই ধরনের কাগজ চাইলে ভুল করে আগের কাস্টমারের কপিটাই দিয়ে দিলেন।</p>
+    <p>রাফির দোকানে প্রায় এমনটাই ঘটেছিল।</p>
+    <p>▶1 কাস্টমার A নিজের ইনভয়স দেখল। CDN সেই পেজ cache করে রাখল।</p>
+    <p>▶2 এরপর কাস্টমার B নিজের ইনভয়স চাইলে CDN তাকে A-এর ইনভয়স দেখিয়ে দিল—ঠিকানা সহ।</p>
+    <p>▶3 এটা শুধু display error নয়। এটা privacy এবং data leakage-এর সমস্যা।</p>
+    <p>CDN ও shared cache দারুণ কাজে লাগে, কিন্তু সব পেজ সবার জন্য এক নয়।</p>
+    <p>▶4 যে response ব্যবহারকারীভেদে বদলে যায়—যেমন ব্যক্তিগত ইনভয়স, প্রোফাইল বা অর্ডার—সেগুলো shared cache-এ দেওয়ার আগে খুব সতর্ক হতে হবে। সাধারণত private বা no-store policy দরকার হতে পারে। ▶5 [private-cache-isolation.test PASS]</p>
+  </aside>
+</section>
+
+<!-- S20 · মেরামত ৬ — একই পেমেন্ট দুইবার -->
+<section class="repair">
+  <h2 data-enter="rise"><span class="num">৬</span>একই পেমেন্ট দুইবার</h2>
+  <div class="flow">
+    <div class="node"><span class="tile"><i data-lucide="shopping-cart"></i></span><b>Checkout</b></div>
+    <svg class="arrow" viewBox="0 0 130 40" data-step="draw" data-fragment-index="1"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node"><span class="stack"><span class="tile"><i data-lucide="cpu"></i></span><span class="tile red" data-step="land" data-fragment-index="2"><i data-lucide="zap-off"></i></span></span><b>Worker</b>
+      <span class="chip red sm" data-step="rise" data-fragment-index="2">ফলাফল লেখার আগেই বন্ধ</span></div>
+    <svg class="arrow" viewBox="0 0 130 40" data-step="draw" data-fragment-index="1"><path d="M4 20 H120"/><path d="M106 8 L122 20 L106 32"/></svg>
+    <div class="node"><span class="tile"><i data-lucide="landmark"></i></span><b>Payment provider</b>
+      <span class="chip green sm" data-step="rise" data-fragment-index="1">৳ ১,৫০০ কাটা হলো</span>
+      <span class="chip red sm" data-step="rise" data-fragment-index="3">retry: আবার ৳ ১,৫০০</span></div>
+  </div>
+  <div class="panel idem" data-step="rise" data-fragment-index="4">
+    <span class="mono">Idempotency-Key: pay_88430</span><i data-lucide="arrow-right" class="muted"></i><span>একই key, একই ফলাফল: <b class="green">নতুন করে টাকা কাটা নয়</b></span>
+  </div>
+  <div class="row">
+    <span class="stamp y sm" data-step="stamp" data-rotate="-6" data-fragment-index="5">Uncertain</span>
+    <span class="muted" data-step="rise" data-fragment-index="5" style="font-size:30px;max-width:900px;text-align:left">key support না থাকলে: retry-র আগে payment status মিলিয়ে নিন</span>
+    <span class="testok" data-step="land" data-fragment-index="6"><span class="ok"><i data-lucide="check"></i></span>payment-idempotency.test <span class="pass">PASS</span></span>
+  </div>
+  <aside class="notes">
+    <p>এবার আসি সেই সাতচল্লিশজন কাস্টমারের কথায়, যাদের দুইবার টাকা কাটা হয়েছিল।</p>
+    <p>ধরুন, আপনি checkout-এ পেমেন্ট করলেন।</p>
+    <p>▶1 Payment provider টাকা কেটে নিল। সব সফল।</p>
+    <p>▶2 কিন্তু ঠিক সেই মুহূর্তে আপনার সার্ভারের worker বন্ধ হয়ে গেল—পেমেন্টের ফলাফল ডাটাবেইজে লেখার আগেই।</p>
+    <p>এরপর সিস্টেম retry করল। দেখল, কোনো সফল পেমেন্টের রেকর্ড নেই। তাই আবার provider-কে call করল।</p>
+    <p>▶3 ফলাফল? একই পেমেন্টের জন্য দ্বিতীয়বার টাকা কেটে গেল।</p>
+    <p>শুধু নিজের ডাটাবেইজে unique row রাখলেই এই সমস্যা সব সময় আটকানো যায় না। কারণ টাকা কাটার কাজটি হচ্ছে আপনার সিস্টেমের বাইরে।</p>
+    <p>▶4 এখানে দরকার idempotency। প্রতিটি payment attempt-এর জন্য একই idempotency key ব্যবহার করতে হবে, যাতে provider একই request আবার পেলেও নতুন করে টাকা না কাটে।</p>
+    <p>▶5 আর provider যদি idempotency support না করে, তাহলে retry করার আগে payment status মিলিয়ে নিতে হবে। নিশ্চিত না হলে সেটিকে UNCERTAIN হিসেবে চিহ্নিত করুন। ▶6 [payment-idempotency.test PASS]</p>
+  </aside>
+</section>
+
+<!-- S21 · মেরামত ৭ — তিনশ চৌদ্দটা অর্ডার কোথায় গেল? -->
+<section class="repair">
+  <h2 data-enter="rise"><span class="num">৭</span>৩১৪টা অর্ডার কোথায় গেল?</h2>
+  <div class="panel tl-panel" data-enter="rise" data-delay="0.15">
+    <!-- Times follow the script: backup at 2 PM, failure at 11 PM = the 9 lost hours. x = 40 + hour/24 * 1320. -->
+    <svg class="tl" viewBox="0 0 1440 250">
+      <rect class="gap" x="810" y="78" width="495" height="64" rx="10" data-step="rise" data-fragment-index="2"/>
+      <text x="1057" y="182" text-anchor="middle" style="fill:#ff8a98;font-weight:700" data-step="rise" data-fragment-index="2">৯ ঘণ্টা</text>
+      <g class="wal" data-step="stream" data-gap="0.06" data-fragment-index="4">
+        <rect x="832" y="98" width="20" height="24" rx="4"/><rect x="887" y="98" width="20" height="24" rx="4"/><rect x="942" y="98" width="20" height="24" rx="4"/><rect x="997" y="98" width="20" height="24" rx="4"/><rect x="1052" y="98" width="20" height="24" rx="4"/><rect x="1107" y="98" width="20" height="24" rx="4"/><rect x="1162" y="98" width="20" height="24" rx="4"/><rect x="1217" y="98" width="20" height="24" rx="4"/><rect x="1262" y="98" width="20" height="24" rx="4"/>
+      </g>
+      <line class="base" x1="40" y1="110" x2="1400" y2="110" data-enter="draw"/>
+      <g data-enter="stream" data-delay="0.6" data-gap="0.1">
+        <text x="40" y="240" text-anchor="start">রাত ১২টা</text>
+        <text x="370" y="240" text-anchor="middle">সকাল ৬টা</text>
+        <text x="700" y="240" text-anchor="middle">দুপুর ১২টা</text>
+        <text x="1400" y="240" text-anchor="end">রাত ১২টা</text>
+      </g>
+      <g data-step="land" data-fragment-index="1"><circle cx="810" cy="110" r="22" fill="#8ad134"/><text x="790" y="50" text-anchor="end" style="fill:#b8ee73">দুপুর ২টা: backup</text></g>
+      <g data-step="land" data-fragment-index="1"><circle cx="1305" cy="110" r="22" fill="#f0445a"/><text x="1345" y="50" text-anchor="end" style="fill:#ff8a98">রাত ১১টা: failure</text></g>
+    </svg>
+  </div>
+  <div class="rpo">
+    <div class="panel" data-step="rise" data-fragment-index="3"><b>RPO</b>সর্বোচ্চ কতটুকু ডেটা হারানো মেনে নিতে পারবেন?</div>
+    <div class="panel" data-step="rise" data-fragment-index="3"><b>RTO</b>আবার চালু করতে সর্বোচ্চ কত সময় নিতে পারবেন?</div>
+  </div>
+  <div class="row">
+    <span class="chip green" data-step="rise" data-fragment-index="4"><i data-lucide="history"></i>WAL archiving: পরিবর্তনগুলো log হিসেবে জমা থাকে</span>
+    <span class="testok" data-step="land" data-fragment-index="6"><span class="ok"><i data-lucide="check"></i></span>backup-restore.test <span class="pass">PASS</span></span>
+  </div>
+  <p class="say" data-step="rise" data-fragment-index="5" style="font-size:44px">যে backup কখনো restore করে দেখেননি, সেটা backup নয়, <span data-step="mark" data-color="#f0445a" data-fragment-index="6">শুধু আশা</span></p>
+  <aside class="notes">
+    <p>এবার আসি হারিয়ে যাওয়া অর্ডারগুলোর কথায়।</p>
+    <p>▶1 ধরুন, আপনার ডাটাবেইজ প্রতিদিন দুপুর দুটায় backup নেয়। কিন্তু সমস্যা হলো রাত এগারোটায়।</p>
+    <p>▶2 সর্বশেষ backup-এর পর থেকে কী কী পরিবর্তন হয়েছে, সেগুলো কি ফেরত পাবেন?</p>
+    <p>রাফির কাছে শুধু দুপুরের backup ছিল। তাই দিনের শেষ নয় ঘণ্টার অর্ডার সেখানে ছিল না।</p>
+    <p>এখানে দুটি বিষয় বুঝতে হবে।</p>
+    <p>▶3 RPO—আপনি সর্বোচ্চ কতটুকু ডেটা হারানো মেনে নিতে পারবেন। আর RTO—সিস্টেম আবার চালু করতে সর্বোচ্চ কত সময় নিতে পারবেন।</p>
+    <p>▶4 WAL archiving চালু থাকলে database-এর পরিবর্তনগুলো log আকারে সংরক্ষণ করে নির্দিষ্ট সময় পর্যন্ত recovery করা সম্ভব হতে পারে।</p>
+    <p>কিন্তু backup থাকলেই নিশ্চিন্ত হওয়া যাবে না।</p>
+    <p>সেই backup থেকে restore করা যায় কি না, সেটা নিয়মিত পরীক্ষা করতে হবে।</p>
+    <p>▶5 কারণ যে backup কখনো restore করে দেখেননি, সেটা backup নয়— ▶6 সেটা শুধু আশা। [backup-restore.test PASS]</p>
+  </aside>
+</section>
+
+<!-- S22 · মেরামত ৮ — এজেন্টের হাতে কোন চাবি? -->
+<section class="repair">
+  <h2 data-enter="rise"><span class="num">৮</span>এজেন্টের হাতে কোন চাবি?</h2>
+  <div class="split">
+    <div class="col">
+      <div class="row" style="flex-wrap:nowrap"><span class="tile xl" data-enter="land"><i data-lucide="bot"></i></span><span class="tile xl yellow" data-enter="land" data-delay="0.25"><i data-lucide="key-round"></i></span></div>
+      <span class="chip red" data-enter="rise" data-delay="0.4"><i data-lucide="database"></i>production DB · owner credential</span>
+      <div class="row" data-step="stream" data-gap="0.4">
+        <span class="chip sm"><i data-lucide="eye"></i>দেখা</span>
+        <span class="chip sm"><i data-lucide="pencil"></i>পরিবর্তন</span>
+        <span class="chip red sm"><i data-lucide="trash-2"></i>মুছে ফেলা</span>
+      </div>
+    </div>
+    <div class="keys" data-step="stream" data-gap="0.5">
+      <div class="panel key"><span class="tile"><i data-lucide="code"></i></span><div><b>Development</b><span>দরকার অনুযায়ী permission</span></div></div>
+      <div class="panel key"><span class="tile yellow"><i data-lucide="lock"></i></span><div><b>Production</b><span>সীমিত access</span></div></div>
+      <div class="panel key"><span class="tile green"><i data-lucide="hard-drive"></i></span><div><b>Backup</b><span>আলাদা account, agent মুছতে পারবে না</span></div></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="rule" data-step="rise"><i data-lucide="scroll-text"></i><span><b>Least privilege:</b> যার যতটুকু access দরকার, ঠিক ততটুকুই</span></div>
+    <span class="testok" data-step="land"><span class="ok"><i data-lucide="check"></i></span>least-privilege.test <span class="pass">PASS</span></span>
+  </div>
+  <aside class="notes">
+    <p>শেষ মেরামতটা কোডের নয়। এটা access control-এর।</p>
+    <p>রাফির AI agent production database-এর owner credential ব্যবহার করছিল।</p>
+    <p>▶1 মানে, এজেন্টের হাতে এমন চাবি ছিল, যেটা দিয়ে ডেটা দেখা, পরিবর্তন করা, এমনকি মুছেও ফেলা সম্ভব।</p>
+    <p>সেই রাতে এজেন্ট এই access ব্যবহার করেনি। কিন্তু ভুল নির্দেশনা বা কোনো ভুল action হলে কী হতে পারত?</p>
+    <p>▶2 রাফি এবার access আলাদা করল। Development environment-এ দরকার অনুযায়ী permission। Production-এ সীমিত access। আর backup-এর জন্য আলাদা account, যেটা সাধারণ application বা agent মুছতে পারবে না।</p>
+    <p>▶3 এটাকে বলে least privilege—যার যতটুকু access দরকার, তাকে ঠিক ততটুকুই দেওয়া।</p>
+    <p>▶4 শিক্ষাটা হলো, AI agent-কে বিশ্বাস করলেই হবে না। তার হাতে কী কী করার ক্ষমতা আছে, সেটাও design-এর অংশ। [least-privilege.test PASS]</p>
+  </aside>
+</section>
+
+<!-- ================= ACT 3 ================= -->
+
+<!-- S23 · আটটি Red Test -->
+<section>
+  <div class="term tests" data-enter="rise">
+    <div class="term-bar"><b></b><b></b><b></b><span>rafi-shop/tests/red/</span></div>
+    <div class="term-body" data-step="stream" data-gap="0.25">
+      <div class="trow"><span class="stack"><span class="pend"></span><span class="ok run-ok"><i data-lucide="check"></i></span></span>requirements-assumptions.test</div>
+      <div class="trow"><span class="stack"><span class="pend"></span><span class="ok run-ok"><i data-lucide="check"></i></span></span>traffic-capacity.test</div>
+      <div class="trow"><span class="stack"><span class="pend"></span><span class="ok run-ok"><i data-lucide="check"></i></span></span>read-your-writes.test</div>
+      <div class="trow"><span class="stack"><span class="pend"></span><span class="ok run-ok"><i data-lucide="check"></i></span></span>cache-stampede.test</div>
+      <div class="trow"><span class="stack"><span class="pend"></span><span class="ok run-ok"><i data-lucide="check"></i></span></span>private-cache-isolation.test</div>
+      <div class="trow"><span class="stack"><span class="pend"></span><span class="ok run-ok"><i data-lucide="check"></i></span></span>payment-idempotency.test</div>
+      <div class="trow"><span class="stack"><span class="pend"></span><span class="ok run-ok"><i data-lucide="check"></i></span></span>backup-restore.test</div>
+      <div class="trow"><span class="stack"><span class="pend"></span><span class="ok run-ok"><i data-lucide="check"></i></span></span>least-privilege.test</div>
+    </div>
+    <span data-step="run"></span>
+  </div>
+  <p class="say" data-step="rise" style="font-size:44px">প্রতিটি গুরুত্বপূর্ণ design decision-এর জন্য একটা করে যাচাই</p>
+  <aside class="notes">
+    <p>রাফি এবার তার project-এ একটা tests/red ফোল্ডার তৈরি করেছে।</p>
+    <p>▶1 সেখানে আটটা test। প্রতিটি test একটি নির্দিষ্ট failure ধরার জন্য।</p>
+    <p>এগুলো আপনার প্রজেক্টে হুবহু একইভাবে লাগবে, এমন নয়। আপনার সিস্টেমের ঝুঁকি অনুযায়ী test বদলাবেন।</p>
+    <p>▶2 কিন্তু প্রতিটি গুরুত্বপূর্ণ design decision-এর জন্য ▶3 একটা করে যাচাইয়ের ব্যবস্থা রাখুন।</p>
+  </aside>
+</section>
+
+<!-- S24 · সাত দিনের পরিকল্পনা -->
+<section>
+  <h2 data-enter="rise">সাত দিনের পরিকল্পনা</h2>
+  <div class="days">
+    <div class="panel day" data-step="rise"><b>Day ১</b>Requirements, users, constraints লিখুন</div>
+    <div class="panel day" data-step="rise"><b>Day ২</b>Traffic ও capacity estimate করুন</div>
+    <div class="panel day" data-step="rise"><b>Day ৩</b>Data model ও consistency rules ঠিক করুন</div>
+    <div class="panel day" data-step="rise"><b>Day ৪</b>Cache, queue ও failure scenarios লিখুন</div>
+    <div class="panel day" data-step="rise"><b>Day ৫</b>Security ও access permissions যাচাই করুন</div>
+    <div class="panel day" data-step="rise"><b>Day ৬</b>৮টি গুরুত্বপূর্ণ failure-এর test তৈরি করুন</div>
+    <div class="panel day" data-step="rise"><b>Day ৭</b>Load test, backup restore ও recovery practice</div>
+  </div>
+  <p class="say" data-step="rise" style="font-size:42px">নতুন ভুল <span class="muted">→</span> নতুন design rule <span class="muted">+</span> নতুন test</p>
+  <aside class="notes">
+    <p>শুরু করতে চাইলে সাত দিনের একটা ছোট পরিকল্পনা নিতে পারেন।</p>
+    <p>▶1 Day 1: Requirements, users, constraints লিখুন।</p>
+    <p>▶2 Day 2: Traffic ও capacity estimate করুন।</p>
+    <p>▶3 Day 3: Data model ও consistency rules ঠিক করুন।</p>
+    <p>▶4 Day 4: Cache, queue এবং failure scenarios লিখুন।</p>
+    <p>▶5 Day 5: Security ও access permissions যাচাই করুন।</p>
+    <p>▶6 Day 6: আটটি গুরুত্বপূর্ণ failure-এর test তৈরি করুন।</p>
+    <p>▶7 Day 7: Load test, backup restore এবং recovery practice করুন।</p>
+    <p>সাত দিন পর কাজ শেষ নয়।</p>
+    <p>▶8 এরপর এজেন্ট যখনই নতুন ধরনের কোনো ভুল করবে, সেই ভুলের জন্য একটা design rule লিখবেন, আর একটা test যোগ করবেন।</p>
+    <p>এভাবেই আপনার সিস্টেম ধীরে ধীরে আরও নির্ভরযোগ্য হবে।</p>
+  </aside>
+</section>
+
+<!-- S25 · সীমাবদ্ধতা (plain on purpose) -->
+<section data-background-color="#0c0c0e">
+  <h2 data-enter="rise">এই পদ্ধতির সীমাবদ্ধতা</h2>
+  <ul class="limits">
+    <li data-step="rise">Test শুধু সেই ভুল ধরে, যেটা ধরার জন্য আপনি test লিখেছেন।</li>
+    <li data-step="rise">ভুল requirement ধরে test লিখলে, সব test pass করেও product ভুল হতে পারে।</li>
+    <li data-step="rise">Staging-এর load test আর external service সব সময় production-এর মতো আচরণ করে না।</li>
+    <li data-step="rise">এই ভিডিওর সংখ্যাগুলো উদাহরণ। নিজের system মেপে সিদ্ধান্ত নিন।</li>
+  </ul>
+  <aside class="notes">
+    <p>[Music বন্ধ] তবে একটা বিষয় মনে রাখবেন।</p>
+    <p>▶1 Test শুধু সেই ভুল ধরতে পারে, যেটা ধরার জন্য আপনি test লিখেছেন।</p>
+    <p>▶2 ভুল requirement-কে সঠিক ধরে test লিখলে, সব test pass করেও আপনার product ভুল হতে পারে।</p>
+    <p>▶3 Staging environment-এর load test সব সময় production-এর বাস্তব আচরণ দেখায় না। Payment provider বা অন্য external service-ও আপনার test environment-এর মতো আচরণ নাও করতে পারে।</p>
+    <p>▶4 আর এই ভিডিওতে দেখানো সংখ্যাগুলো উদাহরণ। নিজের system-এর traffic, latency এবং failure data মেপে সিদ্ধান্ত নেবেন।</p>
+  </aside>
+</section>
+
+<!-- S26 · শেষ কথা -->
+<section>
+  <div class="rafi lg" data-enter="lottie" data-anim="rafi-like" data-delay="0.6"></div>
+  <div class="row" data-enter="stream" data-gap="0.15">
+    <span class="chip green"><i data-lucide="check"></i>Checkout</span>
+    <span class="chip green"><i data-lucide="check"></i>Orders</span>
+    <span class="chip green"><i data-lucide="check"></i>Payments</span>
+    <span class="chip green"><i data-lucide="check"></i>Backups</span>
+  </div>
+  <h1 class="closing" data-step="words">AI কোড লিখতে পারে।</h1>
+  <p class="closing2" data-step="rise">কিন্তু সিস্টেম কীভাবে চলবে, কোথায় ভাঙতে পারে, ভেঙে গেলে কীভাবে ফিরে আসবে, <span class="yellow">সেই সিদ্ধান্ত আপনাকেই নিতে হবে।</span></p>
+  <aside class="notes">
+    <p>[auto: রাফি আর সবুজ status নিজে থেকেই আসবে; দুই সেকেন্ড চুপ]</p>
+    <p>▶1 AI আপনার জন্য কোড লিখতে পারে।</p>
+    <p>▶2 কিন্তু আপনার সিস্টেম কীভাবে চলবে, কোথায় ভাঙতে পারে, আর ভেঙে গেলে কীভাবে ফিরে আসবে—সেই সিদ্ধান্ত আপনাকেই নিতে হবে।</p>
+  </aside>
+</section>
+
+<!-- S27 · CTA -->
+<section>
+  <div class="row" data-enter="stream" data-gap="0.15" style="flex-wrap:nowrap">
+    <div class="panel fcard"><i data-lucide="file-text" class="blue"></i><b>SYSTEM.md</b></div>
+    <div class="panel fcard"><i data-lucide="file-text" class="blue"></i><b>MODULES.md</b></div>
+    <div class="panel fcard"><i data-lucide="folder-check" class="green"></i><b>tests/</b></div>
+  </div>
+  <div class="row" data-step="stream" data-gap="0.3" style="gap:40px">
+    <span class="stamp g sm" style="transform:rotate(-6deg)">Measured</span>
+    <span class="stamp b sm" style="transform:rotate(4deg)">Target</span>
+    <span class="stamp y sm" style="transform:rotate(-4deg)">Guess</span>
+  </div>
+  <p class="say" data-step="rise">আপনার প্রজেক্টে সবচেয়ে বেশি <span class="yellow">GUESS</span> কোথায়?</p>
+  <span class="chip" data-step="rise"><i data-lucide="message-circle"></i>কমেন্টে শুধু সেই সংখ্যাটা জানান</span>
+  <span class="chip sm muted" data-step="rise"><i data-lucide="arrow-right"></i>পরের ভিডিও: একটা বাস্তব system contract</span>
+  <aside class="notes">
+    <p>আজই একটা কাজ করুন।</p>
+    <p>▶1 আপনার প্রজেক্টের requirements আর assumptions লিখে ফেলুন। প্রতিটি গুরুত্বপূর্ণ সংখ্যার পাশে MEASURED, TARGET অথবা GUESS label দিন।</p>
+    <p>▶2 তারপর দেখুন—আপনার প্রজেক্টে সবচেয়ে বেশি GUESS কোন জায়গায় আছে?</p>
+    <p>▶3 কমেন্টে শুধু সেই সংখ্যাটা জানান।</p>
+    <p>▶4 আর পরের ভিডিওতে আমরা সেই জায়গার জন্য একটা বাস্তব system contract তৈরি করব।</p>
+    <p>মূল লেখাটির লিংক ডেসক্রিপশনে দেওয়া আছে। সময় পেলে সেটাও পড়ে দেখবেন।</p>
+  </aside>
+</section>
+
+</div></div>
+
+<script src="../../vendor/gsap/gsap.min.js"></script>
+<script src="../../vendor/gsap/SplitText.min.js"></script>
+<script src="../../vendor/gsap/DrawSVGPlugin.min.js"></script>
+<script src="../../vendor/reveal/reveal.js"></script>
+<script src="../../vendor/reveal/notes.js"></script>
+<script src="../../vendor/lucide/lucide.min.js"></script>
+<script src="../../vendor/lottie/lottie.min.js"></script>
+<script src="assets/lottie/rafi-working.json.js"></script>
+<script src="assets/lottie/rafi-error.json.js"></script>
+<script src="assets/lottie/rafi-like.json.js"></script>
+<script src="../../lib/deck.js"></script>
+<script>
+// Center of `el` inside `box`, in canvas pixels. Uses layout offsets, so entry transforms and Reveal's scaling don't skew it.
+function at(el, box) {
+  let x = el.offsetWidth / 2, y = el.offsetHeight / 2;
+  for (let n = el; n && n !== box; n = n.offsetParent) { x += n.offsetLeft; y += n.offsetTop; }
+  return { x, y };
+}
+
+// S1: the six failures cut in one after another by themselves, like quick shots.
+Deck.preset('flash', el => gsap.fromTo(el.children, { autoAlpha: 0, scale: 1.25 },
+  { autoAlpha: 1, scale: 1, duration: 0.22, ease: 'snapSettle', stagger: 0.4 }));
+
+// Rafi (LottieFiles, Aleksandr). GSAP drives the frames: plays once and holds the last pose, or loops with data-loop.
+Deck.preset('lottie', el => {
+  const data = ASSETS[el.dataset.anim], frames = data.op - data.ip;
+  const anim = lottie.loadAnimation({ container: el, renderer: 'svg', autoplay: false, loop: false, animationData: data });
+  const o = { f: 0 }, draw = () => anim.goToAndStop(o.f, true);
+  draw();
+  return gsap.to(o, { f: frames - 1, duration: frames / data.fr, ease: 'none', repeat: 'loop' in el.dataset ? -1 : 0, onUpdate: draw });
+});
+
+// S8: one Step per request rate; the knob, fill and both numbers move together.
+const RATE_POS = r => (r <= 0 ? 0 : 8 + (Math.log10(r) / Math.log10(400)) * 92);
+const APPROX = { 0: '', 1: '≈ ২৬ লাখ', 40: '≈ ১০ কোটি', 400: '≈ ১০৪ কোটি' };
+Deck.preset('rate', el => {
+  const c = el.closest('.calc'), q = s => c.querySelector(s), from = +el.dataset.from, to = +el.dataset.rate, o = { r: from };
+  const bn = v => Math.round(v).toLocaleString('bn-BD');
+  const draw = () => {
+    const p = RATE_POS(o.r);
+    q('.knob').style.left = `${p}%`; q('.fill').style.width = `${p}%`;
+    q('.rps').textContent = bn(o.r); q('.monthly').textContent = bn(o.r * 2592000);   // 30 days of seconds
+    q('.approx').textContent = APPROX[o.r - from > (to - from) / 2 ? to : from];
+  };
+  return gsap.fromTo(o, { r: from }, { r: to, duration: 1, ease: 'softLand', onUpdate: draw, immediateRender: false });
+});
+
+// S16: bars fill to a share of the track.
+Deck.preset('grow', el => gsap.fromTo(el, { width: '0%' }, { width: `${el.dataset.w}%`, duration: 0.9, ease: 'softLand' }));
+
+// S18: cache stampede. 30 requests hit the database at once; it turns red.
+Deck.preset('rush', el => {
+  const box = el.closest('.flow3'), from = at(box.querySelector('.n-req .tile'), box), to = at(box.querySelector('.n-db .tile'), box);
+  const r = Deck.seeded(42), hot = box.querySelector('.db-hot'), tl = gsap.timeline();
+  for (let i = 0; i < 30; i++) {
+    const d = document.createElement('i'); d.className = 'dot r'; box.append(d);
+    tl.fromTo(d, { x: from.x + r() * 70, y: from.y + r() * 90, autoAlpha: 0 },
+      { x: to.x + r() * 60, y: to.y + r() * 60, autoAlpha: 1, duration: 0.5, ease: 'whip' }, i * 0.025);
+  }
+  return tl.fromTo(hot, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15 }, 0.45);
+});
+// S18: single-flight. The stampede clears, requests wait at the cache, one goes to the database and back.
+Deck.preset('single', el => {
+  const box = el.closest('.flow3'), from = at(box.querySelector('.n-req .tile'), box);
+  const cache = at(box.querySelector('.n-cache .stack'), box), db = at(box.querySelector('.n-db .stack'), box);
+  const r = Deck.seeded(7), tl = gsap.timeline();
+  tl.fromTo(box.querySelectorAll('.dot.r'), { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.2, immediateRender: false }, 0)
+    .fromTo(box.querySelector('.db-hot'), { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.3, immediateRender: false }, 0);
+  const waiting = [];
+  for (let i = 0; i < 12; i++) {
+    const d = document.createElement('i'); d.className = 'dot s'; box.append(d); waiting.push(d);
+    tl.fromTo(d, { x: from.x + r() * 60, y: from.y + r() * 80, autoAlpha: 0 },
+      { x: cache.x - 90 + r() * 50, y: cache.y + r() * 110, autoAlpha: 1, duration: 0.45, ease: 'softLand' }, 0.2 + i * 0.04);
+  }
+  const one = waiting[0];
+  return tl.to(one, { x: db.x, y: db.y, duration: 0.45, ease: 'whip' }, 1)
+    .to(one, { x: cache.x, y: cache.y, duration: 0.45, ease: 'whip' }, 1.6)
+    .to(waiting.slice(1), { x: cache.x, y: cache.y, autoAlpha: 0, duration: 0.35, ease: 'accelExit', stagger: 0.02 }, 2.1);
+});
+
+// S19: the cached invoice flies to the wrong customer.
+Deck.preset('flyto', el => {
+  const s = el.closest('section'), a = at(el, s), b = at(s.querySelector(el.dataset.to), s);
+  return gsap.fromTo(el, { x: 0, y: 0 }, { x: b.x - a.x, y: b.y - a.y, duration: 0.7, ease: 'whip' });
+});
+
+// S23: run the red tests; each one turns green in order.
+Deck.preset('run', el => {
+  const rows = el.closest('.term').querySelectorAll('.trow'), tl = gsap.timeline();
+  rows.forEach((row, i) => tl.fromTo(row.querySelector('.run-ok'), { autoAlpha: 0, scale: 1.6 },
+    { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'snapSettle' }, i * 0.22));
+  return tl;
+});
+
+Deck.start();
+</script>
+</body>
+</html>
