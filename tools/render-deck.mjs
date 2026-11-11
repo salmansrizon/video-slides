@@ -1,6 +1,6 @@
 // Renders a voiced Deck to an MP4: steps deck.html?play frame by frame (Deck.seek) and lays the voiceover under it.
 //   node tools/render-deck.mjs decks/my-video/index.html [--out renders/my-video.mp4] [--outro clip.mp4] [--fps 30] [--tail 0.5]
-//   node tools/render-deck.mjs decks/my-video/index.html --format vertical --slides 7-18 --outro outro/renders/outro-9x16-follow.mp4   (reels)
+//   node tools/render-deck.mjs decks/my-video/index.html --format vertical --slides 7-18 --outro library/outro-9x16-follow.mp4   (reels)
 // The Deck needs <audio data-vo src="..."> and data-at / data-auto on its Slides (tools/time-deck.mjs). Needs ffmpeg.
 // --tail: seconds the last Slide holds after the voice ends. --outro: a clip (any size / rate) played after that.
 // --format vertical: 1080x1920 from deck.html?play&format=vertical. --slides A-B (1-based): instead of one video, one
@@ -40,12 +40,19 @@ const range = flag('slides');
 if (range) {
   // Reels: each Slide's own stretch of voice, from its data-at to the next Slide's (the pause before the next line is its hold).
   const at = [...html.matchAll(/<section\b[^>]*\bdata-at="([\d.]+)"/g)].map(m => +m[1]);
-  const [a, b = a] = range.split('-').map(Number);
-  if (!(a >= 1 && b >= a && b <= at.length)) die(`--slides ${range}: the Deck has Slides 1-${at.length} with data-at`);
+  const list = range.split(',').flatMap(part => {
+    const [a, b = a] = part.split('-').map(Number);
+    if (!(a >= 1 && b >= a && b <= at.length)) die(`--slides ${range}: the Deck has Slides 1-${at.length} with data-at`);
+    return Array.from({ length: b - a + 1 }, (_, i) => a + i);
+  });
   const dir = resolve(flag('out') || `renders/${name}-reels`);
   mkdirSync(dir, { recursive: true });
-  for (let n = a; n <= b; n++) {
-    const from = at[n - 1], to = n < at.length ? at[n] : voLength, len = to - from;
+  for (const n of list) {
+    // A reel starts on the voice: silence at the start of its stretch (a Deck's silent opening) is skipped, 0.15 s kept.
+    const quiet = spawnSync('ffmpeg', ['-hide_banner', '-ss', String(at[n - 1]), '-t', '5', '-i', vo, '-af', 'silencedetect=noise=-38dB:d=0.3', '-f', 'null', '-'],
+      { encoding: 'utf8' }).stderr.match(/silence_start: (-?[\d.]+)[\s\S]*?silence_end: ([\d.]+)/);
+    const skip = quiet && +quiet[1] <= 0.05 && +quiet[2] > 0.45 ? +quiet[2] - 0.15 : 0;
+    const from = at[n - 1] + skip, to = n < at.length ? at[n] : voLength, len = to - from;
     const out = join(dir, `S${String(n).padStart(2, '0')}.mp4`), pic = out.replace(/\.mp4$/, '.picture.mp4');
     console.log(`Slide ${n}: ${from.toFixed(2)}-${to.toFixed(2)} s`);
     picture(pic, from, to, voLength + tail);

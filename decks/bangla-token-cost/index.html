@@ -46,6 +46,11 @@
   html.vertical .reveal h2:not(.card *) { font-size: 56px; }
   .big, .num, .stamp { font-family: var(--mono); }
   .panel hr { border: 0; border-top: 2px dashed var(--border); margin: 14px 0; }
+  /* S1's ×6.5 stamp: above the Bangla bill side by side; stacked (Vertical), in the gap of its total row. */
+  .bill-stamp { right: 24px; top: -78px; font-size: 60px; }
+  html.vertical .bill-stamp { top: auto; bottom: 14px; right: 250px; font-size: 52px; }
+  html.play.vertical section.tight { gap: 22px; }
+  html.play #demo-in::placeholder { color: transparent; }   /* the typing hint is for the live presenter, not the video */   /* S11 is the tallest reel: keep it clear of the source line */
   .item .n { font: 700 30px/1 var(--mono); color: var(--accent); flex: none; }
   .item code, .src code { font-family: var(--mono); }
   .item code { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 2px 12px; font-size: 26px; color: var(--c1); }
@@ -129,30 +134,28 @@
 <div class="reveal"><div class="slides">
 
 <!-- S1 · দুইটা বিল -->
-<section class="center">
+<section class="center" data-at="0.00" data-auto="4.15 5.29 12.47 23.91">
   <h2 data-enter="rise">একই কথা, দুইটা বিল</h2>
   <div class="split">
     <div class="panel bill" data-make="bill" data-enc="gpt4" data-lang="eng" data-title="ENGLISH" data-step="print" data-fragment-index="1"></div>
     <div class="rel">
       <div class="panel bill" data-make="bill" data-enc="gpt4" data-lang="ben" data-title="বাংলা" data-step="print" data-fragment-index="2"></div>
-      <span class="stamp abs" style="right:24px; top:-78px; font-size:60px" data-step="stamp" data-rotate="-9" data-fragment-index="3">×৬.৫</span>
+      <span class="stamp abs bill-stamp" data-step="stamp" data-rotate="-9" data-fragment-index="3">×৬.৫</span>
     </div>
   </div>
   <h1 data-step="rise" data-fragment-index="4" style="font-size:60px">বাংলায় ChatGPT কেন <span class="accent">বেশি খরচ</span> করে?</h1>
   <aside class="notes">
-    <p>(৩ সেকেন্ড থামুন)</p>
-    <p>এই দুইটা বিল দেখুন।</p>
-    <p>একই কথা। ▶1 একটা ইংরেজিতে, ▶2 একটা বাংলায়।</p>
-    <p>"Scientists say the explosion caused by the collision was massive." আর বাংলায়—"বিজ্ঞানীরা জানাচ্ছেন সংঘর্ষের ফলে সৃষ্ট বিস্ফোরণ ছিল বিপুল।"</p>
-    <p>GPT-4-এর হিসাবে ইংরেজি বাক্যটা ১১ token। বাংলা বাক্যটা ৭১ token।</p>
-    <p>▶3 একই কথা, কিন্তু বিল প্রায় সাড়ে ছয় গুণ।</p>
-    <p>আপনি যদি বাংলায় কোনো chatbot, অনুবাদের app, বা AI দিয়ে কোনো product বানান, এই পার্থক্যটা সরাসরি আপনার পকেট থেকে যায়।</p>
-    <p>▶4 আজ দেখব, কেন এমন হয়, এখন অবস্থা কতটা বদলেছে, আর আপনার app-এর জন্য এর মানে কী।</p>
+    <p>(৩ সেকেন্ড বিরতি। দুটি রসিদ দেখান।)</p>
+    <p>এই দুইটা বিল দেখুন। একই কথা, ▶1 একটা ইংরেজিতে, ▶2 একটা বাংলায়।</p>
+    <p>ইংরেজি বাক্যটা ১১ token। বাংলাটা ৭১ token। GPT-4-এর হিসাবে।</p>
+    <p>▶3 একই কথা, কিন্তু খরচ প্রায় সাড়ে ছয় গুণ!</p>
+    <p>আপনি যদি বাংলায় chatbot, translation app বা AI product বানান, এই পার্থক্য সরাসরি আপনার পকেটে প্রভাব ফেলবে।</p>
+    <p>▶4 আজ দেখব, কেন এমন হয়, কতটা বদলেছে, আর আপনার app-এর জন্য এর মানে কী।</p>
   </aside>
 </section>
 
 <!-- S2 · টেলিগ্রাম -->
-<section>
+<section data-at="30.07" data-auto="9.52 13.59 17.99">
   <h2 data-enter="rise">টেলিগ্রাম: দাম শব্দ গুনে</h2>
   <div class="split">
     <div class="panel" data-enter="print" data-delay="0.15">
@@ -170,17 +173,17 @@
     </div>
   </div>
   <aside class="notes">
-    <p>আগে একটা পুরনো জিনিসের কথা বলি—টেলিগ্রাম।</p>
-    <p>টেলিগ্রামে টাকা দিতে হতো শব্দ গুনে। তাই মানুষ লিখত "ARRIVING TUESDAY STOP"—যত কম শব্দ, তত কম খরচ।</p>
-    <p>▶1 AI-ও ঠিক এভাবেই টাকা নেয়। তবে শব্দ গুনে নয়, token গুনে।</p>
-    <p>▶2 আপনি যা পাঠান আর AI যা উত্তর দেয়—দুটোই token-এ মাপা হয়, আর প্রতিটা token-এর একটা দাম আছে।</p>
-    <p>▶3 শুধু টাকা নয়, একটা model একবারে কতটা লেখা পড়তে পারবে, সেটাও মাপা হয় token-এ।</p>
-    <p>তাই token বোঝা মানে AI-এর বিল আর সীমা—দুটোই বোঝা।</p>
+    <p>আগে টেলিগ্রামের কথা ভাবুন।</p>
+    <p>তখন টাকা দিতে হতো শব্দ গুনে। তাই মানুষ লিখত, "ARRIVING TUESDAY STOP"। কম শব্দ, কম খরচ।</p>
+    <p>▶1 AI-ও অনেকটা এমন। তবে শব্দ নয়, token গুনে টাকা নেয়।</p>
+    <p>▶2 আপনার পাঠানো লেখা আর AI-এর উত্তর, দুটোই token-এ মাপা হয়।</p>
+    <p>▶3 এমনকি AI একবারে কতটা লেখা পড়তে পারবে, সেটাও token দিয়ে হিসাব করা হয়।</p>
+    <p>তাই token বোঝা মানে AI-এর খরচ আর সীমা বোঝা।</p>
   </aside>
 </section>
 
 <!-- S3 · Token কী (Demo) -->
-<section>
+<section data-at="57.34" data-auto="8.33 11.31 14.71">
   <h2 data-enter="rise">Token: লেখার টুকরো</h2>
   <div class="panel w demo rel" data-enter="rise" data-delay="0.15">
     <textarea id="demo-in" spellcheck="false" placeholder="এখানে লিখুন… (Esc বা বাইরে ক্লিক করলে আবার ↓ কাজ করবে)"></textarea>
@@ -193,17 +196,18 @@
     </div>
   </div>
   <aside class="notes">
-    <p>তাহলে token জিনিসটা কী?</p>
-    <p>Token হলো লেখার একটা টুকরো। কখনো পুরো একটা শব্দ, কখনো শব্দের একটা অংশ, কখনো একটা অক্ষরেরও অংশ।</p>
-    <p>[Demo: ↓ চাপলে বাক্য নিজে বসবে; বক্সে ক্লিক করে নিজেও লিখতে পারেন, Esc চেপে বের হয়ে আবার ↓]</p>
-    <p>▶1 দেখুন, ইংরেজি বাক্যে প্রায় প্রতিটা শব্দ একটা করে টুকরো। এগারোটা টুকরো, শেষ।</p>
-    <p>▶2 আর বাংলা বাক্যে একটা শব্দই ভেঙে যাচ্ছে অনেকগুলো ছোট টুকরোয়।</p>
-    <p>▶3 শুধু "বিজ্ঞানীরা" শব্দটাই GPT-4 ভেঙেছে ১২টা টুকরোয়। কোনো কোনো টুকরো একটা অক্ষরেরও কম—অক্ষরের আধখানা।</p>
+    <p>তাহলে token কী?</p>
+    <p>Token হলো লেখার ছোট ছোট অংশ। কখনো পুরো শব্দ, কখনো শব্দের অংশ, এমনকি অক্ষরের অংশও।</p>
+    <p>(Demo: দুটি বাক্য লিখুন, token-গুলো আলাদা রঙে দেখান।)</p>
+    <p>▶1 ইংরেজিতে প্রায় প্রতিটা শব্দ একেকটা token।</p>
+    <p>▶2 কিন্তু বাংলায় একটা শব্দই ভেঙে যেতে পারে অনেক টুকরোয়।</p>
+    <p>▶3 যেমন, "বিজ্ঞানীরা" শব্দটাই GPT-4 ভেঙেছে ১২টি token-এ।</p>
+    <p>কোনো কোনো টুকরো একটা অক্ষরেরও ছোট।</p>
   </aside>
 </section>
 
 <!-- S4 · Byte -->
-<section>
+<section data-at="79.46" data-auto="3.76 13.20 27.86 35.68">
   <h2 data-enter="rise">কম্পিউটারের ভেতরে: byte</h2>
   <div class="panel letters" data-step="print" data-gap="0.25">
     <div class="letter"><span class="ch">a</span><span class="bx"><b></b></span><small>১ byte</small></div>
@@ -218,17 +222,19 @@
   <span class="abs" data-step="color" data-cells="#cells-ben"></span>
   <div class="src">রং = GPT-4-এর এক একটা token (cl100k_base)। ইংরেজি ১১ টুকরো, বাংলা ৭১ টুকরো।</div>
   <aside class="notes">
-    <p>এমন কেন হয়? এর উত্তর লুকিয়ে আছে কম্পিউটারের ভেতরে।</p>
-    <p>▶1 কম্পিউটার প্রতিটা অক্ষর রাখে byte হিসেবে। একটা ইংরেজি অক্ষর মানে ১ byte। আর একটা বাংলা অক্ষর, এমনকি একটা কার-চিহ্নও, ৩ byte।</p>
-    <p>▶2 আমাদের ইংরেজি বাক্যটা ৬৫ byte। বাংলা বাক্যটা অক্ষরে ছোট, কিন্তু byte-এ ১৬৩।</p>
-    <p>প্রতিটা AI model-এর একটা tokenizer থাকে—লেখাকে টুকরো করার নিয়ম। সে শুরু করে এই byte থেকে, তারপর যে byte-গুলো বারবার একসাথে আসে, সেগুলো জুড়ে একটা করে token বানায়।</p>
-    <p>▶3 যে লেখা দেখে সে শিখেছে, তাতে ইংরেজি ছিল অনেক বেশি। তাই "scientists" বা "explosion"-এর মতো পুরো শব্দ জুড়ে একটা token হয়ে গেছে।</p>
-    <p>▶4 বাংলা লেখা ছিল কম। তাই বাংলার অনেক byte জোড়া লাগার সুযোগই পায়নি—ভাঙা ভাঙা অবস্থাতেই থেকে গেছে।</p>
+    <p>কেন এমন হয়?</p>
+    <p>এর উত্তর কম্পিউটারের ভেতরে।</p>
+    <p>▶1 কম্পিউটার অক্ষর সংরক্ষণ করে byte হিসেবে। ইংরেজি অক্ষরে সাধারণত ১ byte, আর বাংলার অক্ষর বা কার-চিহ্নে সাধারণত ৩ byte লাগে।</p>
+    <p>▶2 আমাদের উদাহরণে ইংরেজি বাক্যটি ৬৫ byte, বাংলা বাক্যটি ১৬৩ byte।</p>
+    <p>প্রতিটি AI model-এর একটা tokenizer থাকে। এটি লেখাকে token-এ ভাঙে।</p>
+    <p>বারবার একসঙ্গে আসা byte-গুলো জুড়ে তৈরি হয় পরিচিত token।</p>
+    <p>▶3 AI-এর training data-তে ইংরেজি ছিল অনেক বেশি। তাই "scientists" বা "explosion"-এর মতো পুরো শব্দই এক token হয়েছে।</p>
+    <p>▶4 বাংলা তুলনামূলক কম থাকায় অনেক শব্দ ভেঙে ছোট ছোট token হয়ে গেছে।</p>
   </aside>
 </section>
 
 <!-- S5 · পরীক্ষা -->
-<section>
+<section data-at="120.71" data-auto="5.37 16.21 20.66">
   <h2 data-enter="rise">আমাদের পরীক্ষা</h2>
   <div class="split">
     <div class="panel" data-step="print">
@@ -245,15 +251,17 @@
   <p class="say" data-step="rise">একই কথা বলতে বাংলায় <span class="accent">কত গুণ</span> বেশি token লাগে?</p>
   <div class="src">বাক্য: FLORES-200 devtest (NLLB Team, Meta AI, CC BY-SA 4.0) · গোনা: OpenAI tiktoken ও Hugging Face tokenizers · ফলাফল: research/experiment</div>
   <aside class="notes">
-    <p>একটা বাক্য দিয়ে তো সিদ্ধান্ত নেওয়া যায় না। তাই আমরা নিজেরাই একটা পরীক্ষা করেছি।</p>
-    <p>▶1 ১০১২টা বাক্য নিয়েছি, যেগুলো পেশাদার অনুবাদকেরা ইংরেজি থেকে বাংলায় অনুবাদ করেছেন। এই ডেটার নাম FLORES-200, ভাষা নিয়ে গবেষণায় এটা খুব পরিচিত।</p>
-    <p>▶2 তারপর একই লেখা আটটা আসল tokenizer দিয়ে গুনেছি—OpenAI-এর পুরনো আর নতুন model, কয়েকটা open model, আর বাংলা বা ভারতীয় ভাষার জন্য বানানো কয়েকটা।</p>
-    <p>▶3 প্রশ্ন একটাই: একই কথা বলতে বাংলায় কত গুণ বেশি token লাগে?</p>
+    <p>একটা বাক্য দেখে সিদ্ধান্ত নেওয়া যায় না।</p>
+    <p>তাই আমরা নিজেরাই পরীক্ষা করেছি।</p>
+    <p>▶1 নিয়েছি ১,০১২টি বাক্য। পেশাদার অনুবাদকেরা ইংরেজি থেকে বাংলায় অনুবাদ করেছেন।</p>
+    <p>ডেটাসেটটির নাম FLORES-200। ভাষা গবেষণায় এটি বহুল ব্যবহৃত।</p>
+    <p>▶2 এরপর আটটি বাস্তব tokenizer দিয়ে প্রতিটি বাক্যের token গুনেছি।</p>
+    <p>▶3 দেখতে চেয়েছি, একই কথা বলতে বাংলায় কত গুণ বেশি token লাগে।</p>
   </aside>
 </section>
 
 <!-- S6 · পুরনো model -->
-<section>
+<section data-at="146.29" data-auto="1.89 7.55 12.45 19.98">
   <h2 data-enter="rise">পুরনো model</h2>
   <div class="split">
     <div class="panel"><div class="strips" data-strips="eng,gpt2,cl100k" data-new="gpt2,cl100k" data-step-count="2"></div></div>
@@ -268,16 +276,17 @@
   </div>
   <div class="src">নিজস্ব পরীক্ষা · ১০১২টি FLORES-200 বাক্য · দাগ দেওয়া রেখা = ইংরেজির সমান (১×)</div>
   <aside class="notes">
-    <p>প্রথমে পুরনো model।</p>
-    <p>▶1 GPT-2 আর GPT-3-এর tokenizer-এ বাংলায় লেগেছে প্রায় ৯.৬ গুণ বেশি token।</p>
+    <p>প্রথমে পুরনো model-গুলো।</p>
+    <p>▶1 GPT-2 আর GPT-3-এ বাংলায় লেগেছে প্রায় ৯.৬ গুণ বেশি token।</p>
     <p>▶2 GPT-3.5 আর GPT-4-এ প্রায় ৫.৯ গুণ।</p>
-    <p>▶3 আরেকভাবে দেখুন: ইংরেজিতে গড়ে একটা শব্দে লাগে প্রায় ১.২ token। আর GPT-4-এ একটা বাংলা শব্দে লাগছে ৮টারও বেশি।</p>
-    <p>▶4 মানে GPT-4-এর যুগে বাংলায় একই কাজ করাতে প্রায় ছয় গুণ টাকা লাগত।</p>
+    <p>▶3 আরেকভাবে বলি।</p>
+    <p>ইংরেজিতে প্রতি শব্দে গড়ে ১.২ token। GPT-4-এ বাংলায় লাগে ৮টিরও বেশি।</p>
+    <p>▶4 অর্থাৎ একই কাজ করাতে বাংলায় প্রায় ছয় গুণ বেশি খরচ।</p>
   </aside>
 </section>
 
 <!-- S7 · নতুন tokenizer -->
-<section>
+<section data-at="170.82" data-auto="10.04 13.34 17.99 21.73">
   <h2 data-enter="rise">এবার ভালো খবর</h2>
   <div class="split">
     <div class="panel"><div class="strips" data-strips="eng,gpt2,cl100k,o200k" data-new="o200k" data-old="gpt2,cl100k" data-step-count="1"></div></div>
@@ -291,16 +300,18 @@
   </div>
   <div class="src">GPT-4o, GPT-4.1, o1, o3, o4-mini, GPT-5 → o200k_base (OpenAI tiktoken 0.14 <code>encoding_name_for_model</code>) · নিজস্ব পরীক্ষা</div>
   <aside class="notes">
-    <p>এবার ভালো খবর।</p>
-    <p>GPT-4o থেকে OpenAI নতুন একটা tokenizer ব্যবহার করছে। GPT-4.1, o3, এমনকি GPT-5-ও এটাই ব্যবহার করে।</p>
-    <p>▶1 এখানে বাংলায় লাগে প্রায় ১.৭ গুণ।</p>
-    <p>▶2 আমাদের সেই বাক্যটা? ৭১ token থেকে নেমে এসেছে ২২-এ। ▶3 আর "বিজ্ঞানীরা" শব্দটা ১২ টুকরো থেকে মাত্র ৪ টুকরোয়।</p>
-    <p>▶4 ফাঁকটা অনেক কমেছে। কিন্তু পুরোপুরি যায়নি—বাংলা এখনো প্রায় পৌনে দুই গুণ খরচ করে।</p>
+    <p>এবার সুখবর।</p>
+    <p>GPT-4o থেকে OpenAI নতুন tokenizer এনেছে।</p>
+    <p>GPT-4.1, o3 এবং GPT-5-ও এটি ব্যবহার করে।</p>
+    <p>▶1 এবার বাংলায় token লাগে প্রায় ১.৭ গুণ।</p>
+    <p>▶2 আমাদের সেই বাক্যটি ৭১ থেকে নেমে এসেছে মাত্র ২২ token-এ।</p>
+    <p>▶3 আর "বিজ্ঞানীরা" শব্দটি ১২ থেকে কমে হয়েছে ৪ token।</p>
+    <p>▶4 পার্থক্য অনেক কমেছে। তবে পুরোপুরি যায়নি। বাংলা এখনো প্রায় পৌনে দুই গুণ বেশি token ব্যবহার করে।</p>
   </aside>
 </section>
 
 <!-- S8 · অভিধান দ্বিগুণ -->
-<section>
+<section data-at="199.78" data-auto="3.16 9.68 13.10 15.02">
   <h2 data-enter="rise">Tokenizer-এর অভিধান</h2>
   <p class="lead" data-step="rise" data-fragment-index="1">কোন কোন টুকরো সে চেনে, তার তালিকা</p>
   <div class="dicts">
@@ -312,29 +323,32 @@
   <div class="rule" data-step="rise" data-fragment-index="4"><i data-lucide="book-open"></i><span>অভিধান <b>দ্বিগুণ</b>, বাংলার টুকরোও এবার জায়গা পেল</span></div>
   <div class="src">টুকরোর সংখ্যা: tiktoken <code>n_vocab</code> (cl100k_base ১,০০,২৭৭; o200k_base ২,০০,০১৯)</div>
   <aside class="notes">
-    <p>নতুন tokenizer কী এমন বদলাল?</p>
-    <p>▶1 প্রতিটা tokenizer-এর একটা অভিধান থাকে—কোন কোন টুকরো সে চেনে, তার তালিকা।</p>
-    <p>▶2 GPT-4-এর tokenizer চিনত প্রায় ১ লাখ টুকরো। ▶3 নতুনটা চেনে প্রায় ২ লাখ।</p>
-    <p>▶4 অভিধান দ্বিগুণ হওয়ায় বাংলার মতো ভাষার অনেক টুকরো এবার তালিকায় জায়গা পেয়েছে। তাই বাংলা শব্দ আর আগের মতো ভেঙে চুরমার হয় না।</p>
+    <p>নতুন tokenizer-এ এত পরিবর্তন কীভাবে এলো?</p>
+    <p>▶1 প্রতিটি tokenizer-এর একটা নিজস্ব অভিধান আছে। কোন কোন শব্দের টুকরো সে চেনে, তার তালিকা।</p>
+    <p>▶2 GPT-4-এর অভিধানে ছিল প্রায় ১ লাখ token।</p>
+    <p>▶3 নতুনটিতে প্রায় ২ লাখ।</p>
+    <p>▶4 অর্থাৎ অভিধান দ্বিগুণ হয়েছে।</p>
+    <p>ফলে বাংলার অনেক পরিচিত শব্দের অংশও এবার জায়গা পেয়েছে। তাই শব্দগুলো আর আগের মতো অতটা ভাঙতে হয় না।</p>
   </aside>
 </section>
 
 <!-- S9 · Open model -->
-<section>
+<section data-at="224.78" data-auto="2.23 6.26 9.91">
   <h2 data-enter="rise">Open model-গুলো</h2>
   <div class="panel"><div class="strips" data-strips="eng,gpt2,cl100k,o200k,qwen,mistral" data-new="mistral,qwen" data-old="gpt2,cl100k,o200k" data-step-count="2"></div></div>
   <div class="rule" data-step="rise" data-fragment-index="3"><i data-lucide="ruler"></i><span>নতুন model মানেই বাংলায় সস্তা নয়: <b>প্রতিটা আলাদা করে মাপুন</b></span></div>
   <div class="src">নিজস্ব পরীক্ষা · Qwen/Qwen2.5-7B-Instruct, mistralai/Mistral-Nemo-Instruct-2407 tokenizer</div>
   <aside class="notes">
-    <p>আর open model-গুলো?</p>
-    <p>▶1 Mistral Nemo-তে প্রায় ১.৯ গুণ।</p>
+    <p>এবার open model-গুলো দেখি।</p>
+    <p>▶1 Mistral Nemo-তে বাংলায় লাগে প্রায় ১.৯ গুণ token।</p>
     <p>▶2 কিন্তু Qwen 2.5-এ এখনো প্রায় ৫ গুণ।</p>
-    <p>▶3 তাই "নতুন model মানেই বাংলায় সস্তা"—এটা ধরে নেওয়া যাবে না। প্রতিটা model আলাদা করে মেপে দেখতে হয়।</p>
+    <p>▶3 তাই নতুন model মানেই বাংলায় কম খরচ, এমনটা ভাববেন না।</p>
+    <p>প্রতিটি model আলাদাভাবে পরীক্ষা করতে হবে।</p>
   </aside>
 </section>
 
 <!-- S10 · চমক -->
-<section>
+<section data-at="241.87" data-auto="1.84 8.53 20.75 27.11">
   <h2 data-enter="rise">আসল চমক</h2>
   <div class="panel rel">
     <div class="strips" data-strips="eng,gpt2,cl100k,o200k,qwen,mistral,sarvam,indicbert,banglabert" data-new="sarvam,indicbert,banglabert" data-old="gpt2,cl100k,o200k,qwen,mistral" data-step-count="2"></div>
@@ -344,15 +358,18 @@
   <div class="src">নিজস্ব পরীক্ষা · sarvamai/sarvam-1, ai4bharat/IndicBERTv2-MLM-only, csebuetnlp/banglabert (BUET) tokenizer</div>
   <aside class="notes">
     <p>এবার আসল চমক।</p>
-    <p>▶1 যে tokenizer-গুলো ভারতীয় ভাষার জন্য বানানো—Sarvam-1 আর IndicBERT—সেখানে বাংলা আর ইংরেজি প্রায় সমান।</p>
-    <p>▶2 আর BanglaBERT, যেটা বুয়েটের গবেষকেরা বাংলা লেখা দিয়ে বানিয়েছেন, সেখানে উল্টোটা ঘটছে। ইংরেজিতেই বেশি token লাগে! বাংলায় লাগে ইংরেজির মাত্র ০.৫৯ গুণ।</p>
-    <p>▶3 তাহলে বোঝা গেল, সমস্যাটা বাংলা ভাষার নয়। Tokenizer কোন লেখা দেখে শিখেছে, সমস্যাটা সেখানে।</p>
-    <p>▶4 যে ভাষা বেশি দেখেছে, সেই ভাষা সস্তা। যে ভাষা কম দেখেছে, সেই ভাষা দামি।</p>
+    <p>▶1 ভারতীয় ভাষার জন্য তৈরি Sarvam-1 আর IndicBERT-এ বাংলা ও ইংরেজির token সংখ্যা প্রায় সমান।</p>
+    <p>▶2 আর BanglaBERT-এ ঘটেছে উল্টোটা।</p>
+    <p>এটি বুয়েটের গবেষকদের তৈরি বাংলা ভাষার model। এখানে ইংরেজিতেই বেশি token লাগে।</p>
+    <p>বাংলায় লাগে ইংরেজির মাত্র ০.৫৯ গুণ।</p>
+    <p>▶3 তাহলে সমস্যাটা বাংলা ভাষার নয়।</p>
+    <p>সমস্যা হলো, tokenizer কোন ভাষার লেখা বেশি দেখে শিখেছে।</p>
+    <p>▶4 যে ভাষা বেশি দেখেছে, সেই ভাষা কম token-এ প্রকাশ করতে পারে।</p>
   </aside>
 </section>
 
 <!-- S11 · বিল -->
-<section>
+<section class="tight" data-at="273.79" data-auto="6.32 10.52 15.86 20.36">
   <h2 data-enter="rise">আপনার পকেটে</h2>
   <p class="lead" data-enter="rise" data-delay="0.15">Token-এর দাম ভাষা দেখে বদলায় না</p>
   <span class="eg" data-enter="rise" data-delay="0.25">ধরা যাক</span>
@@ -367,17 +384,17 @@
   <div class="rule" data-step="rise" data-fragment-index="4"><i data-lucide="calculator"></i><span>গুণটা না জেনে business plan = <b>নিশ্চিত লোকসান</b></span></div>
   <div class="src">হিসাব: ইংরেজিতে মাসে $১০০ ধরে, নিজস্ব পরীক্ষার গুণ দিয়ে। আসল দাম model ও সময়ভেদে বদলায়।</div>
   <aside class="notes">
-    <p>তো আপনার পকেটে এর মানে কী?</p>
-    <p>Token-এর দাম ভাষা দেখে বদলায় না। তাই যত বেশি token, তত বেশি বিল।</p>
-    <p>▶1 ধরুন আপনার একটা app ইংরেজিতে চালাতে মাসে ১০০ ডলার লাগে।</p>
-    <p>▶2 একই app, একই কাজ, পুরোটা বাংলায়—নতুন tokenizer-এর model-এ লাগবে প্রায় ১৭১ ডলার।</p>
+    <p>এবার আপনার পকেটের হিসাব।</p>
+    <p>Token-এর দাম ভাষাভেদে বদলায় না। বেশি token মানেই বেশি বিল।</p>
+    <p>▶1 ধরুন, ইংরেজিতে আপনার app চালাতে মাসে ১০০ ডলার খরচ হয়।</p>
+    <p>▶2 একই কাজ বাংলায় করলে, নতুন tokenizer-এর model-এ লাগবে প্রায় ১৭১ ডলার।</p>
     <p>▶3 আর পুরনো GPT-4-এর tokenizer-এ প্রায় ৫৮৮ ডলার।</p>
-    <p>▶4 হিসাবটা শুধু সংখ্যার গুণফল—কিন্তু business plan বানানোর সময় এই গুণটা না জানলে লোকসান নিশ্চিত।</p>
+    <p>▶4 হিসাবটা সহজ। কিন্তু business plan তৈরির সময় এই পার্থক্য না বুঝলে বাজেট ভুল হতে পারে।</p>
   </aside>
 </section>
 
 <!-- S12 · Context window -->
-<section>
+<section data-at="300.76" data-auto="2.48 8.40 11.26 23.83">
   <h2 data-enter="rise">মনে রাখার জায়গা</h2>
   <div class="panel w" data-step="print" data-fragment-index="1">
     <div class="panel-h" style="margin-bottom:0">context window: ১,০০,০০০ token<span class="eg">ধরা যাক</span></div>
@@ -388,17 +405,21 @@
   <span class="chip yellow" data-step="rise" data-fragment-index="4"><i data-lucide="timer"></i>বেশি token = সাধারণত বেশি অপেক্ষা (মাপা হয়নি)</span>
   <div class="src">শব্দ = ১,০০,০০০ ÷ শব্দপ্রতি token (নিজস্ব পরীক্ষা: ইংরেজি ১.২৩, বাংলা ২.৩৬ ও ৮.২০)</div>
   <aside class="notes">
-    <p>দ্বিতীয় দাম হলো মনে রাখার জায়গা।</p>
-    <p>▶1 প্রতিটা model একবারে নির্দিষ্ট সংখ্যক token পড়তে পারে—একে বলে context window।</p>
-    <p>▶2 ধরুন একটা model একবারে ১ লাখ token পড়তে পারে। ইংরেজিতে সেখানে আঁটে প্রায় ৮০ হাজার শব্দ।</p>
-    <p>▶3 বাংলায়? নতুন tokenizer-এ প্রায় ৪২ হাজার শব্দ। পুরনো GPT-4-এর tokenizer-এ মাত্র ১২ হাজার।</p>
-    <p>মানে একটা বড় বাংলা document, বা লম্বা একটা কথোপকথন, অনেক আগেই জায়গা ফুরিয়ে ফেলে।</p>
-    <p>▶4 আর তৃতীয় দাম সময়। AI উত্তর লেখে token ধরে ধরে। বেশি token মানে সাধারণত বেশি অপেক্ষা। এটা আমরা মাপিনি, তবে হিসাবটা সহজ।</p>
+    <p>দ্বিতীয় খরচ হলো context window।</p>
+    <p>▶1 এটি হলো model একবারে কত token পড়তে পারে তার সীমা।</p>
+    <p>ধরুন, সীমা ১ লাখ token।</p>
+    <p>▶2 ইংরেজিতে সেখানে প্রায় ৮০ হাজার শব্দ আঁটে।</p>
+    <p>▶3 নতুন tokenizer-এ বাংলায় প্রায় ৪২ হাজার।</p>
+    <p>আর পুরনো GPT-4 tokenizer-এ মাত্র ১২ হাজার।</p>
+    <p>মানে বড় বাংলা document বা দীর্ঘ কথোপকথনে জায়গা দ্রুত শেষ হয়ে যেতে পারে।</p>
+    <p>▶4 তৃতীয় খরচ হলো সময়।</p>
+    <p>AI token ধরে ধরে উত্তর তৈরি করে। তাই বেশি token মানে সাধারণত বেশি অপেক্ষা।</p>
+    <p>যদিও এই পরীক্ষায় আমরা response time মাপিনি।</p>
   </aside>
 </section>
 
 <!-- S13 · গবেষণা -->
-<section>
+<section data-at="335.49" data-auto="4.21 13.30 24.50">
   <h2 data-enter="rise">গবেষকেরাও দেখেছেন</h2>
   <div class="col w">
     <div class="panel inc" data-step="rise"><span class="yr">2023</span><b>ভাষাভেদে ১৫ গুণ পর্যন্ত বেশি token</b><span>Petrov, La Malfa, Torr, Bibi · NeurIPS 2023</span></div>
@@ -407,16 +428,17 @@
   <div class="rule" data-step="rise"><i data-lucide="git-compare"></i><span>আমাদের সংখ্যা আর তাদের সিদ্ধান্ত: <b>একই দিকে</b></span></div>
   <div class="src"><i data-lucide="link"></i>সূত্র: <a href="https://arxiv.org/abs/2305.15425">arxiv.org/abs/2305.15425</a> · <a href="https://arxiv.org/abs/2305.13707">arxiv.org/abs/2305.13707</a></div>
   <aside class="notes">
-    <p>শুধু আমরা নই, গবেষকেরাও এটা দেখেছেন।</p>
-    <p>▶1 ২০২৩ সালে NeurIPS-এ প্রকাশিত একটা গবেষণা দেখিয়েছে, একই অনুবাদ করা লেখা ভাষাভেদে ১৫ গুণ পর্যন্ত বেশি token নিতে পারে।</p>
-    <p>▶2 আরেকটা গবেষণা OpenAI-এর API নিয়ে ২২টা ভাষায় পরীক্ষা করেছে। তাদের কথায়, অনেক ভাষার মানুষ বেশি টাকা দিচ্ছেন, অথচ উত্তর পাচ্ছেন খারাপ।</p>
-    <p>▶3 আমাদের পরীক্ষার সংখ্যা আর তাদের সিদ্ধান্ত—একই দিকে ইঙ্গিত করে।</p>
-    <p>[সূত্র slide-এর নিচে আর research/SOURCES.md-এ।]</p>
+    <p>শুধু আমাদের পরীক্ষা নয়, গবেষণাতেও একই বিষয় উঠে এসেছে।</p>
+    <p>▶1 ২০২৩ সালে NeurIPS-এ প্রকাশিত একটি গবেষণায় দেখা গেছে, একই অনুবাদ করা লেখায় ভাষাভেদে ১৫ গুণ পর্যন্ত token-এর পার্থক্য হতে পারে।</p>
+    <p>▶2 আরেকটি গবেষণায় OpenAI API দিয়ে ২২টি ভাষা পরীক্ষা করা হয়েছে।</p>
+    <p>গবেষকদের বক্তব্য, অনেক ভাষার মানুষ বেশি খরচ করছেন, অথচ তুলনামূলক খারাপ উত্তর পাচ্ছেন।</p>
+    <p>▶3 আমাদের পরীক্ষার ফলাফলও একই দিকে ইঙ্গিত করে।</p>
+    <p>(সূত্র slide-এর নিচে এবং decks/bangla-token-cost/research/SOURCES.md ফাইলে।)</p>
   </aside>
 </section>
 
 <!-- S14 · কী করবেন -->
-<section>
+<section data-at="363.54" data-auto="2.63 8.98 15.33 22.78">
   <h2 data-enter="rise">কী করবেন</h2>
   <div class="items w">
     <div class="item" data-step="rise"><span class="n">01</span><span>বানানোর আগে token গুনুন: <code>len(enc.encode(text))</code></span></div>
@@ -425,16 +447,18 @@
     <div class="item" data-step="rise"><span class="n">04</span><span>ইংরেজিতে অনুবাদ করে পাঠানোর আগে উত্তরের মান যাচাই করুন</span></div>
   </div>
   <aside class="notes">
-    <p>তাহলে কী করবেন? চারটা কাজ।</p>
-    <p>▶1 প্রথম, কিছু বানানোর আগে token গুনে দেখুন। tiktoken-এর মতো tool দিয়ে এক লাইন code-এই গোনা যায়।</p>
-    <p>▶2 দ্বিতীয়, আপনার app-এর খরচ হিসাব করুন বাংলা লেখা দিয়ে, ইংরেজি দিয়ে নয়। আসল user যে ভাষায় লিখবে, সেই ভাষায় মাপুন।</p>
-    <p>▶3 তৃতীয়, নতুন tokenizer-ওয়ালা model বেছে নিন। আর বাংলা-প্রধান product হলে, ভারতীয় ভাষার জন্য বানানো model-ও একবার তুলনা করে দেখুন।</p>
-    <p>▶4 চতুর্থ, খরচ বাঁচাতে সবকিছু ইংরেজিতে অনুবাদ করে পাঠানোর আগে দেখে নিন, উত্তরের মান ঠিক থাকছে কি না। সস্তা উত্তর যদি ভুল হয়, সেটা আসলে সস্তা নয়।</p>
+    <p>তাহলে কী করবেন?</p>
+    <p>চারটি কাজ।</p>
+    <p>▶1 প্রথমত, app বানানোর আগে token গুনে দেখুন। tiktoken-এর মতো tool দিয়ে সহজেই এটি করা যায়।</p>
+    <p>▶2 দ্বিতীয়ত, খরচের হিসাব করুন ব্যবহারকারীর আসল ভাষায়। শুধু ইংরেজি দিয়ে পরীক্ষা করবেন না।</p>
+    <p>▶3 তৃতীয়ত, নতুন tokenizer-যুক্ত model বেছে নিন। বাংলা-প্রধান product হলে ভারতীয় ভাষার model-ও তুলনা করুন।</p>
+    <p>▶4 চতুর্থত, খরচ বাঁচাতে সব লেখা ইংরেজিতে অনুবাদ করার আগে output-এর মান যাচাই করুন।</p>
+    <p>কারণ ভুল উত্তর সস্তা হলেও, শেষ পর্যন্ত তা সস্তা নয়।</p>
   </aside>
 </section>
 
 <!-- S15 · সীমাবদ্ধতা -->
-<section>
+<section data-at="397.29" data-auto="2.28 8.22 15.62 20.59">
   <h2 data-enter="rise">সীমাবদ্ধতা</h2>
   <div class="items w">
     <div class="item" data-step="rise"><i data-lucide="scale"></i>এই পরীক্ষা খরচ মেপেছে, উত্তরের মান নয়</div>
@@ -443,30 +467,34 @@
   </div>
   <span class="chip" data-step="rise"><i data-lucide="code"></i>code ও ফলাফল: github.com/salmansrizon/video-slides</span>
   <aside class="notes">
-    <p>কয়েকটা সীমাবদ্ধতাও বলে রাখি।</p>
-    <p>▶1 Token কম মানেই উত্তর ভালো, তা নয়। এই পরীক্ষা শুধু খরচ মেপেছে, মান নয়।</p>
-    <p>▶2 আমাদের বাক্যগুলো খবরের ভাষার মতো। চ্যাটের বাংলা, বা ইংরেজি মেশানো বাংলায় সংখ্যাটা আলাদা হতে পারে।</p>
-    <p>▶3 আর Claude বা Gemini আমরা মাপতে পারিনি, কারণ তাদের tokenizer প্রকাশ্য নয়।</p>
-    <p>▶4 পুরো পরীক্ষার code আর ফলাফল রাখা আছে, যে কেউ নিজে চালিয়ে মিলিয়ে দেখতে পারেন।</p>
+    <p>কিছু সীমাবদ্ধতাও মনে রাখুন।</p>
+    <p>▶1 কম token মানেই ভালো উত্তর নয়। আমরা শুধু token খরচ মেপেছি, উত্তরের মান নয়।</p>
+    <p>▶2 আমাদের ডেটা মূলত খবরের ভাষার মতো। কথ্য বাংলা বা বাংলা-ইংরেজি মিশ্র ভাষায় ফল আলাদা হতে পারে।</p>
+    <p>▶3 Claude আর Gemini-ও পরীক্ষা করতে পারিনি, কারণ তাদের tokenizer প্রকাশ্যে পাওয়া যায় না।</p>
+    <p>▶4 তবে পুরো পরীক্ষার code ও ফলাফল রাখা আছে। চাইলে যে কেউ নিজে যাচাই করতে পারবেন।</p>
   </aside>
 </section>
 
 <!-- S16 · শেষ কথা -->
-<section class="center">
+<section class="center" data-at="424.24" data-auto="1.51 9.94 22.68 24.76">
   <h1 data-step="rise">AI-এর বিল আসে <span class="accent">token</span>-এ</h1>
   <p class="say" data-step="rise">সমস্যা আমাদের ভাষার নয়, AI বাংলা কম দেখেছে</p>
   <span class="stamp y" data-step="stamp" data-rotate="-4" style="font-size:52px">অনুমান নয়, মেপে দেখুন</span>
   <span class="chip lg" data-step="rise"><i data-lucide="message-circle"></i>আপনার app-এ কতটা বাংলা, মাসে কত token?</span>
   <aside class="notes">
     <p>শেষ কথা।</p>
-    <p>▶1 AI-এর বিলটা আসে token-এ। আর বাংলায় সেই token এখনো বেশি লাগে—আগের চেয়ে অনেক কম, কিন্তু এখনো বেশি।</p>
-    <p>▶2 সমস্যাটা আমাদের ভাষার নয়। সমস্যা হলো, AI বাংলা কম দেখেছে। যত বেশি ভালো বাংলা লেখা অনলাইনে আসবে, এই ফাঁক তত কমবে।</p>
-    <p>▶3 ততদিন পর্যন্ত নিয়ম একটাই: অনুমান নয়, মেপে দেখুন।</p>
-    <p>▶4 কমেন্টে জানান: আপনার app-এ কতটা বাংলা থাকে, আর মাসে কত token খরচ হয়? পরের আলোচনায় দেখব, AI কেন আত্মবিশ্বাসের সাথে ভুল কথা বলে।</p>
+    <p>▶1 AI-এর বিল আসে token হিসেবে। বাংলায় এখনো বেশি token লাগে। আগের চেয়ে অনেক কমেছে, কিন্তু পার্থক্য এখনো আছে।</p>
+    <p>▶2 সমস্যাটা আমাদের ভাষার নয়। AI বাংলা তুলনামূলক কম দেখেছে।</p>
+    <p>অনলাইনে যত বেশি মানসম্মত বাংলা লেখা আসবে, এই ব্যবধান কমার সম্ভাবনাও তত বাড়বে।</p>
+    <p>ততদিন নিয়ম একটাই।</p>
+    <p>▶3 অনুমান নয়, মেপে দেখুন।</p>
+    <p>▶4 কমেন্টে জানান, আপনার app-এ কতটা বাংলা ব্যবহার হয়, আর মাসে কত token খরচ হয়।</p>
+    <p>পরের আলোচনায় দেখব, AI কেন আত্মবিশ্বাসের সঙ্গে ভুল কথা বলে।</p>
   </aside>
 </section>
 
 </div></div>
+<audio data-vo src="assets/vo.mp3" preload="none"></audio>
 
 <script src="../../vendor/gsap/gsap.min.js"></script>
 <script src="../../vendor/gsap/SplitText.min.js"></script>

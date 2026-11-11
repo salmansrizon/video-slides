@@ -31,7 +31,7 @@ const norm = s => s.toLowerCase().normalize('NFD').replace(/[^\p{L}\p{M}\p{N}]/g
 const html = readFileSync(deckPath, 'utf8'), tokens = [], said = [], anchors = [];
 [...html.matchAll(/<section\b[^>]*>[\s\S]*?<\/section>/g)].forEach((m, slide) => {
   const notes = [...(m[0].match(/<aside class="notes">([\s\S]*?)<\/aside>/)?.[1] || '').matchAll(/<p>([\s\S]*?)<\/p>/g)]
-    .map(p => p[1].replace(/\[[^\]]*\]/g, ' ').replace(/<[^>]+>/g, ' ')).join(' ');
+    .map(p => p[1].replace(/\[[^\]]*\]|\([^)]*\)/g, ' ').replace(/<[^>]+>/g, ' ')).join(' ');   // [screen] and (presenter) notes aren't spoken
   let pending = 0, begun = false;
   for (const raw of notes.split(/[\s—–]+/)) {
     const cue = raw.match(/^▶(\d+)$/);
@@ -53,7 +53,10 @@ const audioPath = resolve(dirname(deckPath), audio);
 const log = spawnSync('ffmpeg', ['-hide_banner', '-i', audioPath, '-af', 'silencedetect=noise=-38dB:d=0.2', '-f', 'null', '-'], { encoding: 'utf8' }).stderr;
 const starts = [...log.matchAll(/silence_start: ([\d.]+)/g)].map(m => +m[1]), ends = [...log.matchAll(/silence_end: ([\d.]+)/g)].map(m => +m[1]);
 const length = +spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', audioPath], { encoding: 'utf8' }).stdout;
-const pauses = [{ s: 0, e: 0 }, ...ends.map((e, i) => ({ s: Math.max(0, starts[i]), e })).filter(p => p.e > 0.3 && p.e < length - 0.3)];
+// pauses[0] is where the first word starts: 0, or the end of the silence the audio opens with.
+let lead0 = 0;
+if (starts[0] <= 0.05) { lead0 = ends.shift(); starts.shift(); }
+const pauses = [{ s: 0, e: lead0 }, ...ends.map((e, i) => ({ s: Math.max(0, starts[i]), e })).filter(p => p.e > 0.3 && p.e < length - 0.3)];
 
 const cuts = [0];   // each piece ends in the middle of the last pause within 25 s
 while (length - cuts.at(-1) > 25) {
