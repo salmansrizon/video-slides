@@ -1,0 +1,73 @@
+{
+ "dataset": "FLORES-200 devtest, 1012 parallel sentences",
+ "eng_words": 21901,
+ "ben_words": 19493,
+ "eng_chars": 131960,
+ "ben_chars": 130079,
+ "tokenizers": {
+  "gpt2": {
+   "used_by": "GPT-2 / GPT-3 (2019–2020)",
+   "eng_tokens": 27041,
+   "ben_tokens": 259663,
+   "premium": 9.6,
+   "eng_tokens_per_word": 1.23,
+   "ben_tokens_per_word": 13.32
+  },
+  "cl100k_base": {
+   "used_by": "GPT-3.5, GPT-4 (2023)",
+   "eng_tokens": 27182,
+   "ben_tokens": 159784,
+   "premium": 5.88,
+   "eng_tokens_per_word": 1.24,
+   "ben_tokens_per_word": 8.2
+  },
+  "o200k_base": {
+   "used_by": "GPT-4o and later (2024–)",
+   "eng_tokens": 26873,
+   "ben_tokens": 45913,
+   "premium": 1.71,
+   "eng_tokens_per_word": 1.23,
+   "ben_tokens_per_word": 2.36
+  },
+  "qwen2.5": {
+   "used_by": "Qwen 2.5 (open model, Alibaba)",
+   "eng_tokens": 27621,
+   "ben_tokens": 138710,
+   "premium": 5.02,
+   "eng_tokens_per_word": 1.26,
+   "ben_tokens_per_word": 7.12
+  },
+  "mistral-nemo": {
+   "used_by": "Mistral Nemo (open model)",
+   "eng_tokens": 27827,
+   "ben_tokens": 53986,
+   "premium": 1.94,
+   "eng_tokens_per_word": 1.27,
+   "ben_tokens_per_word": 2.77
+  },
+  "sarvam-1": {
+   "used_by": "Sarvam-1 (LLM built for Indian languages)",
+   "eng_tokens": 31419,
+   "ben_tokens": 34945,
+   "premium": 1.11,
+   "eng_tokens_per_word": 1.43,
+   "ben_tokens_per_word": 1.79
+  },
+  "indicbert-v2": {
+   "used_by": "IndicBERT v2 (Indic languages, AI4Bharat)",
+   "eng_tokens": 27075,
+   "ben_tokens": 27592,
+   "premium": 1.02,
+   "eng_tokens_per_word": 1.24,
+   "ben_tokens_per_word": 1.42
+  },
+  "banglabert": {
+   "used_by": "BanglaBERT (trained on Bangla, BUET)",
+   "eng_tokens": 45399,
+   "ben_tokens": 26629,
+   "premium": 0.59,
+   "eng_tokens_per_word": 2.07,
+   "ben_tokens_per_word": 1.37
+  }
+ }
+}

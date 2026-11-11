@@ -22,6 +22,7 @@ Animated HTML Decks for the user's videos. The user opens each Deck in Chrome, c
 - Every Slide must work in both Formats. Check `index.html?format=vertical` too. Use `.split` for side by side (it stacks in Vertical); branch on `Deck.vertical` inside presets.
 - Animate with `data-enter="preset"` (plays when the Slide appears) and `data-step="preset"` (one click; reverses on back-click). Built-in presets: `rise slide land crash stamp hide words stream type draw count mark dim` (see the comments in `lib/deck.js`). Custom: `Deck.preset('name', el => gsapTimeline)` before `Deck.start()`.
 - Presets are synchronous and return a GSAP animation, never a Promise: GSAP animations are thenable, so awaiting one blocks until it finishes playing. For async work (Mermaid), return a timeline at once and add tweens when the work resolves.
+- Steps a script generates at load (charts built from data) are invisible to `sync-notes.mjs`; put `data-step-count="N"` on their container so the Cue check still counts them.
 - Steps run in DOM order. When the click order must differ (an inner element before its wrapper), or two elements must move on one click, give every Step on that Slide an explicit `data-fragment-index`.
 - Several Steps moving the same target (a slider knob, a counter): later ones use `immediateRender: false`. Measure positions with layout offsets (see `at()` in the AI system-design deck), not `getBoundingClientRect`, so entry transforms and Reveal's scaling don't skew them.
 - GSAP owns time. Anything that moves (Chart.js data, Lottie frames, Three.js objects) is driven by a GSAP timeline so it reverses and survives jumping between Slides. See the `bars`, `tree`, `flow` and `orbit` presets in the template.
@@ -30,7 +31,7 @@ Animated HTML Decks for the user's videos. The user opens each Deck in Chrome, c
 ## Building a Deck from a Script
 
 1. Read the Script. Split it into Slides: one idea per Slide, one Step per sentence that introduces something new on screen.
-2. Make the Script the source of the Notes, in the synced format `scripts/script2.txt` uses (back up the original first; `scripts/script1.txt` is a dialogue-only reading copy, and its Deck plays its Steps by themselves from `data-auto` times on each `<section>`): per scene `## S<n> · title`, a header line `⏭ Slide <n> · ▶ ×<count>`, then `**VO:**` with the spoken lines, a numbered Cue `▶1`, `▶2` … right before the word where the click lands, `[auto]` for things that play by themselves, `[…]` for screen notes. Mark each Slide in the Deck with `<!-- S<n> · title -->`, then run `node tools/sync-notes.mjs <script> <deck>`: it writes the Notes and must report every Slide in sync. Never edit Notes by hand; edit the Script and re-run. The presenter reads the Notes in speaker view (key `S`).
+2. Scripts in `scripts/` are dialogue-only reading copies (`## Slide <n>`, then the spoken lines, presenter notes in parentheses); `script1.txt` and `script2.txt` both use it. The ▶ Cues live in each Deck's Notes, which were written from a synced version (`script1`'s Deck plays its Steps by themselves from `data-auto` times on each `<section>`; `script2`'s Deck steps on ↓). When a Deck's Notes must be rebuilt, write the synced format first: per scene `## S<n> · title`, a header line `⏭ Slide <n> · ▶ ×<count>`, then `**VO:**` with the spoken lines, a numbered Cue `▶1`, `▶2` … right before the word where the click lands, `[auto]` for things that play by themselves, `[…]` for screen notes. Mark each Slide in the Deck with `<!-- S<n> · title -->`, then run `node tools/sync-notes.mjs <script> <deck>`: it writes the Notes and must report every Slide in sync. Never edit Notes by hand; edit the Script and re-run. The presenter reads the Notes in speaker view (key `S`).
    - Scripts are usually Bangla. `lib/deck.css` falls back to Anek Bangla for Bengali glyphs and pads word masks so vowel signs aren't clipped. Use `data-locale="bn-BD"` on `count` for Bengali digits. The `type` preset splits by grapheme, so conjuncts never break. Never split Bangla text into characters.
 3. Copy `templates/deck/` to `decks/<video-name>/`. Delete the sample Slides, unused `<script>` tags and unused presets.
 4. Assets (real ones, never drawn or hotlinked):
@@ -39,6 +40,16 @@ Animated HTML Decks for the user's videos. The user opens each Deck in Chrome, c
    - Look at every downloaded file before using it.
 5. Theme: default is shadcn neutral dark (Basecoat tokens, Inter). `decks/ai-agent-system-design/` has a fuller dark explainer style (cards, pills, icon tiles, stamps, red failure → rule card → green test) modelled on the user's reference video; reuse it when the user wants that look. To restyle a Deck, paste a TweakCN/shadcn theme (`:root` and `.dark` variables) into its `<style>`. Tailwind utilities can use the tokens (`text-muted-foreground`, `bg-card`, `text-chart-2`).
 6. Verify: `node tools/check-deck.mjs decks/<video-name>/index.html` must report 0 console errors in both Formats. Then look at the screenshots it saves and fix anything clipped, overlapping or unreadable.
+
+## Talk Decks (live talk with a face cam)
+
+Every Talk uses one format ([docs/adr/0003](docs/adr/0003-shared-talk-format.md)); `decks/sustainable-ai-coding/` is the reference.
+
+- Load `lib/talk.css` after `deck.css`, and `lib/talk.js` after `deck.js`; start with `Deck.start({ keyboard: Talk.keys })`. Keys: ↓/↑ Steps, →/← Slides, `C` face-cam guide. Demo inputs: `Talk.field(el)`.
+- Every Slide: `<h2>` title first (add `<span class="num">` for numbered rules), optional `.lead`, then content from the kit in `lib/talk.css` (`.panel .item .chip .tile .stamp .rule .term .flow .inc .split .grid2 .kinetic .big .eg`), `.src` source line when a number is shown. Title Slide: `<section class="center">` with `<h1>`.
+- Dark, solid background always: no grids, dots, glows or shapes behind text. Graphs, simulations and Demos go inside a `.panel`; no full-screen scenes.
+- The Deck's Look is a skin: override the variables at the top of `lib/talk.css` (`--bg --card --accent --font --mono --radius` …) in the Deck's `<style>`, and give it its own motion presets. Fonts are the same in every Talk (Inter + Anek Bangla; JetBrains Mono for code and source lines), set by `lib/talk.css`. Don't restyle the layout or the face-cam padding.
+- Content stays out of the right 480 px (Landscape) and bottom 560 px (Vertical).
 
 ## Skills
 

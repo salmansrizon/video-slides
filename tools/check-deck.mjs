@@ -2,7 +2,7 @@
 // Prints console errors and saves one screenshot per Step to look at; then steps all the way back.
 //   node tools/check-deck.mjs decks/my-video/index.html [--out DIR] [--wait 1.2]
 // Exit 1 if the Deck logged errors or never finished Deck.start().
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -14,6 +14,15 @@ if (!file) { console.log('Usage: node tools/check-deck.mjs <deck index.html> [--
 const out = resolve(flag('out') || join(tmpdir(), 'deck-check', basename(dirname(resolve(file)))));
 const wait = ms => new Promise(r => setTimeout(r, ms)), settle = (+flag('wait') || 1.2) * 1000;
 mkdirSync(out, { recursive: true });
+
+// Two checks at once have crashed Chrome on this machine: queue behind a running check (a lock older than 20 min is stale).
+const lock = join(tmpdir(), 'deck-check.lock');
+for (;;) {
+  try { mkdirSync(lock); break; } catch {}
+  try { if (Date.now() - statSync(lock).mtimeMs > 1200e3) rmSync(lock, { recursive: true, force: true }); } catch {}
+  await wait(2000);
+}
+process.on('exit', () => rmSync(lock, { recursive: true, force: true }));
 
 // motionmaxxing's finder only knows macOS/Linux paths.
 process.env.CHROME_PATH ||= ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',

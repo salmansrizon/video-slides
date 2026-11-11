@@ -34,7 +34,9 @@ for (let i = marks.length - 1; i >= 0; i--) {   // back to front, so earlier off
   let part = html.slice(start, end);
   const tags = [...part.matchAll(/<[^>]*\sdata-step="[^"]*"[^>]*>/g)].map(m => m[0]);
   const indexed = new Set(tags.map(t => t.match(/data-fragment-index="(\d+)"/)?.[1]).filter(Boolean));
-  const steps = indexed.size + tags.filter(t => !/data-fragment-index=/.test(t)).length;
+  // Steps a script creates at runtime can't be seen here; such elements declare them with data-step-count="N".
+  const generated = [...part.matchAll(/data-step-count="(\d+)"/g)].reduce((a, m) => a + +m[1], 0);
+  const steps = indexed.size + tags.filter(t => !/data-fragment-index=/.test(t)).length + generated;
   const sc = scenes.get(n);
   if (!sc) { report.unshift(`S${n}: no scene in the Script`); failed = true; continue; }
   const cues = sc.lines.join(' ').match(/▶(\d+)/g)?.map(c => +c.slice(1)) ?? [];

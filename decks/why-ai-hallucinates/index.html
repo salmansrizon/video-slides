@@ -1,0 +1,1208 @@
+<!doctype html>
+<html lang="bn" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChatGPT কেন "জানি না" বলে না</title>
+<!-- Talk with a Cap face cam, in the shared Talk format (docs/adr/0003). Script: scripts/why-ai-hallucinates.txt
+     (speaker notes, key S; Cues in research/script.synced.txt). Keys: ← → Slides, ↓ ↑ points, C face-cam guide.
+     Every number comes from research/SOURCES.md; "ধরা যাক" values are Illustrations. -->
+<link rel="stylesheet" href="../../vendor/reveal/reveal.css">
+<link rel="stylesheet" href="../../lib/deck.css">
+<link rel="stylesheet" href="../../lib/talk.css">
+<style>
+  /* Skin: an OMR answer sheet at night. Cool graphite ground, bubbles printed in OMR teal, the model's pencil marks
+     light graphite (density = probability), the examiner's red pen only for wrong answers and penalties. */
+  @font-face { font-family: 'Tiro'; src: url('../../vendor/fonts/TiroBangla-Bengali-400.woff2') format('woff2'); font-weight: 400; font-display: block; unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+200C-200D, U+25CC; }
+  @font-face { font-family: 'Tiro'; src: url('../../vendor/fonts/TiroBangla-Latin-400.woff2') format('woff2'); font-weight: 400; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2190-21FF, U+20AC, U+2122, U+2212, U+2260; }
+  @font-face { font-family: 'Barlow'; src: url('../../vendor/fonts/BarlowCondensed-500.woff2') format('woff2'); font-weight: 500; font-display: block; }
+  @font-face { font-family: 'Barlow'; src: url('../../vendor/fonts/BarlowCondensed-600.woff2') format('woff2'); font-weight: 600; font-display: block; }
+  @font-face { font-family: 'Barlow'; src: url('../../vendor/fonts/BarlowCondensed-700.woff2') format('woff2'); font-weight: 700; font-display: block; }
+  @font-face { font-family: 'Atma'; src: url('../../vendor/fonts/Atma-Bengali-400.woff2') format('woff2'); font-weight: 400; font-display: block; unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+200C-200D, U+25CC; }
+  @font-face { font-family: 'Atma'; src: url('../../vendor/fonts/Atma-Bengali-600.woff2') format('woff2'); font-weight: 600; font-display: block; unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+200C-200D, U+25CC; }
+  @font-face { font-family: 'Atma'; src: url('../../vendor/fonts/Atma-Latin-400.woff2') format('woff2'); font-weight: 400; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2190-21FF, U+20AC, U+2122, U+2212, U+2260; }
+  @font-face { font-family: 'Atma'; src: url('../../vendor/fonts/Atma-Latin-600.woff2') format('woff2'); font-weight: 600; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2190-21FF, U+20AC, U+2122, U+2212, U+2260; }
+
+  :root, :root.dark {
+    --bg: #0b0d0f; --fg: #eef2f3; --card: #14181b; --card-2: #192024; --border: #262d32; --muted-fg: #94a2a8; --dim: #59656d;
+    --accent: #3fd0c0; --accent-ink: #04201c;
+    --red: #e5484d; --red-fg: #ff7d82; --green: #4fd69a; --green-fg: #90f0c2; --blue: #3fd0c0; --blue-fg: #7fe6da;
+    --yellow: #f5c84b; --yellow-fg: #f8d97a;
+    --radius: 16px; --radius-sm: 12px;
+    --font: 'Tiro', 'Anek Bangla', serif; --mono: 'Barlow', 'Tiro', 'Anek Bangla', sans-serif;
+    --bg-art:
+      radial-gradient(ellipse 70% 60% at 40% 42%, rgba(63,208,192,.05), transparent 70%),
+      radial-gradient(circle, transparent 12px, rgba(63,208,192,.075) 12.5px 14.5px, transparent 15px) 0 0 / 64px 64px;
+    --muted-foreground: var(--muted-fg); --chart-1: #e5484d; --chart-3: #3fd0c0;
+    --ring: color-mix(in srgb, var(--accent) 55%, transparent);
+    --hatch: repeating-linear-gradient(118deg, rgba(0,0,0,.2) 0 2px, transparent 2px 6px);
+    --graphite: radial-gradient(circle at 38% 32%, #f3f6f7, #a9b4b9 75%);
+    --redmark: radial-gradient(circle at 38% 32%, #ff8a8f, #c8262f 72%);
+  }
+  /* Tiro Bangla has one weight: keep headings at 400 rather than a smeared synthetic bold. */
+  .reveal .slides :is(h1, h2) { font-weight: 400; letter-spacing: 0; }
+  .reveal .slides h2 { font-size: 64px; } html.vertical .reveal .slides h2 { font-size: 56px; }
+  .reveal .slides h1 { font-size: 92px; } html.vertical .reveal .slides h1 { font-size: 80px; }
+  .say { font-weight: 400; } .big { font-family: var(--mono); font-weight: 700; letter-spacing: 0; }
+  .stamp { font-family: 'Atma', var(--font); font-weight: 600; letter-spacing: .02em; text-transform: none; }
+  .chip, .item { font-weight: 400; }
+
+  /* Shared bits for this Deck's graphs and simulations */
+  .drv { display: none; }
+  .lbl { font: 500 26px/1.35 var(--mono); color: var(--muted-fg); letter-spacing: .01em; }
+  .pen { font-family: 'Atma', var(--font); font-weight: 600; color: var(--red-fg); line-height: 1.3; }
+  .en { font-family: var(--font); }
+  .rel { position: relative; } .abs { position: absolute; }
+  .rd { color: var(--red-fg); } .dimt { color: var(--muted-fg); }
+  .q { margin: 0; font-size: 34px; line-height: 1.45; }
+  .eg { font-family: var(--font); }
+  .self-start { align-self: flex-start; }
+
+  /* An OMR bubble: a printed teal ring; its .g is the pencil mark, whose opacity is the pencil density. */
+  .bub { --s: 46px; position: relative; display: inline-grid; place-items: center; flex: none; width: var(--s); height: var(--s); box-sizing: border-box;
+         border-radius: 50%; border: 2.5px solid var(--ring); color: color-mix(in srgb, var(--accent) 75%, #fff);
+         font: 500 calc(var(--s) * .44)/1 var(--mono); }
+  .g { position: absolute; inset: 3px; border-radius: 50%; opacity: 0; pointer-events: none; background: var(--hatch), var(--graphite); }
+  .r > .g, .g.r { background: var(--hatch), var(--redmark); }
+  .pk .g { background: var(--hatch), radial-gradient(circle at 38% 32%, #9ff3e9, #2fb3a5 75%); }
+
+  /* Pencil bars: a track with an <i data-w> bar and its value label after it. */
+  .trk { display: flex; align-items: center; gap: 12px; height: 30px; }
+  .trk i { display: block; height: 100%; width: 0; flex: none; border-radius: 6px; background: var(--hatch), var(--accent); }
+  .trk i.lt { background: var(--hatch), color-mix(in srgb, var(--accent) 35%, var(--card-2)); }
+  .trk i.gr { background: var(--hatch), #7d8a90; }
+  .trk i.rd { background: var(--hatch), var(--red); }
+  .trk b { font: 600 28px/1 var(--mono); white-space: nowrap; }
+  .trk b.rd { color: var(--red-fg); }
+  .bars2 { display: flex; flex-direction: column; gap: 6px; }
+  .prow { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: center; }
+  .mn { font: 600 30px/1.1 var(--mono); }
+  .leg { display: flex; gap: 26px; flex-wrap: wrap; } .leg i { display: inline-block; width: 26px; height: 16px; border-radius: 4px; margin-right: 8px; vertical-align: middle; }
+  .rr { display: flex; gap: 48px; font-size: 38px; flex-wrap: wrap; } .rr b { font: 700 42px/1 var(--mono); color: var(--accent); } .rr b.rd { color: var(--red-fg); }
+  .src { font-size: 20px; }
+
+  /* S1 / S20: the date-of-birth block */
+  .s1g { display: grid; grid-template-columns: auto 1fr; gap: 48px; width: 100%; align-items: start; }
+  html.vertical .s1g { gap: 28px; }
+  .dob { --b: 36px; padding: 22px 26px; }
+  html.vertical .dob { --b: 34px; padding: 18px 20px; }
+  .dm { display: flex; gap: 24px; margin-top: 6px; } .dm span { width: calc(var(--b) * 2 + 10px); text-align: center; }
+  .dob-grid { display: flex; gap: 10px; margin-top: 4px; }
+  .dcol { display: flex; flex-direction: column; gap: 6px; } .dcol:nth-child(3) { margin-left: 14px; }
+  .dob .bub { --s: var(--b); }
+  .wr { position: relative; width: var(--b); height: calc(var(--b) * 1.2); border: 2px solid var(--ring); border-radius: 8px; box-sizing: border-box; margin-bottom: 4px; }
+  .wr i { position: absolute; inset: 0; display: grid; place-items: center; font: 600 calc(var(--b) * .8)/1 var(--mono); font-style: normal; color: var(--fg); visibility: hidden; opacity: 0; }
+  .idk { display: flex; align-items: center; gap: 14px; margin-top: 14px; } .idk .bub { --s: 40px; }
+  .try { gap: 24px; } .try .lbl { width: 90px; flex: none; white-space: nowrap; } .try b { font-size: 44px; font-weight: 400; flex: 1; line-height: 1.3; }
+  .x { width: 46px; height: 46px; flex: none; overflow: visible; } .x path { fill: none; stroke: var(--red); stroke-width: 6; stroke-linecap: round; }
+  .note { font-size: 34px; margin: 0; transform: rotate(-1.5deg); transform-origin: left center; } .note .lbl { font-size: 22px; }
+  html.vertical .try { gap: 14px; padding: 12px 18px; } html.vertical .try b { font-size: 34px; } html.vertical .try .lbl { width: 70px; }
+  html.vertical .note { font-size: 30px; } html.vertical .s1g .lead { font-size: 32px; }
+
+  /* S2: the chat transcript */
+  .chat .term-body { font-family: var(--font); font-size: 28px; line-height: 1.5; display: flex; flex-direction: column; gap: 12px; }
+  .kl { display: grid; grid-template-columns: 140px 1fr; gap: 18px; }
+  .kl .who { font: 600 24px/1.75 var(--mono); color: var(--muted-fg); } .kl.ai .who { color: var(--accent); }
+  .judge .panel-h { font-size: 26px; font-weight: 400; color: var(--red-fg); margin-bottom: 8px; }
+  html.vertical .kl { grid-template-columns: 1fr; gap: 0; } html.vertical .chat .term-body { font-size: 26px; }
+
+  /* S3 */
+  .claim { white-space: nowrap; }
+  .fixn { font-size: 40px; margin: 0 0 8px; transform: rotate(-1deg); transform-origin: left center; }
+  html.vertical .fixn { font-size: 34px; }
+
+  /* S4: tally-mark bars; 2025 and 2026 break through the chart's top line and the axis rescales */
+  .s4g { display: grid; grid-template-columns: auto 1fr; gap: 32px; width: 100%; align-items: start; }
+  .tchart { --h: 380px; position: relative; display: flex; gap: 30px; padding: calc(var(--h) * .3) 0 0 70px; }
+  .tchart::before { content: ''; position: absolute; left: 60px; right: 0; top: calc(var(--h) * .3); border-top: 3px dashed var(--ring); }
+  .ax { position: absolute; left: 0; top: calc(var(--h) * .3 - 15px); } .ax b { font: 600 28px/1 var(--mono); color: var(--accent); }
+  .ty { display: flex; flex-direction: column; align-items: center; }
+  .ta { position: relative; width: 90px; height: var(--h); border-bottom: 3px solid var(--ring); }
+  .tb { position: absolute; left: 0; right: 0; bottom: 0; height: 0; overflow: hidden; }
+  .tb svg { position: absolute; left: 0; bottom: 0; width: 100%; display: block; overflow: visible; }
+  .tb path { fill: none; stroke: #dfe6e8; stroke-width: 2.6px; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+  .tv { position: absolute; left: -30px; right: -30px; bottom: 8px; text-align: center; font: 700 32px/1 var(--mono); }
+  .yr { font: 600 26px/1.15 var(--mono); color: var(--muted-fg); padding-top: 10px; text-align: center; } .yr small { display: block; font-size: 18px; }
+  .tot { display: flex; flex-direction: column; } .tot .big { font-size: 96px; }
+  .wrow { display: grid; grid-template-columns: 230px 1fr; gap: 14px; align-items: center; font-size: 28px; min-height: 46px; }
+  .whop, .ctry { display: flex; flex-direction: column; gap: 6px; padding: 22px 28px; }
+  .whop .stamp { right: 20px; top: 50%; margin-top: -30px; font-size: 32px; padding: 2px 16px; }
+  .cn { font: 700 32px/1 var(--mono); }
+  .empty { width: 120px; height: 38px; border: 2.5px dashed var(--ring); border-radius: 8px; }
+  .ctry .pen { font-size: 28px; margin: 4px 0 0; }
+  .myst { font-size: 42px; }
+  html.vertical .s4g { grid-template-columns: 1fr; gap: 22px; } html.vertical .tchart { --h: 200px; gap: 70px; }
+  html.vertical .s4side { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } html.vertical .whop { grid-column: 1 / -1; order: 3; }
+  html.vertical .tot .big { font-size: 80px; } html.vertical .myst { font-size: 38px; }
+
+  /* S5 / S6: next-token bubbles */
+  .omr { display: flex; flex-direction: column; gap: 16px; }
+  .sent { margin: 0; } .slot { display: inline-block; color: var(--accent); }
+  .tokq { display: flex; flex-direction: column; gap: 8px; }
+  .tokrow { display: flex; gap: 26px; flex-wrap: wrap; }
+  .opt { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 140px; }
+  .opt .bub { --s: 58px; }
+  .tk { font-size: 30px; line-height: 1.2; } .pc { font: 500 22px/1 var(--mono); color: var(--muted-fg); }
+  .cite .q { font-size: 30px; }
+  .tokrow.sm { gap: 10px; flex-wrap: nowrap; } .sm .opt { width: 96px; } .sm .bub { --s: 52px; } .sm .tk { font-size: 26px; } .sm .pc { font-size: 19px; }
+  .days { display: grid; grid-template-columns: repeat(8, auto); gap: 12px; justify-content: start; }
+  .days .opt { width: auto; } .days .bub { --s: 52px; }
+  html.vertical .tokrow { gap: 16px; } html.vertical .days .bub { --s: 64px; } html.vertical .days { gap: 14px 22px; }
+
+  /* S7: the question bank. Repeated facts stack tall; one-off facts lie alone */
+  .bank { display: flex; flex-direction: column; gap: 22px; }
+  .bankrow { display: flex; gap: 30px; align-items: flex-end; }
+  .stk { display: flex; flex-direction: column-reverse; align-items: center; width: 200px; flex: none; }
+  .sh { display: block; width: 184px; height: 10px; margin-top: -3px; box-sizing: border-box; background: var(--card-2); border: 1.5px solid #3a454c; border-radius: 2px; }
+  .sh:nth-child(3n) { transform: translateX(4px); } .sh:nth-child(4n+1) { transform: translateX(-3px); }
+  .cd { display: grid; place-items: center; width: 196px; height: 106px; box-sizing: border-box; padding: 8px 10px; text-align: center; margin-bottom: 2px;
+        background: #1e262b; border: 1.5px solid #3f4b52; border-radius: 8px; box-shadow: 0 8px 14px -8px #000; font-size: 26px; line-height: 1.25; }
+  .onesw { display: flex; flex-direction: column; gap: 40px; }
+  .ones { display: flex; gap: 30px; align-items: flex-end; position: relative; }
+  .ones svg { position: absolute; left: -30px; top: -30px; width: calc(100% + 60px); height: calc(100% + 60px); overflow: visible; pointer-events: none; }
+  .ones path { fill: none; stroke: var(--red); stroke-width: 5; stroke-linecap: round; }
+  .onenote { font-size: 30px; margin: 0; }
+  .r20 { display: flex; flex-direction: column; gap: 10px; }
+  .r20row { display: flex; align-items: center; gap: 16px; font-size: 30px; flex-wrap: wrap; } .r20row .arr { color: var(--accent); }
+  .bubs { display: flex; gap: 8px; } .bubs .bub { --s: 34px; }
+  html.vertical .bankrow { gap: 14px; } html.vertical .stk { width: 146px; } html.vertical .sh { width: 134px; }
+  html.vertical .cd { width: 144px; height: 100px; font-size: 22px; } html.vertical .ones { gap: 14px; } html.vertical .r20row { font-size: 27px; }
+  html.vertical .s7 .panel { padding: 24px 22px; }
+  /* S8: paired bars */
+  .pairs { display: flex; flex-direction: column; gap: 18px; }
+  html.vertical .prow { grid-template-columns: 1fr; gap: 6px; }
+
+  /* S9: the "can't answer" brake */
+  .chain { display: flex; align-items: center; gap: 18px; }
+  .node { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+  .node .bub { --s: 62px; }
+  .nm { width: 300px; align-items: flex-start; text-align: left; }
+  .nmv { display: grid; font-size: 38px; line-height: 1.2; min-height: 92px; align-items: center; } .nmv > span { grid-area: 1 / 1; }
+  .nmv > span:not(:first-child) { visibility: hidden; opacity: 0; }
+  .chain .arr { width: 44px; height: 44px; }
+  .out { display: flex; align-items: center; gap: 24px; min-height: 110px; border-top: 1px solid var(--border); margin-top: 18px; padding-top: 14px; }
+  .outv { display: grid; font-size: 32px; line-height: 1.3; } .outv > span { grid-area: 1 / 1; visibility: hidden; opacity: 0; }
+  .outv .pen { font-size: 30px; white-space: nowrap; }
+  .k9 { display: flex; flex-direction: column; gap: 6px; } .k9 p { margin: 0; font-size: 30px; }
+  html.vertical .chain { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } html.vertical .chain .arr { display: none; }
+  html.vertical .node { flex-direction: row; gap: 18px; text-align: left; } html.vertical .nm { width: auto; align-items: center; } html.vertical .nmv { min-height: 0; font-size: 32px; }
+  html.vertical .out { flex-direction: column; align-items: flex-start; gap: 6px; } html.vertical .outv { font-size: 28px; }
+
+  /* S10: calibration plot */
+  .plot { width: 520px; height: 520px; display: block; overflow: visible; margin-top: 10px; }
+  .reveal .plot text, .reveal .gauge text { font-family: var(--font); }
+  .plot .axl { fill: none; stroke: var(--ring); stroke-width: 3; }
+  .plot .diag { fill: none; stroke: var(--accent); stroke-width: 3; stroke-dasharray: 10 8; }
+  .plot .cv { fill: none; stroke: #e6ecee; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+  .plot text { font-size: 25px; fill: var(--muted-fg); } .plot .acc { fill: var(--accent); }
+  .cal .q { font-size: 30px; margin-top: 6px; }
+  html.vertical .plot { width: 500px; height: 500px; margin: 10px auto 0; }
+
+  /* S11: gauge + rows */
+  .hle { display: grid; grid-template-columns: 420px 1fr; gap: 32px; width: 100%; align-items: start; }
+  .gauge { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .gauge svg { width: 350px; height: 210px; overflow: visible; }
+  .gauge .arc { fill: none; stroke: var(--ring); stroke-width: 4; } .gauge line.tk { stroke: var(--ring); stroke-width: 3; }
+  .gauge #s11n { stroke: #e6ecee; stroke-width: 7; stroke-linecap: round; }
+  .gauge text { font-size: 28px; fill: var(--muted-fg); }
+  .read { display: flex; flex-direction: column; align-items: center; margin-top: 6px; } .read .big { font-size: 96px; color: var(--red-fg); }
+  .rows11 { display: flex; flex-direction: column; gap: 9px; padding: 24px 30px; }
+  .r11 { display: grid; grid-template-columns: 250px 1fr; gap: 14px; align-items: center; }
+  .r11 .mn { font-size: 25px; } .r11 .trk { height: 17px; } .r11 .trk b { font-size: 22px; } .r11 .bars2 { gap: 4px; }
+  .q11 { font-size: 30px; padding: 20px 30px; }
+  html.vertical .hle { grid-template-columns: 1fr; gap: 18px; }
+  html.vertical .gauge { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0 30px; padding: 20px; }
+  html.vertical .gauge svg { width: 300px; height: 180px; } html.vertical .read .big { font-size: 80px; }
+  html.vertical .r11 { grid-template-columns: 220px 1fr; } html.vertical .r11 .mn { font-size: 22px; } html.vertical .r11 .trk { height: 14px; } html.vertical .rows11 { gap: 7px; }
+  /* S12: the exam with no negative marking */
+  .rules12 .stamp { right: 30px; top: -26px; font-size: 38px; }
+  .g12 { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 24px; width: 100%; }
+  .opts4 { display: flex; gap: 30px; margin-top: 14px; } .opts4 .bub { --s: 62px; font-size: 28px; }
+  .oc { display: flex; flex-direction: column; gap: 8px; } .oc p { margin: 0; font-size: 32px; } .oc b { font: 700 46px/1 var(--mono); color: var(--accent); }
+  .mini { gap: 12px; margin-top: 2px; } .mini .bub { --s: 38px; font-size: 18px; }
+  .cite12 .q { font-size: 28px; }
+  html.vertical .g12 { grid-template-columns: 1fr 1fr; gap: 18px; } html.vertical .g12 > :first-child { grid-column: 1 / -1; }
+  html.vertical .rules12 .stamp { right: 10px; top: -36px; font-size: 32px; } html.vertical .oc p { font-size: 28px; }
+
+  /* S13: two models, one exam + the penalty slider (Demo) */
+  .lead13 { font-size: 30px; margin: 0; max-width: 1080px; }
+  .exam { display: grid; grid-template-columns: auto 1fr; gap: 32px; width: 100%; align-items: start; }
+  .grids { display: flex; gap: 32px; padding: 24px 30px; }
+  .gcol { display: flex; flex-direction: column; gap: 10px; }
+  .gcol > .lbl:first-child { font-size: 26px; color: var(--fg); }
+  .dots { display: grid; grid-template-columns: repeat(10, 24px); gap: 5px; }
+  .dots .bub { --s: 24px; border-width: 2px; }
+  .tally { font-size: 24px; }
+  .board { display: flex; flex-direction: column; gap: 18px; padding: 24px 30px; }
+  .rule13 { font-size: 30px; } .rule13 b { font: 700 36px/1 var(--mono); color: var(--accent); } .rule13 b.rd { color: var(--red-fg); }
+  .lb { --rh: 80px; position: relative; height: calc(var(--rh) * 2); }
+  .rk { position: absolute; left: 0; font: 700 44px/68px var(--mono); color: var(--accent); }
+  .lbr { position: absolute; left: 48px; right: 0; top: 0; height: 68px; display: grid; grid-template-columns: 100px 1fr 84px; gap: 12px; align-items: center;
+         border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 16px; box-sizing: border-box; background: var(--card-2); }
+  .lbr .nm { font-size: 30px; } .lbr .trk { height: 24px; } .lbr .trk i { width: 0; transition: none; }
+  .lbr .sc { font: 700 38px/1 var(--mono); text-align: right; } .lbr .sc.rd { color: var(--red-fg); }
+  .sld { display: flex; flex-direction: column; gap: 4px; }
+  #pen13 { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; cursor: grab; margin: 0; outline: none; }
+  #pen13::-webkit-slider-runnable-track { height: 6px; background: linear-gradient(90deg, var(--ring), var(--red)); border-radius: 3px; }
+  #pen13::-webkit-slider-thumb { -webkit-appearance: none; width: 40px; height: 40px; margin-top: -17px; border-radius: 50%; border: 3px solid var(--accent);
+    background: var(--hatch), var(--graphite); }
+  .ticks { position: relative; height: 30px; margin: 0 20px; } .ticks span { position: absolute; transform: translateX(-50%); font: 600 26px/1 var(--mono); color: var(--muted-fg); }
+  .fix13 { padding: 20px 30px; } .fix13 p { margin: 6px 0 0; font-size: 32px; } .fix13 b { font: 700 40px/1 var(--mono); color: var(--red-fg); }
+  html.vertical .lead13 { display: none; }
+  html.vertical .exam { grid-template-columns: 1fr; gap: 22px; } html.vertical .grids { justify-content: center; }
+  html.vertical .dots { grid-template-columns: repeat(10, 26px); } html.vertical .dots .bub { --s: 26px; }
+  html.vertical .lb { --rh: 76px; } html.vertical .fix13 p { font-size: 28px; } html.vertical .fix13 .lbl { font-size: 22px; }
+
+  /* S14: ten benchmarks and the loop */
+  .s14b { display: grid; grid-template-columns: 460px 1fr; gap: 32px; width: 100%; align-items: start; }
+  .strips { display: flex; flex-direction: column; gap: 6px; padding: 22px 26px; } .strips > .lbl { font-size: 22px; margin-bottom: 4px; }
+  .stp { display: grid; grid-template-columns: 1fr 130px; align-items: center; height: 40px; border: 1px solid var(--border); border-radius: 8px; padding-left: 16px;
+         font: 600 25px/1 var(--mono); background: var(--card-2); }
+  .cellx { position: relative; height: 100%; border-left: 1px dashed var(--ring); display: grid; place-items: center; }
+  .st { font: 600 26px/1.1 'Atma', var(--font); color: var(--red-fg); border: 3px solid var(--red); border-radius: 6px; padding: 0 10px; }
+  .st.part { font-size: 20px; padding: 2px 6px; color: var(--yellow-fg); border-color: var(--yellow); }
+  .loopp { display: grid; place-items: center; }
+  .loop { width: 660px; height: 486px; overflow: visible; }
+  .loop .arc { fill: none; stroke: #dfe6e8; stroke-width: 5; stroke-linecap: round; } .loop .hd { fill: #dfe6e8; }
+  .loop .nb { fill: var(--card-2); stroke: var(--accent); stroke-width: 3; }
+  .reveal .loop text { font: 30px var(--font); fill: var(--fg); }
+  .rev14 { font-size: 42px; }
+  html.vertical .s14b { grid-template-columns: 1fr; gap: 18px; }
+  html.vertical .strips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; } html.vertical .strips > .lbl { grid-column: 1 / -1; }
+  html.vertical .loop { width: 600px; height: 442px; } html.vertical .rev14 { font-size: 38px; }
+
+  /* S15: SimpleQA as 100 cells per model */
+  .cbp { display: flex; flex-direction: column; gap: 18px; }
+  .cb { position: relative; align-self: flex-start; display: flex; flex-direction: column; gap: 8px; }
+  .cbh { display: flex; align-items: baseline; gap: 24px; } .cbh small { font-size: 22px; color: var(--muted-fg); }
+  .tag { font-size: 30px; padding: 0 18px; }
+  .cells { display: grid; grid-template-rows: repeat(4, 28px); grid-auto-flow: column; grid-auto-columns: 28px; gap: 6px; }
+  .cells .bub { --s: 28px; border-width: 2px; }
+  .cells .okc .g { background: var(--hatch), radial-gradient(circle at 38% 32%, #9ff3e9, #2fb3a5 75%); }
+  .cl { position: relative; height: 40px; font: 600 28px/1.4 var(--mono); } .cl > span { position: absolute; top: 0; white-space: nowrap; }
+  .lab-ok { color: var(--accent); }
+  .x3 { position: absolute; right: -10px; top: -6px; font-size: 34px; }
+  .q15 { font-size: 26px; margin: 0; border-top: 1px solid var(--border); padding-top: 14px; }
+  html.vertical .cells { grid-template-rows: repeat(4, 27px); grid-auto-columns: 27px; gap: 5px; } html.vertical .cells .bub { --s: 27px; }
+  html.vertical .x3 { font-size: 28px; top: -40px; } html.vertical .cbh .mn { font-size: 26px; }
+  /* S16: AA-Omniscience */
+  .zl { display: flex; align-items: center; gap: 34px; margin-top: 14px; }
+  .zline { position: relative; width: 520px; height: 64px; flex: none; }
+  .zline::before { content: ''; position: absolute; left: 0; right: 0; top: 20px; border-top: 3px solid var(--ring); }
+  .zline::after { content: ''; position: absolute; left: 50%; top: 4px; height: 34px; border-left: 4px solid #e6ecee; }
+  .zline span { position: absolute; top: 34px; font: 600 24px/1.2 var(--mono); color: var(--muted-fg); white-space: nowrap; }
+  .zl .stamp { font-size: 30px; }
+  .grpp { display: flex; flex-direction: column; gap: 16px; } .grp { display: flex; flex-direction: column; gap: 16px; }
+  .def { font-size: 27px; }
+  html.vertical .zl { flex-direction: column; align-items: flex-start; gap: 14px; } html.vertical .zline { width: 780px; } html.vertical .zl .stamp { font-size: 26px; }
+
+  /* S17: the missing picture */
+  .s17b { display: grid; grid-template-columns: 520px 1fr; gap: 32px; width: 100%; align-items: start; }
+  .frame17 { display: flex; flex-direction: column; gap: 12px; }
+  .hole { position: relative; height: 250px; border: 3px dashed var(--ring); border-radius: var(--radius-sm); padding: 18px 22px; box-sizing: border-box; }
+  .hl { position: absolute; right: 12px; bottom: 8px; display: flex; align-items: center; gap: 8px; } .hl svg { width: 26px; height: 26px; }
+  .fab { margin: 0; font-size: 30px; line-height: 1.45; }
+  .frame17 .pen { font-size: 28px; }
+  .rows17 { display: flex; flex-direction: column; gap: 16px; }
+  .r17 { display: grid; grid-template-columns: 210px 1fr; gap: 14px; align-items: center; }
+  html.vertical .s17b { grid-template-columns: 1fr; gap: 20px; } html.vertical .hole { height: 190px; }
+
+  /* S18: the instructions, numbered on OMR bubbles */
+  .rl { align-items: flex-start; padding: 16px 22px; } .rl .bub { --s: 46px; font-size: 24px; margin-top: 2px; }
+  .rl p { margin: 0; font-size: 28px; line-height: 1.4; } .rl .dimt { font-size: 24px; }
+  .rl code { font: 600 27px var(--mono); color: var(--accent); }
+  .sim { padding: 16px 22px; display: flex; flex-direction: column; gap: 8px; }
+  .s5r { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; } .s5r .lbl { width: 100%; font-size: 23px; }
+  .a5 { font-size: 26px; border: 1px solid var(--border); border-radius: 8px; padding: 0 10px; background: var(--card-2); }
+  .a5.k { color: var(--accent); border-color: var(--ring); }
+  .sim .pen { font-size: 28px; margin: 0; }
+  html.vertical .rl p { font-size: 26px; } html.vertical .ins { gap: 14px; }
+
+  /* S19: limits */
+  .vec { display: flex; flex-direction: column; gap: 6px; }
+  .ax19 { position: relative; height: 150px; margin: 0 16px; }
+  .ax19::before { content: ''; position: absolute; left: 0; right: 0; top: 75px; border-top: 3px solid var(--ring); }
+  .tk19 { position: absolute; top: 88px; transform: translateX(-50%); font: 600 20px/1 var(--mono); color: var(--muted-fg); }
+  .dt { position: absolute; top: 76px; }
+  .dt i { position: absolute; left: -12px; top: -12px; width: 24px; height: 24px; border-radius: 50%; background: var(--graphite); }
+  .dt i.r { background: var(--redmark); }
+  .dt b { position: absolute; left: 0; bottom: 22px; transform: translateX(-50%); white-space: nowrap; font: 600 25px/1 var(--mono); }
+  .dt.dn b { bottom: auto; top: 22px; } .dt.l b { left: auto; right: 4px; transform: none; } .dt.rt b { left: 4px; transform: none; }
+  .ar { position: absolute; top: 74px; height: 4px; background: var(--red); }
+  .ar::after { content: ''; position: absolute; right: -6px; top: -7px; border-left: 14px solid var(--red); border-top: 9px solid transparent; border-bottom: 9px solid transparent; }
+  .n19 { font-size: 24px; }
+  .panel .cav19 { gap: 8px; } .panel .cav19 li { align-items: center; gap: 16px; font-size: 29px; line-height: 1.3; }
+  .panel .cav19 li::before { content: ''; flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2.5px solid var(--ring); box-sizing: border-box; }
+  html.vertical .panel .cav19 li { font-size: 27px; } html.vertical .dt b { font-size: 21px; }
+
+  /* S20 */
+  .fin { font-size: 40px; } .next .q, .cmt .q { font-size: 30px; }
+  html.vertical .fin { font-size: 32px; } html.vertical .next .q, html.vertical .cmt .q { font-size: 26px; }</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- S1 · তিনটা জন্মদিন -->
+<section>
+  <h2 data-enter="rise">তিনটা জন্মদিন</h2>
+  <div class="s1g">
+    <div class="panel dob" data-enter="rise">
+      <div class="lbl">জন্মতারিখ · DATE OF BIRTH</div>
+      <div class="lbl dm"><span>দিন</span><span>মাস</span></div>
+      <div class="dob-grid" id="dob1" data-dates="0307,1506,0101"></div>
+      <div class="idk"><span class="bub"><b class="g"></b></span><span class="lbl">জানি না</span></div>
+    </div>
+    <div class="col">
+      <p class="lead" data-enter="rise" data-delay=".2">DeepSeek-V3-কে প্রশ্ন: “জন্মদিন কবে? জানলে তবেই বলো।”</p>
+      <div class="item try" data-step="dob" data-grid="dob1" data-try="0"><span class="lbl">১ম বার</span><b>৩ জুলাই</b><svg class="x" viewBox="0 0 40 40"><path d="M7 8 L33 32"/><path d="M33 7 L8 33"/></svg></div>
+      <div class="item try" data-step="dob" data-grid="dob1" data-try="1"><span class="lbl">২য় বার</span><b>১৫ জুন</b><svg class="x" viewBox="0 0 40 40"><path d="M7 8 L33 32"/><path d="M33 7 L8 33"/></svg></div>
+      <div class="item try" data-step="dob" data-grid="dob1" data-try="2"><span class="lbl">৩য় বার</span><b>১ জানুয়ারি</b><svg class="x" viewBox="0 0 40 40"><path d="M7 8 L33 32"/><path d="M33 7 L8 33"/></svg></div>
+      <span class="drv" data-step="show" data-sel=".x path@draw"></span>
+      <p class="pen note" data-step="rise">যিনি জিজ্ঞেস করলেন, তিনিই গবেষণাটার প্রথম লেখক।<br><span class="lbl">Adam Tauman Kalai · OpenAI, ২০২৫</span></p>
+      <div class="rule" data-step="rise"><i data-lucide="pencil"></i><span>আত্মবিশ্বাসী, বানানো উত্তর = <b>hallucination</b></span></div>
+    </div>
+  </div>
+  <div class="src"><i data-lucide="link"></i>Kalai, Nachum, Vempala, Zhang, “Why Language Models Hallucinate” (OpenAI, ২০২৫) §1 · DeepSeek-V3-এর উত্তর: “03-07”, “15-06”, “01-01”</div>
+  <aside class="notes">
+    <p>OMR sheet-এর এই ঘরটা চেনেন তো? জন্মতারিখ।</p>
+    <p>একজন গবেষক একটা AI model-কে নিজের জন্মদিন জিজ্ঞেস করলেন। শর্ত: জানলে তবেই উত্তর দেবে।</p>
+    <p>DeepSeek-V3 প্রথমবার বলল: ▶1 ৩ জুলাই।</p>
+    <p>দ্বিতীয়বার: ▶2 ১৫ জুন।</p>
+    <p>তৃতীয়বার: ▶3 ১ জানুয়ারি।</p>
+    <p>তিনবার তিনটা আলাদা তারিখ—তিনবারই এমনভাবে, যেন জন্মনিবন্ধন দেখে বলছে। আর ▶4 তিনটাই ভুল।</p>
+    <p>▶5 প্রশ্নকর্তা Adam Kalai নিজেই এ বিষয়ে OpenAI-এর ২০২৫-এর গবেষণার প্রথম লেখক।</p>
+    <p>AI-এর এই আত্মবিশ্বাসী বানানো উত্তরের নাম ▶6 hallucination।</p>
+  </aside>
+</section>
+
+<!-- S2 · Mata v. Avianca -->
+<section>
+  <h2 data-enter="rise">Mata v. Avianca</h2>
+  <p class="lead" data-enter="rise">নিউ ইয়র্ক, ২০২৩ · আইনজীবী যাচাই করলেন ChatGPT-কেই জিজ্ঞেস করে</p>
+  <div class="term chat" data-enter="rise">
+    <div class="term-bar"><b></b><b></b><b></b><span>ChatGPT · আইনজীবীর হলফনামার screenshot থেকে</span></div>
+    <div class="term-body">
+      <div class="kl" data-step="rise" data-fragment-index="1"><span class="who">আইনজীবী</span><span>Is varghese a real case</span></div>
+      <div class="kl ai" data-step="rise" data-fragment-index="2"><span class="who">ChatGPT</span><span>Yes, Varghese v. China Southern Airlines Co Ltd, 925 F.3d 1339 (11th Cir. 2019) is a real case.</span></div>
+      <div class="col" style="gap:12px" data-step="rise" data-fragment-index="3">
+        <div class="kl"><span class="who">আইনজীবী</span><span>Are the other cases you provided fake</span></div>
+        <div class="kl ai" data-step="mark" data-mark="box" data-fragment-index="4"><span class="who">ChatGPT</span><span>No, the other cases I provided are real and can be found in reputable legal databases such as Lexis Nexis and Westlaw.</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel red judge w" data-step="rise" data-fragment-index="4">
+    <div class="panel-h"><i data-lucide="gavel"></i>বিচারক P. Kevin Castel · শাস্তির আদেশ, ২২ জুন ২০২৩</div>
+    <p class="q en">“…non-existent judicial opinions with fake quotes and citations created by the artificial intelligence tool ChatGPT”</p>
+  </div>
+  <div class="src"><i data-lucide="link"></i>Mata v. Avianca, No. 22-cv-1461 (S.D.N.Y.), Opinion and Order on Sanctions, ২২ জুন ২০২৩ · কথোপকথন: আইনজীবীর হলফনামার screenshot, Simon Willison-এর প্রতিলিপি (২৭ মে ২০২৩)</div>
+  <aside class="notes">
+    <p>এর দাম দিতে হয় আসল মানুষকে।</p>
+    <p>২০২৩, নিউ ইয়র্কের Mata v. Avianca মামলা। ChatGPT এক আইনজীবীকে কয়েকটা পুরনো মামলার নজির দিল।</p>
+    <p>আইনজীবী ChatGPT-কেই জিজ্ঞেস করলেন: ▶1 Varghese মামলাটা কি আসল?</p>
+    <p>উত্তর: ▶2 হ্যাঁ, এটা আসল মামলা।</p>
+    <p>▶3 বাকিগুলো কি ভুয়া? না, সব আসল—Lexis Nexis আর Westlaw-এর মতো নামকরা database-এ পাওয়া যাবে।</p>
+    <p>▶4 বিচারক শাস্তির আদেশে লিখলেন: জমা পড়েছে অস্তিত্বহীন রায়, ভুয়া উদ্ধৃতি আর রেফারেন্স—বানিয়েছে ChatGPT।</p>
+  </aside>
+</section>
+
+<!-- S3 · Bard-এর বিজ্ঞাপন -->
+<section>
+  <h2 data-enter="rise">Bard-এর বিজ্ঞাপন</h2>
+  <p class="lead" data-enter="rise">Google Bard · launch demo · ফেব্রুয়ারি ২০২৩<br>বিষয়: James Webb telescope-এর নতুন আবিষ্কার, ৯ বছরের শিশুকে সহজ করে বলা</p>
+  <div class="panel w" data-step="rise" data-fragment-index="1">
+    <div class="panel-h"><span class="tile"><i data-lucide="telescope"></i></span>Bard-এর উত্তরে (বাংলায়)</div>
+    <p class="say">সৌরজগতের বাইরের গ্রহের <span class="claim" data-step="mark" data-mark="strike" data-fragment-index="2">প্রথম ছবি তুলেছে James Webb</span>।</p>
+  </div>
+  <div class="panel green w" data-step="rise" data-fragment-index="2">
+    <p class="pen fixn">ভুল! প্রথম সরাসরি ছবি ২০০৪ সালে, ESO-র Very Large Telescope</p>
+    <p class="q en dimt">NASA: “2M1207 b is the first exoplanet directly imaged”</p>
+  </div>
+  <div class="src"><i data-lucide="link"></i>Google blog, Sundar Pichai, ৬ ফেব্রুয়ারি ২০২৩ · Bard-এর কথা: NPR, ৯ ফেব্রুয়ারি ২০২৩ · সংশোধন: NASA, “2M1207 b: first image of an exoplanet”</div>
+  <aside class="notes">
+    <p>এমনকি নির্মাতার নিজের বিজ্ঞাপনেও।</p>
+    <p>২০২৩-এর ফেব্রুয়ারি, Google-এর নতুন chatbot Bard-এর launch demo। ▶1 Bard বলল, সৌরজগতের বাইরের গ্রহের প্রথম ছবি তুলেছে James Webb telescope।</p>
+    <p>▶2 NASA বলছে, এমন গ্রহের প্রথম সরাসরি ছবি তোলা হয় ২০০৪ সালে, ESO-র Very Large Telescope দিয়ে।</p>
+  </aside>
+</section>
+
+<!-- S4 · আদালতের হিসাব -->
+<section>
+  <h2 data-enter="rise">আদালতের হিসাব</h2>
+  <div class="s4g">
+    <div class="panel" data-enter="rise">
+      <div class="lbl" style="max-width:520px">আদালতের সিদ্ধান্ত, যেখানে AI-এর বানানো ভুল নিয়ে কথা উঠেছে · বছর ধরে</div>
+      <div class="tchart" id="tally">
+        <div class="ax"><b></b></div>
+        <div class="ty"><div class="ta"><div class="tb"></div><span class="tv"></span></div><span class="yr">২০২৩</span></div>
+        <div class="ty"><div class="ta"><div class="tb"></div><span class="tv"></span></div><span class="yr">২০২৪</span></div>
+        <div class="ty"><div class="ta"><div class="tb"></div><span class="tv"></span></div><span class="yr">২০২৫</span></div>
+        <div class="ty"><div class="ta"><div class="tb"></div><span class="tv"></span></div><span class="yr">২০২৬<small>৫ নভে. পর্যন্ত</small></span></div>
+      </div>
+    </div>
+    <div class="col s4side">
+      <div class="tot" data-step="rise" data-fragment-index="1"><span class="lbl">Damien Charlotin-এর database · ৫ নভেম্বর ২০২৬ পর্যন্ত মোট</span><span class="big">২,২৬৬</span></div>
+      <div class="panel whop" data-step="grow" data-fragment-index="6">
+        <span class="lbl">কে জমা দিয়েছে</span>
+        <div class="wrow"><span>নিজের মামলা নিজে</span><div class="trk"><i class="gr" data-w="55"></i><b>১,৩০৫</b></div></div>
+        <div class="wrow"><span>আইনজীবী</span><div class="trk"><i class="gr" data-w="38"></i><b>৮৯৮</b></div></div>
+        <div class="wrow rel"><span>বিচারক</span><div class="trk"><i class="gr" data-w="1.5"></i><b>৩৩</b></div><span class="stamp abs" data-late="stamp" data-rotate="-8">বিচারকও!</span></div>
+      </div>
+      <div class="panel ctry" data-step="rise" data-fragment-index="7">
+        <span class="lbl">দেশ</span>
+        <div class="wrow" style="grid-template-columns:150px 1fr"><span>ভারত</span><b class="cn">১৬</b></div>
+        <div class="wrow" style="grid-template-columns:150px 1fr"><span>বাংলাদেশ</span><span class="empty"></span></div>
+        <p class="pen">তালিকায় নেই: গোনা হয়নি, ঘটেনি তা নয়</p>
+      </div>
+    </div>
+  </div>
+  <p class="say myst" data-step="rise" data-fragment-index="8">AI-এর bug? নাকি AI-কে <span class="accent">আমরাই</span> এভাবে শিখিয়েছি?</p>
+  <span class="drv" data-step="yr" data-i="0" data-fragment-index="2"></span>
+  <span class="drv" data-step="yr" data-i="1" data-fragment-index="3"></span>
+  <span class="drv" data-step="break" data-i="2" data-ka="k0" data-kb="k1" data-fragment-index="4"></span>
+  <span class="drv" data-step="break" data-i="3" data-ka="k1" data-kb="k2" data-fragment-index="5"></span>
+  <div class="src"><i data-lucide="link"></i>Damien Charlotin, AI Hallucination Cases (হালনাগাদ ৫ নভেম্বর ২০২৬) · বছরের ভাগ আমাদের গোনা, সিদ্ধান্তের তারিখ ধরে (৯ নভেম্বর ২০২৬); database রোজ বাড়ে</div>
+  <aside class="notes">
+    <p>এগুলো কি বিচ্ছিন্ন ঘটনা?</p>
+    <p>গবেষক Damien Charlotin আদালতের এমন সিদ্ধান্তের একটা database রাখেন, যেখানে AI-এর বানানো ভুল নিয়ে কথা উঠেছে। ৫ নভেম্বর ২০২৬ পর্যন্ত: ▶1 ২,২৬৬টা।</p>
+    <p>(রেকর্ডের আগে আবার গুনুন)</p>
+    <p>বছর ধরে আমরা নিজেরা গুনেছি। ▶2 ২০২৩-এ ১৬টা।</p>
+    <p>▶3 ২০২৪-এ ৫৬।</p>
+    <p>▶4 ২০২৫-এ এক লাফে ৮৬৫।</p>
+    <p>▶5 ২০২৬-এ ৫ নভেম্বর পর্যন্তই ১,৩২৯।</p>
+    <p>কার হাত দিয়ে? ▶6 নিজের মামলা নিজে লড়া মানুষ ১,৩০৫, আইনজীবী ৮৯৮—আর বিচারক ৩৩।</p>
+    <p>▶7 ভারত ১৬। বাংলাদেশ তালিকায় নেই—মানে গোনা হয়নি, ঘটেনি তার প্রমাণ নয়।</p>
+    <p>▶8 এরা কি AI-এর bug-এর শিকার? নাকি AI-কে আমরাই এভাবে শিখিয়েছি? আজ এই রহস্যটা খুলব।</p>
+  </aside>
+</section>
+
+<!-- S5 · এক টুকরো করে -->
+<section>
+  <h2 data-enter="rise">এক টুকরো করে</h2>
+  <div class="panel w cite" data-step="rise" data-fragment-index="1"><p class="q en">“GPT-4 is a Transformer-style model pre-trained to predict the next token in a document”</p><span class="lbl">GPT-4 Technical Report · token = লেখার ছোট টুকরো</span></div>
+  <div class="panel w omr" data-step="rise" data-fragment-index="2">
+    <div class="row"><span class="eg">ধরা যাক</span><p class="say sent">বাংলাদেশের রাজধানী <span class="slot" id="s5a">ঢাকা</span><span class="slot" id="s5b">।</span></p></div>
+    <div class="tokq"><span class="lbl">পরের token কোনটা? প্রতিটা বৃত্ত একটা সম্ভাব্য token; যত সম্ভাবনা, তত গাঢ়</span><div class="tokrow" id="s5r1" data-opts="ঢাকা:.86|চট্টগ্রাম:.05|হলো:.04|কোথায়:.03|শহর:.02"></div></div>
+    <div class="tokq" id="s5q2"><span class="lbl">তার পরের token</span><div class="tokrow" id="s5r2" data-opts="।:.72|,:.12|শহর:.09|এবং:.04|আর:.03"></div></div>
+  </div>
+  <span class="drv" data-step="tok" data-row="s5r1" data-mode="shade" data-fragment-index="3"></span>
+  <span class="drv" data-step="tok" data-row="s5r1" data-mode="pick" data-slot="s5a" data-fragment-index="4"></span>
+  <span class="drv" data-step="tok" data-row="s5r2" data-mode="all" data-box="s5q2" data-slot="s5b" data-fragment-index="5"></span>
+  <div class="src"><i data-lucide="link"></i>উদ্ধৃতি: OpenAI, GPT-4 Technical Report (arXiv:2303.08774) · সম্ভাবনার মানগুলো ধরা যাক (উদাহরণ), মাপা নয়</div>
+  <aside class="notes">
+    <p>ChatGPT উত্তর বানায় কীভাবে?</p>
+    <p>▶1 OpenAI-এর GPT-4 technical report বলছে, GPT-4-কে শেখানো হয়েছে লেখার পরের token predict করতে। Token মানে লেখার ছোট টুকরো।</p>
+    <p>▶2 ধরা যাক, লেখা আছে "বাংলাদেশের রাজধানী"। প্রতিটা পরের token যেন OMR-এর একটা প্রশ্ন, আর সম্ভাব্য প্রতিটা token একটা বৃত্ত।</p>
+    <p>▶3 যার সম্ভাবনা যত বেশি, তার বৃত্ত তত গাঢ়। "ঢাকা" প্রায় কালো।</p>
+    <p>সাধারণত সবচেয়ে গাঢ়টাই ভরাট হয়, ▶4 উত্তরে বসে "ঢাকা"।</p>
+    <p>▶5 তারপর পরের প্রশ্ন, পরের বৃত্ত।</p>
+    <p>ChatGPT পুরো উত্তর একবারে লেখে না। প্রতিবার শুধু পরের টুকরোটা বাছে।</p>
+  </aside>
+</section>
+
+<!-- S6 · না জানলেও ভরাট -->
+<section>
+  <h2 data-enter="rise">না জানলেও ভরাট</h2>
+  <div class="split">
+    <div class="panel omr" data-enter="rise">
+      <div class="row"><span class="eg">ধরা যাক</span><span class="lbl">৩১টা দিন, সম্ভাবনা প্রায় সমান</span></div>
+      <p class="say sent">Kalai-এর জন্মদিন <span class="slot" id="s6a">১৫ জুন।</span></p>
+      <div class="tokrow days" id="s6r" data-days="31"></div>
+    </div>
+    <div class="panel omr" data-step="rise" data-fragment-index="3">
+      <div class="row"><span class="lbl">পাশাপাশি</span></div>
+      <p class="say sent">বাংলাদেশের রাজধানী <span class="slot">ঢাকা।</span></p>
+      <div class="tokrow sm" data-opts="ঢাকা:.86|চট্টগ্রাম:.05|হলো:.04|কোথায়:.03|শহর:.02" data-done></div>
+      <p class="lbl">একই অক্ষর, একই আত্মবিশ্বাস</p>
+    </div>
+  </div>
+  <div class="rule" data-step="rise" data-fragment-index="4"><i data-lucide="eraser"></i><span>খাতায় যায় শুধু <b>ভরাট বৃত্ত</b>; কতটা দ্বিধা নিয়ে ভরাট, সেটা যায় না</span></div>
+  <span class="drv" data-step="tok" data-row="s6r" data-mode="shade" data-fragment-index="1"></span>
+  <span class="drv" data-step="tok" data-row="s6r" data-mode="pick" data-pick="14" data-slot="s6a" data-fragment-index="2"></span>
+  <span class="drv" data-step="unshade" data-fragment-index="4"></span>
+  <div class="src"><i data-lucide="link"></i>উদাহরণ (ধরা যাক): ৩১টা দিনের সম্ভাবনা প্রায় সমান, মাপা নয়</div>
+  <aside class="notes">
+    <p>এবার এমন প্রশ্ন, যার উত্তর model জানে না। ধরা যাক, "Kalai-এর জন্মদিন"।</p>
+    <p>▶1 ৩১টা দিনের বৃত্ত, সবগুলোই হালকা, প্রায় সমান।</p>
+    <p>তবু একটা ভরাট করতেই হবে। ▶2 ভরাট হলো ১৫।</p>
+    <p>▶3 এবার পাশাপাশি: "রাজধানী ঢাকা।" আর "জন্মদিন ১৫ জুন।" একই অক্ষর, একই আত্মবিশ্বাস।</p>
+    <p>▶4 কারণ খাতায় শুধু ভরাট বৃত্তটা যায়। কতটা দ্বিধা নিয়ে ভরাট করেছে, সেটা যায় না।</p>
+  </aside>
+</section>
+
+<!-- S7 · কমন পড়েনি -->
+<section class="s7">
+  <h2 data-enter="rise">কমন পড়েনি</h2>
+  <div class="panel w bank" data-step="rise" data-fragment-index="1">
+    <div class="row"><span class="eg">ধরা যাক</span><span class="lead" style="font-size:32px">model যে লেখা পড়ে শিখেছে, সেটা একটা প্রশ্নব্যাংক</span></div>
+    <div class="bankrow">
+      <div class="stk" data-step="pile" data-fragment-index="2" data-n="34" data-rot="-2"><span class="cd">রাজধানী: ঢাকা</span></div>
+      <div class="stk" data-step="pile" data-fragment-index="2" data-n="25" data-rot="2"><span class="cd">বানানের নিয়ম</span></div>
+      <div class="onesw" data-step="pile" data-fragment-index="3">
+        <p class="pen onenote" data-late="rise">একবার এসেছে → কমন পড়বে না</p>
+        <div class="ones">
+          <div class="stk" data-rot="-3"><span class="cd">Kalai-এর জন্মদিন</span></div>
+          <div class="stk" data-rot="2"><span class="cd">এক শিক্ষকের জন্মদিন</span></div>
+          <div class="stk" data-rot="-1"><span class="cd">এক দোকানির জন্মদিন</span></div>
+          <svg viewBox="0 0 720 182" preserveAspectRatio="none"><path data-late="draw" d="M380 6 C 600 0, 716 40, 714 92 C 712 150, 560 178, 350 176 C 140 174, 6 150, 6 92 C 6 38, 130 8, 410 10"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel w r20" data-step="rise" data-fragment-index="4">
+    <span class="lbl">OpenAI-এর paper-এর উদাহরণ · ২০% ধরে নেওয়া, মাপা নয়</span>
+    <div class="r20row"><span>জন্মদিনের তথ্যের ২০% এসেছে ঠিক একবার</span><span class="arr">→</span><span>base model অন্তত <b class="rd">২০%</b> জন্মদিনে hallucinate করবে</span></div>
+    <div class="bubs" id="r20b"></div>
+  </div>
+  <div class="src"><i data-lucide="link"></i>Kalai et al. ২০২৫ §1.1: “if 20% of birthday facts appear exactly once in the pretraining data … hallucinate on at least 20% of birthday facts”</div>
+  <aside class="notes">
+    <p>তাহলে model জানে না কেন?</p>
+    <p>▶1 ধরা যাক, model যে লেখা পড়ে শিখেছে, সেটা একটা প্রশ্নব্যাংক।</p>
+    <p>▶2 "রাজধানী ঢাকা" বা বানানের নিয়ম সেখানে বারবার আসে, তাই মুখস্থ হয়ে যায়।</p>
+    <p>▶3 কিন্তু একজন মানুষের জন্মদিন হয়তো এসেছে একবার। একবার আসা প্রশ্ন কমন পড়ে না। আর জন্মদিনের কোনো সূত্রও নেই যে বুদ্ধি খাটিয়ে বের করবে।</p>
+    <p>▶4 OpenAI-এর paper-এর উদাহরণ: জন্মদিনের ২০ শতাংশ তথ্য যদি ঠিক একবার আসে, base model অন্তত ২০ শতাংশ জন্মদিনে hallucinate করার কথা। ২০ শতাংশটা ধরে নেওয়া, মাপা নয়।</p>
+  </aside>
+</section>
+
+<!-- S8 · বাংলায় আরও কম -->
+<section>
+  <h2 data-enter="rise">বাংলায় আরও কম</h2>
+  <p class="lead" data-enter="rise">একই প্রশ্ন, দুই ভাষায়: “এই দেশের রাজধানী কী?” · ১০০টার মধ্যে কয়টা ঠিক</p>
+  <div class="panel w pairs" data-enter="rise">
+    <div class="leg lbl"><span><i style="background:color-mix(in srgb, var(--accent) 35%, var(--card-2))"></i>ইংরেজি</span><span><i style="background:var(--accent)"></i>বাংলা</span></div>
+    <div class="prow"><span class="mn">Llama-70B</span><div class="bars2"><div class="trk"><i class="lt e8" data-w="64.5"></i><b>EN ৮৬</b></div><div class="trk"><i class="b8" data-w="27.75"></i><b>বাংলা ৩৭</b></div></div></div>
+    <div class="prow"><span class="mn">Mistral-24B</span><div class="bars2"><div class="trk"><i class="lt e8" data-w="60"></i><b>EN ৮০</b></div><div class="trk"><i class="b8" data-w="21.75"></i><b>বাংলা ২৯</b></div></div></div>
+    <div class="prow"><span class="mn">Llama-8B</span><div class="bars2"><div class="trk"><i class="lt e8" data-w="55.5"></i><b>EN ৭৪</b></div><div class="trk"><i class="b8" data-w="21"></i><b>বাংলা ২৮</b></div></div></div>
+    <div class="prow"><span class="mn">Mistral-7B</span><div class="bars2"><div class="trk"><i class="lt e8" data-w="51.75"></i><b>EN ৬৯</b></div><div class="trk"><i class="b8" data-w="14.25"></i><b>বাংলা ১৯</b></div></div></div>
+  </div>
+  <span class="drv" data-step="grow" data-sel=".e8"></span>
+  <span class="drv" data-step="grow" data-sel=".b8"></span>
+  <span class="stamp" data-step="stamp" data-rotate="-3">বাংলায় গড়ে সঠিকতা ৬২%-এরও বেশি কম</span>
+  <div class="item yellow" data-step="rise"><i data-lucide="info"></i>সীমা: শুধু open model (৭B–৭০B), প্রশ্ন ইংরেজি থেকে যন্ত্রে অনুবাদ করা; ChatGPT-তে মাপা নয়</div>
+  <div class="src"><i data-lucide="link"></i>Datta, Chilukuri, Kumar, Ghosh, Zafar (২০২৬), arXiv:2601.16766 · Table 8, mTREx Capitals · গড়: §6.1 “decrease by more than 62% for BN”</div>
+  <aside class="notes">
+    <p>আর বাংলায় কমন পড়ে আরও কম।</p>
+    <p>২০২৬ সালের একটা গবেষণা একই প্রশ্ন করেছে ইংরেজিতে আর বাংলায়—কোন দেশের রাজধানী কী।</p>
+    <p>▶1 ইংরেজিতে Llama-70B ১০০-র মধ্যে ৮৬টা ঠিক বলেছে।</p>
+    <p>▶2 বাংলায় ৩৭টা। Mistral-7B ৬৯ থেকে নেমে ১৯।</p>
+    <p>▶3 গড়ে বাংলায় সঠিকতা কমেছে ৬২ শতাংশেরও বেশি।</p>
+    <p>কারণ low-resource effect: AI-এর শেখার লেখায় বাংলা কম। Token-এর বিলেও কারণ ছিল এটাই।</p>
+    <p>▶4 তবে পরীক্ষাটা open model-এ, ChatGPT-তে নয়।</p>
+  </aside>
+</section>
+
+<!-- S9 · চেনা লাগা ≠ জানা -->
+<section>
+  <h2 data-enter="rise">চেনা লাগা ≠ জানা</h2>
+  <p class="lead" data-enter="rise">Anthropic, ২০২৫: model-এর ভেতরের পথ খুলে দেখা</p>
+  <div class="panel w" data-enter="rise">
+    <div class="chain">
+      <div class="node nm"><span class="lbl">নাম</span><span class="nmv"><span class="dimt">?</span><span>Michael Jordan</span><span>Michael Batkin</span><span>Andrej Karpathy</span></span></div>
+      <i data-lucide="arrow-right" class="arr"></i>
+      <div class="node rec"><span class="bub"><b class="g"></b></span><span class="lbl">নাম চেনা লাগে?</span></div>
+      <i data-lucide="arrow-right" class="arr"></i>
+      <div class="node brk"><span class="bub"><b class="g"></b></span><span class="lbl">“জানি না” brake চালু?</span></div>
+      <i data-lucide="arrow-right" class="arr"></i>
+      <div class="node inf"><span class="bub"><b class="g"></b></span><span class="lbl">পেছনে তথ্য আছে?</span></div>
+    </div>
+    <div class="out"><span class="lbl">উত্তর</span><span class="outv">
+      <span class="green">“জানি না”</span>
+      <span class="green"><span class="en">Michael Jordan plays the sport of</span> basketball</span>
+      <span class="green en">“I apologize, but I cannot find a definitive record of a sports figure named Michael Batkin.”</span>
+      <span><span class="en">“ImageNet Classification with Deep Convolutional Neural Networks”</span><br><span class="pen">✗ এটা Karpathy-র লেখা না</span></span>
+    </span></div>
+  </div>
+  <span class="drv" data-step="case" data-case="0" data-fragment-index="1"></span>
+  <span class="drv" data-step="case" data-case="1" data-fragment-index="2"></span>
+  <span class="drv" data-step="case" data-case="2" data-fragment-index="3"></span>
+  <span class="drv" data-step="case" data-case="3" data-fragment-index="4"></span>
+  <div class="panel w k9" data-step="rise" data-fragment-index="5"><span class="lbl">OpenAI-এর paper: Kalai-এর PhD thesis-এর নাম ও সাল কী?</span>
+    <p>ChatGPT <span class="pen">✗</span> · DeepSeek <span class="pen">✗</span> · Llama <span class="pen">✗</span> · <span class="en dimt">“None generated the correct title or year.”</span></p></div>
+  <div class="rule" data-step="rise" data-fragment-index="6"><i data-lucide="brain"></i><span>default উত্তর <b>“জানি না”</b>; নাম চেনা লাগলেই brake ছেড়ে দেয়</span></div>
+  <div class="src"><i data-lucide="link"></i>Anthropic, “On the Biology of a Large Language Model” (২৭ মার্চ ২০২৫) · Kalai et al. ২০২৫, Table 1</div>
+  <aside class="notes">
+    <p>Model কি টের পায় না যে সে জানে না?</p>
+    <p>Anthropic ২০২৫-এ একটা model-এর ভেতরটা খুলে দেখেছে।</p>
+    <p>▶1 ভেতরে একটা "উত্তর দিতে পারব না" পথ default-এ চালু থাকে—একটা "জানি না" brake।</p>
+    <p>▶2 Michael Jordan: নাম চেনা, তথ্যও আছে। Brake ছাড়ল, উত্তর এল।</p>
+    <p>▶3 Michael Batkin: অচেনা নাম, brake রইল, model বলল রেকর্ড খুঁজে পাচ্ছে না।</p>
+    <p>▶4 Andrej Karpathy-র লেখা paper চাওয়া হলো। নাম চেনা, brake ছাড়ল, কিন্তু পেছনে তথ্য নেই—এল এমন এক বিখ্যাত paper, যেটা তাঁর লেখাই না।</p>
+    <p>▶5 OpenAI-এর paper-এও: Kalai-এর thesis-এর নাম ও সাল ChatGPT, DeepSeek, Llama কেউ ঠিক বলেনি।</p>
+    <p>▶6 মানে model-এর default উত্তর আসলে "জানি না"। নাম চেনা লাগলেই সে brake ছেড়ে দেয়।</p>
+  </aside>
+</section>
+
+<!-- S10 · দ্বিধা গুলিয়ে গেল -->
+<section>
+  <h2 data-enter="rise">দ্বিধা গুলিয়ে গেল</h2>
+  <div class="split cal">
+    <div class="panel" data-step="rise" data-fragment-index="1">
+      <span class="eg">ধরা যাক · রেখা শুধু আকার, আসল মান নয়</span>
+      <svg class="plot" viewBox="0 0 600 600">
+        <defs><clipPath id="s10clip"><rect id="s10r" x="0" y="0" width="0" height="600"/></clipPath></defs>
+        <path class="axl" d="M80 40V520H570"/>
+        <text x="80" y="556" text-anchor="middle">০%</text><text x="550" y="556" text-anchor="middle">১০০%</text>
+        <text x="62" y="528" text-anchor="end">০%</text><text x="62" y="58" text-anchor="end">১০০%</text>
+        <text x="325" y="594" text-anchor="middle">model কতটা নিশ্চিত →</text>
+        <text transform="translate(16 285) rotate(-90)" text-anchor="middle">আসলে কতবার ঠিক →</text>
+        <path class="diag" data-step="draw" data-fragment-index="2" d="M80 520L550 50"/>
+        <text class="acc" x="452" y="118" text-anchor="end" data-step="rise" data-fragment-index="2">নিখুঁত model</text>
+        <path class="cv" id="s10cv" clip-path="url(#s10clip)"/>
+      </svg>
+    </div>
+    <div class="col">
+      <div class="panel" data-step="rise" data-fragment-index="3"><span class="lbl">শুধু pre-training-এর পর</span><p class="q en">“the pre-trained model is highly calibrated”</p><p class="lbl green">যতটা নিশ্চিত, মোটামুটি ততটাই ঠিক</p></div>
+      <div class="panel" data-step="rise" data-fragment-index="4"><span class="lbl">post-training (ভালো উত্তরদাতা বানানোর training)-এর পর</span><p class="q en">“The post-training hurts calibration significantly.”</p><p class="pen" style="margin:6px 0 0;font-size:30px">দ্বিধা গুলিয়ে গেল</p></div>
+    </div>
+  </div>
+  <span class="drv" data-step="wipe" data-t="#s10r" data-fragment-index="3"></span>
+  <span class="drv" data-step="morph" data-fragment-index="4"></span>
+  <div class="src"><i data-lucide="link"></i>OpenAI, GPT-4 Technical Report (arXiv:2303.08774), calibration-এর লেখা ও ছবির ক্যাপশন · রেখার আকার ধরা যাক</div>
+  <aside class="notes">
+    <p>এবার মোড় ঘোরে।</p>
+    <p>▶1 ধরা যাক একটা ছক: model কতটা নিশ্চিত, আর আসলে কতবার ঠিক। রেখাগুলো শুধু আকার, আসল মান নয়।</p>
+    <p>▶2 নিখুঁত model থাকবে এই কোনাকুনি রেখায়।</p>
+    <p>▶3 GPT-4 technical report বলছে, শুধু pre-training-এর পর model ছিল highly calibrated—যতটা নিশ্চিত, মোটামুটি ততটাই ঠিক।</p>
+    <p>▶4 তারপর post-training—ভালো উত্তরদাতা বানানোর training। Report-এর ভাষায়, এতে calibration অনেকটা নষ্ট হয়।</p>
+    <p>শুরুতে model জানত কোথায় তার দ্বিধা। পরে সেটা গুলিয়ে গেল।</p>
+  </aside>
+</section>
+
+<!-- S11 · আত্মবিশ্বাস বনাম সঠিকতা -->
+<section>
+  <h2 data-enter="rise">আত্মবিশ্বাস বনাম সঠিকতা</h2>
+  <p class="lead" data-enter="rise">Humanity's Last Exam: উত্তরের সাথে বলতে হলো, কত % নিশ্চিত</p>
+  <div class="hle">
+    <div class="panel gauge" data-enter="rise">
+      <svg viewBox="0 0 500 300"><path class="arc" d="M50 250A200 200 0 0 1 450 250"/><g id="s11t"></g>
+        <text x="50" y="292" text-anchor="middle">০</text><text x="450" y="292" text-anchor="middle">১০০</text>
+        <line id="s11n" x1="250" y1="250" x2="250" y2="78"/><circle cx="250" cy="250" r="13" fill="#e6ecee"/></svg>
+      <span class="lbl">GPT-4o: নিজের বলা আত্মবিশ্বাস</span>
+      <div class="read"><span class="lbl">আসল সঠিকতা</span><span class="big"><span id="s11v" data-to="2.7" data-decimals="1" data-locale="bn-BD" data-duration=".8">০</span>%</span></div>
+    </div>
+    <div class="panel rows11" data-step="grow" data-fragment-index="2">
+      <div class="leg lbl"><span><i style="background:#7d8a90"></i>সঠিকতা %</span><span><i style="background:var(--red)"></i>আত্মবিশ্বাস আর সঠিকতার ফাঁক</span></div>
+      <div class="r11"><span class="mn">GPT-4o</span><div class="bars2"><div class="trk"><i class="gr" data-w="1.9"></i><b>২.৭</b></div><div class="trk"><i class="rd" data-w="62.3"></i><b class="rd">৮৯</b></div></div></div>
+      <div class="r11"><span class="mn">Grok 2</span><div class="bars2"><div class="trk"><i class="gr" data-w="2.1"></i><b>৩.০</b></div><div class="trk"><i class="rd" data-w="60.9"></i><b class="rd">৮৭</b></div></div></div>
+      <div class="r11"><span class="mn">Claude 3.5 Sonnet</span><div class="bars2"><div class="trk"><i class="gr" data-w="2.9"></i><b>৪.১</b></div><div class="trk"><i class="rd" data-w="58.8"></i><b class="rd">৮৪</b></div></div></div>
+      <div class="r11"><span class="mn">Gemini 1.5 Pro</span><div class="bars2"><div class="trk"><i class="gr" data-w="3.2"></i><b>৪.৬</b></div><div class="trk"><i class="rd" data-w="61.6"></i><b class="rd">৮৮</b></div></div></div>
+      <div class="r11"><span class="mn">Gemini 2.0 Flash Thinking</span><div class="bars2"><div class="trk"><i class="gr" data-w="4.6"></i><b>৬.৬</b></div><div class="trk"><i class="rd" data-w="57.4"></i><b class="rd">৮২</b></div></div></div>
+      <div class="r11"><span class="mn">o1</span><div class="bars2"><div class="trk"><i class="gr" data-w="5.6"></i><b>৮.০</b></div><div class="trk"><i class="rd" data-w="58.1"></i><b class="rd">৮৩</b></div></div></div>
+      <div class="r11"><span class="mn">DeepSeek-R1*</span><div class="bars2"><div class="trk"><i class="gr" data-w="6"></i><b>৮.৫</b></div><div class="trk"><i class="rd" data-w="51.1"></i><b class="rd">৭৩</b></div></div></div>
+      <div class="r11"><span class="mn">o3-mini (high)*</span><div class="bars2"><div class="trk"><i class="gr" data-w="9.4"></i><b>১৩.৪</b></div><div class="trk"><i class="rd" data-w="56"></i><b class="rd">৮০</b></div></div></div>
+    </div>
+  </div>
+  <div class="panel w q11 en" data-step="rise" data-fragment-index="3">“Models frequently provide incorrect answers with high confidence”</div>
+  <span class="drv" data-step="gauge" data-fragment-index="1"></span>
+  <div class="src"><i data-lucide="link"></i>Phan et al., Humanity's Last Exam (arXiv:2501.14249), Table 1: সঠিকতা ও RMS calibration error · *শুধু লেখার প্রশ্ন · কাঁটা দিক বোঝাতে, মাপা মান নয়</div>
+  <aside class="notes">
+    <p>শুধু GPT-4-এর সমস্যা?</p>
+    <p>Humanity's Last Exam-এ model-দের বলা হলো: উত্তরের সাথে বলো, কত শতাংশ নিশ্চিত।</p>
+    <p>▶1 আত্মবিশ্বাসের কাঁটা অনেক ওপরে, অথচ GPT-4o-র সঠিকতা মাত্র ২.৭ শতাংশ।</p>
+    <p>▶2 আটটা model-এরই এক ছবি: আত্মবিশ্বাস আর সঠিকতার ফাঁক ৭৩ থেকে ৮৯। ▶3 গবেষকদের কথায়, model-গুলো প্রায়ই উঁচু আত্মবিশ্বাসে ভুল উত্তর দেয়।</p>
+  </aside>
+</section>
+
+<!-- S12 · Negative marking নেই -->
+<section>
+  <h2 data-enter="rise">Negative marking নেই</h2>
+  <div class="panel w rel rules12" data-step="rise" data-fragment-index="1">
+    <div class="row"><span class="eg">ধরা যাক</span><span class="lbl">MCQ পরীক্ষা · নম্বর দেওয়ার নিয়ম</span></div>
+    <div class="rr" style="margin-top:10px"><span>ঠিক = <b>১</b></span><span>ভুল = <b>০</b></span><span>ফাঁকা = <b>০</b></span></div>
+    <span class="stamp abs" data-step="stamp" data-rotate="-6" data-fragment-index="5">Negative marking নেই</span>
+  </div>
+  <div class="g12">
+    <div class="panel" data-step="rise" data-fragment-index="2">
+      <p class="q">একটা প্রশ্ন, যার উত্তর আপনি জানেন না</p>
+      <div class="opts4"><span class="bub">ক<b class="g"></b></span><span class="bub">খ<b class="g"></b></span><span class="bub">গ<b class="g"></b></span><span class="bub">ঘ<b class="g"></b></span></div>
+    </div>
+    <div class="panel oc" data-step="rise" data-fragment-index="3"><span class="lbl">আন্দাজে দাগালে</span><div class="opts4 mini"><span class="bub">ক<b class="g"></b></span><span class="bub">খ<b class="g" style="opacity:.95"></b></span><span class="bub">গ<b class="g"></b></span><span class="bub">ঘ<b class="g"></b></span></div><p>৪টায় ১টা লাগে → গড়ে <b>০.২৫</b></p></div>
+    <div class="panel oc" data-step="rise" data-fragment-index="3"><span class="lbl">খালি রাখলে</span><div class="opts4 mini"><span class="bub">ক<b class="g"></b></span><span class="bub">খ<b class="g"></b></span><span class="bub">গ<b class="g"></b></span><span class="bub">ঘ<b class="g"></b></span></div><p>নিশ্চিত <b>০</b></p></div>
+  </div>
+  <div class="panel w cite12" data-step="rise" data-fragment-index="4"><p class="q en">“students may guess on multiple-choice exams and even bluff on written exams”</p><p class="q en">“Under binary grading, abstaining is strictly sub-optimal.”</p><span class="lbl">OpenAI-এর paper (Kalai et al. ২০২৫)</span></div>
+  <div class="src"><i data-lucide="link"></i>Kalai et al. ২০২৫ §1.2, §4.1 (Observation 1) · নম্বরের নিয়মটা ধরা যাক</div>
+  <aside class="notes">
+    <p>এবার আসল রহস্য। পরীক্ষার হলে ফিরি।</p>
+    <p>▶1 ধরা যাক MCQ পরীক্ষা: ঠিক ১, ভুল ০, খালি রাখলেও ০।</p>
+    <p>▶2 একটা প্রশ্ন আপনি জানেন না। চারটা option।</p>
+    <p>▶3 আন্দাজে দাগালে গড়ে ০.২৫ নম্বর, খালি রাখলে নিশ্চিত ০। খালি রাখবেন কেন?</p>
+    <p>▶4 OpenAI-এর paper-এর ভাষায়, ছাত্ররা MCQ-তে আন্দাজ করে, লিখিত পরীক্ষায় bluff-ও দেয়। আর শুধু ঠিক-ভুল গোনা হলে "জানি না" বলা সবসময়ই লোকসান।</p>
+    <p>▶5 Negative marking না থাকলে আপনিও কি খাতা খালি রাখতেন? AI-ও রাখে না।</p>
+  </aside>
+</section>
+
+<!-- S13 · আন্দাজি বনাম সৎ -->
+<section>
+  <h2 data-enter="rise">আন্দাজি বনাম সৎ</h2>
+  <div class="row" data-enter="rise"><span class="eg">ধরা যাক</span><p class="lead lead13">দুজনেই ১০০ প্রশ্নের ৬০টা জানে। বাকি ৪০টায় আন্দাজি আন্দাজ করে, ৪টায় ১টা লাগে; সৎ বলে “জানি না”।</p></div>
+  <div class="exam">
+    <div class="panel grids" data-step="drop" data-fragment-index="1">
+      <div class="gcol"><span class="lbl">আন্দাজি</span><div class="dots" id="dA"></div><span class="lbl tally">৭০ ঠিক · <span class="rd">৩০ ভুল</span></span></div>
+      <div class="gcol"><span class="lbl">সৎ</span><div class="dots" id="dB"></div><span class="lbl tally">৬০ ঠিক · ৪০ ফাঁকা</span></div>
+    </div>
+    <div class="panel board" data-step="rise" data-fragment-index="2">
+      <div class="rule13"><span class="lbl">নম্বর</span> ঠিক <b>+১</b> · ফাঁকা <b>০</b> · ভুল <b class="rd" id="penv">০</b></div>
+      <div class="lb">
+        <span class="rk" style="top:0">১</span><span class="rk" style="top:var(--rh)">২</span>
+        <div class="lbr" id="lbA"><span class="nm">আন্দাজি</span><div class="trk"><i></i></div><b class="sc">৭০</b></div>
+        <div class="lbr" id="lbB"><span class="nm">সৎ</span><div class="trk"><i></i></div><b class="sc">৬০</b></div>
+      </div>
+      <div class="sld">
+        <span class="lbl">ভুলে শাস্তি: knob টেনে দেখুন</span>
+        <input type="range" id="pen13" min="0" max="400" step="1" value="0" tabindex="-1" aria-label="ভুলে শাস্তি">
+        <div class="ticks"><span style="left:0%">০</span><span style="left:25%">−০.২৫</span><span style="left:50%">−১</span><span style="left:75%">−২</span><span style="left:100%">−৯</span></div>
+      </div>
+    </div>
+  </div>
+  <span class="drv" data-step="penalty" data-from="0" data-to="1" data-fragment-index="3"></span>
+  <div class="panel w fix13" data-step="rise" data-fragment-index="4">
+    <span class="lbl">Paper-এর সমাধান: “Answer only if you are &gt;t confident, since mistakes are penalized t/(1-t) points.”</span>
+    <p>৭৫%-এর কম নিশ্চিত হলে উত্তর নয় → ভুলে <b>−২</b> · ৯০% হলে → ভুলে <b>−৯</b></p>
+  </div>
+  <div class="src"><i data-lucide="link"></i>দুই model ও ১০০ প্রশ্ন ধরা যাক (উদাহরণ) · শাস্তির নিয়ম: Kalai et al. ২০২৫ §4.2 (t = ০.৭৫ → ২, t = ০.৯ → ৯)</div>
+  <aside class="notes">
+    <p>ধরা যাক, আন্দাজি আর সৎ—দুটো model, দুজনেই ১০০ প্রশ্নের ৬০টা জানে। বাকি ৪০টায় আন্দাজি আন্দাজ করে, চারটায় একটা লাগে; সৎ বলে, জানি না।</p>
+    <p>▶1 আন্দাজি: ৭০ ঠিক, ৩০ ভুল। সৎ: ৬০ ঠিক, ৪০ ফাঁকা।</p>
+    <p>▶2 শুধু ঠিক গুনলে? Leaderboard-এ এক নম্বর আন্দাজি, ৭০ বনাম ৬০।</p>
+    <p>▶3 এবার ভুলে মাইনাস ১। আন্দাজি ৭০ থেকে ৩০ বাদ, ৪০। সৎ ৬০।</p>
+    <p>একই জ্ঞান, একই মাথা। শুধু নম্বর দেওয়ার নিয়ম বদলালাম—র‍্যাংকিং উল্টে গেল।</p>
+    <p>▶4 Paper-এর সমাধান: ৭৫ শতাংশের কম নিশ্চিত হলে উত্তর দিও না, ভুলে মাইনাস ২। ৯০-এ মাইনাস ৯।</p>
+    <p>(Demo: শাস্তির slider ০ থেকে −৯ পর্যন্ত টানুন)</p>
+    <p>[Demo: knob-টা মাউস দিয়ে টানুন; ছেড়ে দিলেই ↓ আর → আবার কাজ করে]</p>
+    <p>মাইনাস ০.২৫-এ আন্দাজি তবু সৎ-এর আগে। শাস্তি যত বাড়ে, আন্দাজি তত নামে।</p>
+  </aside>
+</section>
+
+<!-- S14 · নম্বরের নিয়মই দোষী -->
+<section>
+  <h2 data-enter="rise">নম্বরের নিয়মই দোষী</h2>
+  <div class="s14b">
+    <div class="panel strips" data-step="show" data-sel=".strips@rise;.stp@rise" data-gap=".2" data-fragment-index="1">
+      <span class="lbl">১০টা জনপ্রিয় benchmark: “জানি না” বললে কত নম্বর?</span>
+      <div class="stp"><span>GPQA</span><b class="cellx"><span class="st">০</span></b></div>
+      <div class="stp"><span>MMLU-Pro</span><b class="cellx"><span class="st">০</span></b></div>
+      <div class="stp"><span>IFEval</span><b class="cellx"><span class="st">০</span></b></div>
+      <div class="stp"><span>Omni-MATH</span><b class="cellx"><span class="st">০</span></b></div>
+      <div class="stp"><span>WildBench</span><b class="cellx"><span class="st part">আংশিক</span></b></div>
+      <div class="stp"><span>BBH</span><b class="cellx"><span class="st">০</span></b></div>
+      <div class="stp"><span>MATH (L5)</span><b class="cellx"><span class="st">০</span></b></div>
+      <div class="stp"><span>MuSR</span><b class="cellx"><span class="st">০</span></b></div>
+      <div class="stp"><span>SWE-bench</span><b class="cellx"><span class="st">০</span></b></div>
+      <div class="stp"><span>HLE</span><b class="cellx"><span class="st">০</span></b></div>
+    </div>
+    <div class="panel loopp" data-step="loop" data-fragment-index="3"><svg class="loop" id="s14loop" viewBox="0 0 760 560"></svg></div>
+  </div>
+  <span class="drv" data-step="show" data-sel=".st@stamp" data-fragment-index="2"></span>
+  <p class="say rev14" data-step="rise" data-fragment-index="4">Hallucination রহস্যময় bug না: <span class="accent">পরীক্ষাই আন্দাজকে পুরস্কার দেয়</span></p>
+  <div class="src"><i data-lucide="link"></i>Kalai et al. ২০২৫ §4.1, Table 2 · abstract: “optimized to be good test-takers, and guessing when uncertain improves test performance”</div>
+  <aside class="notes">
+    <p>শুধু আমাদের খেলা?</p>
+    <p>▶1 OpenAI-এর paper দশটা জনপ্রিয় benchmark দেখেছে: "জানি না" বললে কত নম্বর? ▶2 নয়টায় শূন্য, শুধু WildBench-এ আংশিক।</p>
+    <p>▶3 Benchmark থেকে leaderboard, সেখান থেকে training-এর লক্ষ্য। Paper-এর ভাষায়, model-কে ভালো পরীক্ষার্থী হতে optimize করা হয়, আর অনিশ্চিত হলে আন্দাজেই নম্বর বাড়ে।</p>
+    <p>(৩ সেকেন্ড থামুন)</p>
+    <p>▶4 Hallucination কোনো রহস্যময় bug না। আমরা যে পরীক্ষায় model-দের নম্বর দিই, সেই পরীক্ষাই আন্দাজকে পুরস্কার দেয়।</p>
+  </aside>
+</section>
+
+<!-- S15 · আসল model, একই ছবি -->
+<section>
+  <h2 data-enter="rise">আসল model, একই ছবি</h2>
+  <p class="lead" data-enter="rise">GPT-5 system card · SimpleQA, web search ছাড়া · প্রতি ১০০ প্রশ্নে</p>
+  <div class="panel w cbp" data-enter="rise">
+    <div class="cb">
+      <div class="cbh"><span class="mn">o4-mini <small>(পুরনো)</small></span><span class="stamp sm tag">≈ আন্দাজি</span></div>
+      <div class="cells" data-ok="24" data-bad="75"></div>
+      <div class="cl"><span class="lab-ok" style="left:0">ঠিক ২৪</span><span class="lab-bad rd" style="left:24%">ভুল ৭৫</span></div>
+      <span class="stamp x3">ভুল প্রায় ৩ গুণ</span>
+    </div>
+    <div class="cb">
+      <div class="cbh"><span class="mn">gpt-5-thinking-mini <small>(নতুন)</small></span><span class="stamp sm tag" style="color:var(--green)">≈ সৎ</span></div>
+      <div class="cells" data-ok="22" data-bad="26"></div>
+      <div class="cl"><span class="lab-ok" style="left:0">ঠিক ২২</span><span class="lab-bad rd" style="left:22%">ভুল ২৬</span><span class="lab-rest dimt" style="left:48%">বাকিটা: উত্তর দেয়নি</span></div>
+    </div>
+    <p class="q15 en">“gpt-5-thinking-mini reasoning shows significant improvement in abstention behavior over OpenAI o4-mini.”</p>
+  </div>
+  <span class="drv" data-step="show" data-sel=".cells .okc .g@fill;.lab-ok@rise" data-gap=".3"></span>
+  <span class="drv" data-step="show" data-sel=".cells .bad .g@slam;.lab-bad@rise;.x3@stamp" data-gap=".35"></span>
+  <span class="drv" data-step="show" data-sel=".lab-rest@rise;.q15@rise"></span>
+  <span class="drv" data-step="show" data-sel=".tag@stamp"></span>
+  <div class="src"><i data-lucide="link"></i>OpenAI, GPT-5 System Card §3.7, Table 8 “SimpleQA (no web)”: accuracy ও hallucination rate · ফাঁকা অংশের মান card-এ দেওয়া নেই, তাই সংখ্যা ছাড়া</div>
+  <aside class="notes">
+    <p>এবার আসল model।</p>
+    <p>OpenAI-এর নিজের GPT-5 system card: SimpleQA, ছোট তথ্যের প্রশ্ন, web search ছাড়া।</p>
+    <p>▶1 Accuracy দেখলে পুরনো o4-mini জেতে—২৪ বনাম নতুন gpt-5-thinking-mini-এর ২২।</p>
+    <p>কিন্তু ভুল? ▶2 ৭৫ বনাম ২৬। প্রায় তিন গুণ।</p>
+    <p>▶3 বাকিটা উত্তর দেয়নি। System card বলছে, নতুনটা "জানি না" বলায় অনেক এগিয়েছে।</p>
+    <p>▶4 ঠিক আমাদের আন্দাজি আর সৎ।</p>
+  </aside>
+</section>
+
+<!-- S16 · শাস্তি চালু হলে -->
+<section>
+  <h2 data-enter="rise">শাস্তি চালু হলে</h2>
+  <div class="panel w" data-step="rise">
+    <span class="lbl">Artificial Analysis · AA-Omniscience · নভেম্বর ২০২৫ · ৬,০০০ প্রশ্ন</span>
+    <div class="rr"><span>ঠিক = <b>+১</b></span><span>জানি না = <b>০</b></span><span>ভুল = <b class="rd">−১</b></span></div>
+    <div class="zl" data-step="grow">
+      <div class="zline"><span style="left:0">− শূন্যের নিচে</span><span style="left:50%;transform:translateX(-50%)">০</span><span style="right:0">শূন্যের ওপরে +</span></div>
+      <span class="stamp" data-late="stamp" data-rotate="-5">Launch-এ শূন্যের ওপরে মাত্র ৩টা model</span>
+    </div>
+  </div>
+  <div class="panel w grpp" data-step="grow">
+    <div class="leg lbl"><span><i style="background:#7d8a90"></i>সঠিকতা %</span><span><i style="background:var(--red)"></i>আন্দাজের হার %: যেগুলো পারেনি, তার কতটায় উত্তর বানিয়েছে</span></div>
+    <div class="prow"><span class="mn">GPT-5 (high)</span><div class="bars2"><div class="trk"><i class="gr" data-w="29.25"></i><b>সঠিকতা ৩৯</b></div><div class="trk"><i class="rd" data-w="60.75"></i><b class="rd">আন্দাজ ৮১</b></div></div></div>
+    <div class="prow"><span class="mn">Grok 4</span><div class="bars2"><div class="trk"><i class="gr" data-w="29.25"></i><b>সঠিকতা ৩৯</b></div><div class="trk"><i class="rd" data-w="48"></i><b class="rd">আন্দাজ ৬৪</b></div></div></div>
+    <div class="grp" data-step="grow">
+      <div class="prow"><span class="mn">Claude 4.5 Haiku</span><div class="bars2"><div class="trk"><i class="gr" data-w="12"></i><b>সঠিকতা ১৬</b></div><div class="trk"><i class="rd" data-w="19.5"></i><b class="rd">আন্দাজ ২৬</b></div></div></div>
+    </div>
+  </div>
+  <div class="item def" data-step="rise"><i data-lucide="info"></i>এখানে hallucination rate = যে প্রশ্নগুলো ঠিক পারেনি, তার কতগুলোয় “জানি না” না বলে উত্তর দিয়েছে; সব প্রশ্নের ভাগ নয়</div>
+  <div class="src"><i data-lucide="link"></i>Artificial Analysis, “AA-Omniscience” (arXiv:2511.13029, ১৭ নভেম্বর ২০২৫): scoring, “only three frontier models at launch … above 0”, accuracy ও hallucination rate</div>
+  <aside class="notes">
+    <p>কোনো benchmark negative marking চালু করলে?</p>
+    <p>▶1 ২০২৫-এর নভেম্বরে Artificial Analysis-এর AA-Omniscience: ৬,০০০ প্রশ্ন; ঠিক ১, জানি না ০, ভুল মাইনাস ১।</p>
+    <p>▶2 Launch-এর সময় শূন্যের ওপরে ছিল মাত্র তিনটা frontier model।</p>
+    <p>▶3 GPT-5 (high) সঠিকতায় সবার ওপরে, ৩৯ শতাংশ। কিন্তু না জানলে ১০০-র মধ্যে ৮১ বার আন্দাজে বলে দেয়। Grok 4-ও ৩৯, আন্দাজ ৬৪।</p>
+    <p>▶4 Claude 4.5 Haiku-র সঠিকতা মাত্র ১৬, কিন্তু আন্দাজ ২৬ শতাংশ।</p>
+    <p>▶5 এখানে hallucination rate মানে: যেগুলো পারেনি, তার কতটায় আন্দাজ।</p>
+  </aside>
+</section>
+
+<!-- S17 · হারানো ছবি -->
+<section>
+  <h2 data-enter="rise">হারানো ছবি</h2>
+  <p class="lead" data-enter="rise">Meta, মে ২০২৬ · CharXiv: chart নিয়ে প্রশ্ন, কিন্তু ছবিগুলো সরিয়ে নেওয়া</p>
+  <div class="s17b">
+    <div class="panel frame17" data-step="rise" data-fragment-index="1">
+      <div class="row"><span class="eg">ধরা যাক</span><span class="lbl">প্রশ্ন: chart-এ কোন বছরের bar সবচেয়ে উঁচু?</span></div>
+      <div class="hole"><span class="lbl hl"><i data-lucide="image-off"></i>এখানে ছবি নেই</span><p class="fab" data-step="type" data-cps="45" data-fragment-index="2">Chart-এ ২০১৯ সালের bar সবচেয়ে উঁচু, প্রায় ৪৫%; তারপর প্রতি বছর একটু একটু কমেছে।</p></div>
+      <span class="lbl green">সৎ উত্তর হতো: “ছবি নেই।”</span>
+      <span class="pen" data-step="rise" data-fragment-index="2">↑ বানানো উত্তর (উদাহরণ)</span>
+    </div>
+    <div class="panel rows17" data-step="grow" data-fragment-index="2">
+      <span class="lbl">ছবি ছাড়াই উত্তর বানিয়ে দিয়েছে (%)</span>
+      <div class="r17"><span class="mn">Gemini 3.1 Pro</span><div class="trk"><i class="rd" data-w="60.76"></i><b class="rd">৮৬.৮</b></div></div>
+      <div class="grp" data-step="grow" data-fragment-index="3">
+        <div class="r17"><span class="mn">Claude Opus 4.6</span><div class="trk"><i class="rd" data-w="57.19"></i><b class="rd">৮১.৭</b></div></div>
+        <div class="r17"><span class="mn">GPT-5.4</span><div class="trk"><i class="rd" data-w="34.16"></i><b class="rd">৪৮.৮</b></div></div>
+        <div class="r17"><span class="mn">Muse Spark (Meta)</span><div class="trk"><i class="rd" data-w="24.5"></i><b class="rd">৩৫.০</b></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="item yellow" data-step="rise" data-fragment-index="4"><i data-lucide="triangle-alert"></i><span>সতর্কতা: Meta নিজেই প্রতিদ্বন্দ্বীদের নম্বর দিয়েছে · OpenAI-এর নিজের মাপে o3 ৮৭%, gpt-5-thinking ৯%; পদ্ধতি আলাদা, তাই এই ছকে নয়</span></div>
+  <div class="src"><i data-lucide="link"></i>Meta, Muse Spark Safety &amp; Preparedness Report (arXiv:2606.12429) §4.1.4 · OpenAI, GPT-5 System Card §3.8, Table 9 · প্রশ্ন ও বানানো উত্তরটা উদাহরণ</div>
+  <aside class="notes">
+    <p>২০২৬-এ অবস্থা?</p>
+    <p>▶1 Meta-র মে ২০২৬-এর report: chart-এর প্রশ্নের benchmark CharXiv, কিন্তু ছবিগুলো সরানো। সৎ উত্তর হতো, "ছবি নেই।"</p>
+    <p>▶2 ছবিটাই নেই, তবু Gemini 3.1 Pro ১০০ বারে প্রায় ৮৭ বার উত্তর বানিয়ে দিল।</p>
+    <p>▶3 Claude Opus 4.6 ৮১.৭ শতাংশ, GPT-5.4 ৪৮.৮, Meta-র নিজের Muse Spark ৩৫।</p>
+    <p>▶4 সতর্কতা: Meta নিজেই প্রতিদ্বন্দ্বীদের নম্বর দিয়েছে। OpenAI-এর নিজের মাপে o3 ৮৭, gpt-5-thinking ৯—কিন্তু পদ্ধতি আলাদা, তাই এক ছকে রাখিনি।</p>
+  </aside>
+</section>
+
+<!-- S18 · পরীক্ষার্থীদের প্রতি নির্দেশ -->
+<section>
+  <h2 data-enter="rise">পরীক্ষার্থীদের প্রতি নির্দেশ</h2>
+  <div class="grid2 ins">
+    <div class="items">
+      <div class="item rl" data-step="rise"><span class="bub">১</span><p>নাম, তারিখ, সংখ্যা, রেফারেন্স, link: নিজে খুলে মিলিয়ে দেখুন <span class="dimt">(AI-কেই জিজ্ঞেস করে নয়: সেই আইনজীবীর ভুল)</span></p></div>
+      <div class="item rl" data-step="rise"><span class="bub">২</span><p>Prompt-এ লিখে দিন: “৭৫%-এর কম নিশ্চিত হলে বলো, জানি না।” <span class="dimt">আন্দাজ কমতে পারে, গ্যারান্টি নেই</span></p></div>
+      <div class="item rl" data-step="rise"><span class="bub">৩</span><p>একই প্রশ্ন ৩–৫ বার করুন; উত্তর বদলালে সন্দেহ করুন</p></div>
+    </div>
+    <div class="items">
+      <div class="panel sim" data-step="show" data-sel=".sim@rise;.a5@rise;.sim .pen@rise" data-gap=".35">
+        <div class="row"><span class="eg">ধরা যাক</span><span class="lbl">একই প্রশ্ন ৫ বার</span></div>
+        <div class="s5r"><span class="lbl">জানা তথ্য: বাংলাদেশের রাজধানী?</span><span class="a5 k">ঢাকা</span><span class="a5 k">ঢাকা</span><span class="a5 k">ঢাকা</span><span class="a5 k">ঢাকা</span><span class="a5 k">ঢাকা</span></div>
+        <div class="s5r"><span class="lbl">অজানা: Kalai-এর জন্মদিন?</span><span class="a5">৩ জুলাই</span><span class="a5">১৫ জুন</span><span class="a5">১ জানুয়ারি</span><span class="a5">১৫ জুন</span><span class="a5">২২ মার্চ</span></div>
+        <p class="pen">৫ বারে ৪ রকম → সন্দেহ</p>
+      </div>
+      <div class="item rl" data-step="rise"><span class="bub">৪</span><p>বাংলায় জরুরি তথ্যের প্রশ্ন? ইংরেজিতেও জিজ্ঞেস করে মেলান</p></div>
+      <div class="item rl" data-step="rise"><span class="bub">৫</span><p>Developer: eval-এ +১ / ০ / −১ নম্বর দিন, “জানি না”-র হারও মাপুন · <code>logprobs</code> চালু করে কম সম্ভাবনার token ধরুন · তথ্য লাগলে উৎসটা হাতে দিন</p></div>
+    </div>
+  </div>
+  <div class="src"><i data-lucide="link"></i>SimpleQA (Wei et al. ২০২৪): “accuracy increases with frequency” · ৭৫% লক্ষ্য: Kalai et al. §4.2 · logprobs: OpenAI Cookbook “Using logprobs” · ৫ বারের উত্তর ধরা যাক</div>
+  <aside class="notes">
+    <p>তাহলে কী করবেন? পরীক্ষার্থীদের প্রতি পাঁচটা নির্দেশ।</p>
+    <p>▶1 এক: নাম, তারিখ, সংখ্যা, রেফারেন্স আর link নিজে খুলে মিলিয়ে দেখুন। সেই আইনজীবী যাচাই করেছিলেন ChatGPT-কেই জিজ্ঞেস করে।</p>
+    <p>▶2 দুই: prompt-এ লিখে দিন, "৭৫ শতাংশের কম নিশ্চিত হলে বলো, জানি না।" আন্দাজ কমতে পারে, গ্যারান্টি নেই।</p>
+    <p>▶3 তিন: একই প্রশ্ন তিন থেকে পাঁচবার করুন; উত্তর বদলালে সন্দেহ করুন। ▶4 ধরা যাক, জানা তথ্যে পাঁচবারই এক উত্তর, অজানায় চার রকম। SimpleQA-ও দেখেছে: বারবার আসা উত্তর বেশি ঠিক হয়।</p>
+    <p>▶5 চার: বাংলায় জরুরি তথ্যের প্রশ্ন হলে ইংরেজিতেও জিজ্ঞেস করে মেলান।</p>
+    <p>▶6 পাঁচ, developer-দের জন্য: নিজের chatbot-এর eval-এ +১, ০, −১ নম্বর দিন, "জানি না"-র হারও মাপুন। logprobs চালু করে কম সম্ভাবনার token ধরুন। আর তথ্য লাগলে উৎসটা ওর হাতে দিন।</p>
+  </aside>
+</section>
+
+<!-- S19 · সীমাবদ্ধতা -->
+<section>
+  <h2 data-enter="rise">সীমাবদ্ধতা</h2>
+  <div class="panel w vec" data-step="show" data-sel=".vec@rise;.d1@slam" data-gap=".3">
+    <span class="lbl">উৎস হাতে দিয়ে সারাংশ লিখতে দিলেও hallucination: Vectara leaderboard, অক্টোবর ২০২৬ (%)</span>
+    <div class="ax19">
+      <span class="tk19" style="left:0">০%</span><span class="tk19" style="left:100%">২৫%</span>
+      <span class="dt d1 rt" style="left:7.2%"><i></i><b>সেরা ১.৮</b></span>
+      <span class="dt d1" style="left:37.2%"><i></i><b>GPT-5.5 ৯.৩</b></span>
+      <span class="dt d1 l" style="left:96.8%"><i></i><b>সবচেয়ে বেশি ২৪.২</b></span>
+      <span class="ar d2" style="left:34.6%;width:7.4%"></span>
+      <span class="dt d2 dn l" style="left:33.6%"><i></i><b>gpt-5.2 কম effort ৮.৪</b></span>
+      <span class="dt d2 dn rt" style="left:43.2%"><i class="r"></i><b class="rd">বেশি effort ১০.৮</b></span>
+    </div>
+    <span class="lbl n19">বেশি effort-এ সারাংশ লম্বা: বেশি দাবি, ভুলের সুযোগও বেশি</span>
+  </div>
+  <span class="drv" data-step="show" data-sel=".d2@slam;.n19@rise"></span>
+  <div class="panel w cavp" data-step="show" data-sel=".cavp@rise;.cav19 li@rise">
+    <ul class="cav19">
+      <li>Benchmark-ভেদে hallucination-এর সংজ্ঞা আলাদা</li>
+      <li>System card কোম্পানির নিজের মাপা; Meta মেপেছে প্রতিদ্বন্দ্বীদেরও</li>
+      <li>বাংলার গবেষণা শুধু open model-এ</li>
+      <li>Database গোনে শুধু যা পাওয়া গেছে</li>
+      <li>এই Talk-এর simulation-গুলো ধরা যাক (উদাহরণ)</li>
+    </ul>
+  </div>
+  <div class="rule" data-step="rise"><i data-lucide="scale"></i><span><b>Trade-off:</b> বেশি “জানি না” বলা model user-কে বিরক্ত করে</span></div>
+  <div class="src"><i data-lucide="link"></i>Vectara Hallucination Leaderboard (HHEM-2.3, হালনাগাদ ২২ অক্টোবর ২০২৬): finix_s1_32b ১.৮, openai/gpt-5.5 ৯.৩, ministral-3b ২৪.২, gpt-5.2 low/high ৮.৪/১০.৮</div>
+  <aside class="notes">
+    <p>কয়েকটা সীমাবদ্ধতা।</p>
+    <p>▶1 উৎস হাতে দিলেও hallucination শূন্য হয় না। Vectara-র সারাংশ লেখার পরীক্ষায়, অক্টোবর ২০২৬-এ, সেরা model ১.৮ শতাংশ; GPT-5.5 ৯.৩।</p>
+    <p>▶2 বেশি "চিন্তা" করালেও কমেনি: gpt-5.2 কম effort-এ ৮.৪, বেশি effort-এ ১০.৮। লম্বা সারাংশে দাবি বেশি, ভুলের সুযোগও বেশি।</p>
+    <p>▶3 Benchmark-ভেদে hallucination-এর সংজ্ঞা আলাদা। System card কোম্পানির নিজের মাপা। বাংলার গবেষণা শুধু open model-এ। Database গোনে শুধু যা পাওয়া গেছে। আর simulation-গুলো ধরা যাক।</p>
+    <p>▶4 শেষে একটা trade-off: বেশি "জানি না" বলা model user-কে বিরক্ত করে।</p>
+  </aside>
+</section>
+
+<!-- S20 · খাতা খালি রাখা -->
+<section>
+  <h2 data-enter="rise">খাতা খালি রাখা</h2>
+  <div class="s1g">
+    <div class="panel dob" data-enter="rise">
+      <div class="lbl">জন্মতারিখ · DATE OF BIRTH</div>
+      <div class="lbl dm"><span>দিন</span><span>মাস</span></div>
+      <div class="dob-grid" id="dob20" data-dates="0307,1506,0101" data-erased></div>
+      <div class="idk pk" id="idk20"><span class="bub"><b class="g"></b></span><span class="lbl">জানি না</span></div>
+    </div>
+    <div class="col">
+      <span class="drv" data-step="show" data-sel="#idk20 .g@fill"></span>
+      <p class="say fin" data-step="rise">AI আত্মবিশ্বাসী শোনালেই সত্যি না। ও এমন এক পরীক্ষার্থী, যাকে কেউ কখনো <span class="accent">খাতা খালি রাখতে</span> শেখায়নি।</p>
+      <div class="panel next" data-step="rise"><span class="lbl">পরের আলোচনায়</span><p class="q">AI আসলে কিছু মনে রাখে না: context window আর RAG</p>
+      </div>
+      <div class="panel cmt" data-step="rise"><span class="lbl">কমেন্টে লিখুন</span><p class="q">শেষ কবে AI আপনাকে আত্মবিশ্বাসের সাথে ভুল বলেছে, আর প্রশ্নটা কী ছিল?</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p>শুরুর সেই খাতায় ফিরি। এবার ▶1 ভরাট হলো "জানি না"।</p>
+    <p>▶2 AI আত্মবিশ্বাসী শোনালেই সত্যি না। ও এমন এক পরীক্ষার্থী, যাকে কেউ কখনো খাতা খালি রাখতে শেখায়নি।</p>
+    <p>▶3 পরের আলোচনায়: AI আসলে কিছু মনে রাখে না—context window আর RAG।</p>
+    <p>▶4 তার আগে কমেন্টে লিখুন: শেষ কবে AI আপনাকে আত্মবিশ্বাসের সাথে ভুল বলেছে, আর প্রশ্নটা কী ছিল?</p>
+  </aside>
+</section>
+
+</div></div>
+<script src="../../vendor/gsap/gsap.min.js"></script>
+<script src="../../vendor/gsap/SplitText.min.js"></script>
+<script src="../../vendor/gsap/DrawSVGPlugin.min.js"></script>
+<script src="../../vendor/reveal/reveal.js"></script>
+<script src="../../vendor/reveal/notes.js"></script>
+<script src="../../vendor/lucide/lucide.min.js"></script>
+<script src="../../lib/deck.js"></script>
+<script src="../../lib/talk.js"></script>
+<script>
+// ---------- helpers ----------
+const V = Deck.vertical, $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const bn = (v, dp = 0) => Number(v).toLocaleString('bn-BD', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+// Signed Bangla number with only the decimals it needs: 62.5 → ৬২.৫, −200 → −২০০, 0.25 → ০.২৫
+const num = v => { const r = Math.round(Math.abs(v) * 100) / 100; return (v < -0.004 ? '−' : '') + bn(r, r % 1 === 0 ? 0 : Math.round(r * 10) === r * 10 ? 1 : 2); };
+const dens = p => +(0.06 + 0.86 * Math.sqrt(p)).toFixed(3);          // probability → pencil density (ধরা যাক)
+const bubble = (inner = '', attrs = '') => `<span class="bub" ${attrs}>${inner}<b class="g"></b></span>`;
+const FILLED = { opacity: .95, filter: 'blur(0px)', scaleX: 1 }, SMUDGE = { opacity: .14, filter: 'blur(1.5px)', scaleX: 1.3 };
+const IR = { immediateRender: false };
+
+// ---------- motion for this skin: pencil shading sweeps, red pen drawn, stamps for verdicts ----------
+// show: data-sel="sel@how;sel@how" animates each group in its section, one after another (data-gap seconds apart).
+const HOW = {
+  rise: t => gsap.fromTo(t, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: .4, ease: 'softLand', stagger: .1 }),
+  fill: t => gsap.fromTo(t, { opacity: .95, clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)', duration: .28, ease: 'glide', stagger: .012 }),
+  slam: t => gsap.fromTo(t, { autoAlpha: 0, scale: 1.7 }, { autoAlpha: 1, scale: 1, duration: .3, ease: 'crashIn', stagger: .006 }),
+  stamp: t => gsap.fromTo(t, { autoAlpha: 0, scale: 2.2, rotation: -20 }, { autoAlpha: 1, scale: 1, rotation: -7, duration: .3, ease: 'crashIn', stagger: .08 }),
+  draw: t => gsap.fromTo(t, { drawSVG: '0%' }, { drawSVG: '100%', duration: .35, ease: 'softInOut', stagger: .12 }),
+};
+Deck.preset('show', el => { const sec = el.closest('section'), tl = gsap.timeline(), gap = +(el.dataset.gap || .25);
+  el.dataset.sel.split(';').forEach((part, i) => { const [sel, how = 'rise'] = part.split('@'); tl.add(HOW[how]($$(sel, sec)), i * gap); });
+  return tl; });
+// grow: the block lands, then every <i data-w> in it (not in a nested Step) shades in to data-w % of its track and its value lands;
+// with data-sel the bars are picked from the section instead and the block itself does not move.
+Deck.preset('grow', el => { const sec = el.closest('section'), tl = gsap.timeline();
+  const bars = el.dataset.sel ? $$(el.dataset.sel, sec) : $$('i[data-w]', el).filter(b => b.parentElement.closest('[data-step]') === el);
+  if (!el.dataset.sel) tl.add(Deck.presets.rise(el), 0);
+  bars.forEach((b, j) => { tl.fromTo(b, { width: '0%' }, { width: `${b.dataset.w}%`, duration: .7, ease: 'softLand' }, .1 + j * .07);
+    if (b.nextElementSibling) tl.fromTo(b.nextElementSibling, { autoAlpha: 0, x: -12 }, { autoAlpha: 1, x: 0, duration: .25, ease: 'softLand' }, .5 + j * .07); });
+  $$('[data-late]', el).forEach(s => tl.add(Deck.presets[s.dataset.late](s), '+=.15'));
+  return tl; });
+
+// ---------- S1 / S20: the date-of-birth block. Each attempt fills its bubbles hard; the eraser smudges the one before ----------
+$$('.dob-grid').forEach(grid => {
+  const dates = grid.dataset.dates.split(',');
+  grid.innerHTML = [4, 10, 2, 10].map((n, c) => `<div class="dcol"><span class="wr">${dates.map(d => `<i>${bn(+d[c])}</i>`).join('')}</span>${
+    Array.from({ length: n }, (_, d) => bubble(bn(d), `data-c="${c}" data-d="${d}"`)).join('')}</div>`).join('');
+  if ('erased' in grid.dataset) {   // S20: all three attempts already rubbed out
+    dates.forEach(d => [...d].forEach((ch, c) => gsap.set($(`[data-c="${c}"][data-d="${ch}"] .g`, grid), SMUDGE)));
+    gsap.set($$('.wr i', grid), { autoAlpha: .2, filter: 'blur(1.5px)' });
+  }
+});
+Deck.preset('dob', el => {
+  const grid = $(`#${el.dataset.grid}`), dates = grid.dataset.dates.split(','), k = +el.dataset.try, prev = dates[k - 1], cur = dates[k];
+  const g = (c, d) => $(`[data-c="${c}"][data-d="${d}"] .g`, grid), tl = gsap.timeline().add(Deck.presets.rise(el), 0);
+  [...cur].forEach((d, c) => {
+    if (prev && prev[c] === d) return;
+    if (prev) tl.fromTo(g(c, prev[c]), FILLED, { ...SMUDGE, duration: .25, ease: 'softInOut', ...IR }, .05);
+    const was = dates.slice(0, k).some(x => x[c] === d);   // filled and erased before: start from its smudge
+    tl.fromTo(g(c, d), was ? { ...SMUDGE, clipPath: 'inset(0 0% 0 0)' } : { ...FILLED, clipPath: 'inset(0 100% 0 0)' },
+      { ...FILLED, clipPath: 'inset(0 0% 0 0)', duration: .3, ease: 'glide', ...IR }, .3 + c * .12);
+  });
+  $$('.wr', grid).forEach((w, c) => { const ch = w.children;
+    if (prev) tl.fromTo(ch[k - 1], { opacity: 1, filter: 'blur(0px)' }, { opacity: .2, filter: 'blur(1.5px)', duration: .25, ...IR }, .05);
+    tl.fromTo(ch[k], { autoAlpha: 0, y: -10 }, { autoAlpha: 1, y: 0, duration: .25, ease: 'softLand', ...IR }, .35 + c * .12); });
+  return tl;
+});
+
+// ---------- S4: decisions per year as tally marks; 2025 and 2026 break through the chart's top line and the axis rescales ----------
+const T = { H: V ? 200 : 380, vals: [16, 56, 865, 1329], v: [0, 0, 0, 0] };
+T.k0 = T.H / 60; T.k1 = T.H / 1000; T.k2 = T.H / 1600; T.k = T.k0;   // px per decision
+$$('#tally .tb').forEach((b, i) => {
+  const v = T.vals[i], full = Math.floor(v / 5), u = Math.ceil(v / 5) * 5; let d = '';
+  for (let j = 0; j <= full; j++) { const y = u - j * 5, n = j < full ? 4 : v % 5;   // a group of five: four strokes and a slash
+    for (let s = 0; s < n; s++) d += `M${20 + s * 17} ${y - .7}V${y - 4.3}`;
+    if (j < full) d += `M10 ${y - 1.1}L80 ${y - 3.9}`; }
+  b.innerHTML = `<svg viewBox="0 0 90 ${u}" preserveAspectRatio="none"><path d="${d}"/></svg>`; b.dataset.u = u;
+});
+function drawTally() {
+  $$('#tally .ty').forEach((c, i) => { const h = T.v[i] * T.k, b = $('.tb', c), tv = $('.tv', c);
+    b.style.height = `${h}px`; b.firstChild.style.height = `${b.dataset.u * T.k}px`;
+    tv.style.bottom = `${h + 8}px`; tv.textContent = T.v[i] >= .5 ? bn(Math.round(T.v[i])) : ''; });
+  $('#tally .ax b').textContent = bn(Math.round(T.H / T.k / 10) * 10);
+}
+drawTally();
+Deck.preset('yr', el => { const i = +el.dataset.i, o = { t: 0 };
+  return gsap.to(o, { t: 1, duration: .8, ease: 'softLand', onUpdate() { T.v[i] = T.vals[i] * o.t; drawTally(); } }); });
+// The bar shoots 30% past the top line at the old scale, then scale and value move together (log), so the bar settles under the new top.
+Deck.preset('break', el => { const i = +el.dataset.i, ka = T[el.dataset.ka], kb = T[el.dataset.kb], over = 1.3 * T.H / ka, o = { a: 0, b: 0 };
+  return gsap.timeline({ onUpdate() { T.k = ka * Math.pow(kb / ka, o.b); T.v[i] = o.b ? over * Math.pow(T.vals[i] / over, o.b) : over * o.a; drawTally(); } })
+    .to(o, { a: 1, duration: .45, ease: 'whip' }).to(o, { b: 1, duration: .9, ease: 'softInOut' }, '+=.2'); });
+
+// ---------- S5 / S6: next-token bubbles; pencil density = probability (ধরা যাক). Options are listed most likely first ----------
+$$('.tokrow[data-opts]').forEach(row => {
+  row.innerHTML = row.dataset.opts.split('|').map(s => s.split(':')).map(([t, p]) =>
+    `<div class="opt" data-p="${p}">${bubble()}<span class="tk">${t}</span><span class="pc">${bn(Math.round(p * 100))}%</span></div>`).join('');
+  if ('done' in row.dataset) $$('.opt', row).forEach((o, i) => { gsap.set($('.g', o), { opacity: i ? dens(+o.dataset.p) : .96 }); if (!i) o.classList.add('pk'); });
+});
+$$('.tokrow[data-days]').forEach(row => { const r = Deck.seeded(11);
+  row.innerHTML = Array.from({ length: +row.dataset.days }, (_, i) => `<div class="opt" data-p="${(.032 + r() * .024).toFixed(3)}">${bubble(bn(i + 1))}</div>`).join(''); });
+Deck.preset('tok', el => {
+  const row = $(`#${el.dataset.row}`), opts = $$('.opt', row), mode = el.dataset.mode, tl = gsap.timeline();
+  const pick = opts[+(el.dataset.pick || 0)];
+  if (mode === 'all') tl.add(Deck.presets.rise($(`#${el.dataset.box}`)), 0);
+  if (mode !== 'pick') tl.fromTo(opts.map(o => $('.g', o)), { opacity: 0, clipPath: 'inset(0 100% 0 0)' },
+    { opacity: (i, g) => dens(+g.closest('.opt').dataset.p), clipPath: 'inset(0 0% 0 0)', duration: .4, ease: 'glide', stagger: { amount: Math.min(.6, opts.length * .05) } }, mode === 'all' ? .35 : 0);
+  if (mode !== 'shade') { pick.classList.add('pk');
+    tl.fromTo($('.g', pick), { opacity: dens(+pick.dataset.p) }, { opacity: .96, duration: .22, ease: 'glide', ...IR }, mode === 'all' ? '+=.3' : 0)
+      .fromTo($(`#${el.dataset.slot}`), { autoAlpha: 0, y: -50 }, { autoAlpha: 1, y: 0, duration: .4, ease: 'softLand' }, '>-.05'); }
+  return tl;
+});
+// S6: once both answers sit side by side, the doubt is erased.
+Deck.preset('unshade', el => gsap.fromTo($$('.opt:not(.pk) .g', el.closest('section')), { opacity: (i, g) => dens(+g.closest('.opt').dataset.p) },
+  { opacity: 0, duration: .5, ease: 'softInOut', stagger: { amount: .3 }, ...IR }));
+
+// ---------- S7: the question bank. Repeated facts stack tall; one-off facts lie alone ----------
+$$('.stk').forEach(s => s.insertAdjacentHTML('afterbegin', '<i class="sh"></i>'.repeat(+s.dataset.n || 0)));
+Deck.preset('pile', el => { const tl = gsap.timeline(), stks = el.matches('.stk') ? [el] : $$('.stk', el);
+  stks.forEach((s, j) => { const sh = $$('.sh', s);
+    if (sh.length) tl.fromTo(sh, { autoAlpha: 0, y: -60 }, { autoAlpha: 1, y: 0, duration: .25, ease: 'softLand', stagger: .014 }, j * .15);
+    tl.fromTo($('.cd', s), { autoAlpha: 0, y: -80, rotation: 7 }, { autoAlpha: 1, y: 0, rotation: +(s.dataset.rot || 0), duration: .35, ease: 'softLand' }, sh.length ? '>-.1' : j * .15); });
+  $$('[data-late]', el).forEach(x => tl.add(HOW[x.dataset.late]([x]), '+=.1'));
+  return tl; });
+$('#r20b').innerHTML = Array.from({ length: 10 }, (_, i) => `<span class="bub${i < 8 ? '' : ' r'}"><b class="g" style="opacity:.95"></b></span>`).join('');
+
+// ---------- S9: the "can't answer" brake (Anthropic, 2025). Each case moves the circuit from the previous case's state ----------
+const S9 = [[0, 1, 0, 0], [1, 0, 1, 1], [0, 1, 0, 2], [1, 0, 0, 3]];   // [name recognised, brake on, facts behind it, answer shown]
+Deck.preset('case', el => {
+  const sec = el.closest('section'), k = +el.dataset.case, a = k ? S9[k - 1] : [0, 0, 0, -1], b = S9[k], tl = gsap.timeline();
+  ['.rec', '.brk', '.inf'].forEach((s, j) => { if (a[j] !== b[j]) tl.fromTo($(`${s} .g`, sec), { opacity: a[j] * .95, clipPath: 'inset(0 0% 0 0)' },
+    { opacity: b[j] * .95, duration: .3, ease: 'glide', ...IR }, .3 + j * .3); });
+  const swap = (els, from, to, at) => { if (from === to) return;
+    if (from >= 0) tl.fromTo(els[from], { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -24, duration: .2, ease: 'accelExit', ...IR }, at);
+    tl.fromTo(els[to], { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: .35, ease: 'softLand', ...IR }, at + .15); };
+  swap($$('.nmv > span', sec), k ? k - 1 : 0, k, 0);
+  swap($$('.outv > span', sec), a[3], b[3], 1.15);
+  return tl;
+});
+
+// ---------- S10: calibration curve; before vs after post-training (shapes only, ধরা যাক) ----------
+const P10 = { x: c => 80 + c * 470, y: a => 520 - a * 470 }, pre = c => c + .03 * Math.sin(c * 10), post = c => .32 + .42 * c;
+const curveD = m => Array.from({ length: 21 }, (_, i) => { const c = i / 20, a = Math.min(1, Math.max(0, (1 - m) * pre(c) + m * post(c)));
+  return `${i ? 'L' : 'M'}${P10.x(c).toFixed(1)} ${P10.y(a).toFixed(1)}`; }).join('');
+$('#s10cv').setAttribute('d', curveD(0));
+Deck.preset('wipe', el => gsap.fromTo($(el.dataset.t), { attr: { width: 0 } }, { attr: { width: 600 }, duration: .9, ease: 'softInOut' }));
+Deck.preset('morph', () => { const o = { m: 0 }; return gsap.to(o, { m: 1, duration: 1.2, ease: 'softInOut', onUpdate: () => $('#s10cv').setAttribute('d', curveD(o.m)) }); });
+
+// ---------- S11: the confidence gauge ----------
+$('#s11t').innerHTML = Array.from({ length: 11 }, (_, i) => { const a = Math.PI * (1 - i / 10);
+  return `<line class="tk" x1="${250 + 186 * Math.cos(a)}" y1="${250 - 186 * Math.sin(a)}" x2="${250 + 208 * Math.cos(a)}" y2="${250 - 208 * Math.sin(a)}"/>`; }).join('');
+Deck.preset('gauge', el => { const sec = el.closest('section');
+  return gsap.timeline().fromTo('#s11n', { rotation: -90, svgOrigin: '250 250' }, { rotation: 63, svgOrigin: '250 250', duration: 1, ease: 'whip' }, 0)
+    .add(Deck.presets.rise($('.read', sec)), .8).add(Deck.presets.count($('#s11v')), .85); });
+
+// ---------- S13: two ধরা যাক models on 100 questions, and the penalty slider (Demo, plain JS, works offline) ----------
+const r13 = Deck.seeded(5), guess = Array.from({ length: 40 }, (_, i) => ({ ok: i < 10, k: r13() })).sort((a, b) => a.k - b.k);
+$('#dA').innerHTML = Array.from({ length: 100 }, (_, i) => `<span class="bub${i < 60 || guess[i - 60].ok ? '' : ' r'}"><b class="g" style="opacity:.95"></b></span>`).join('');
+$('#dB').innerHTML = Array.from({ length: 100 }, (_, i) => `<span class="bub"><b class="g" style="opacity:${i < 60 ? .95 : 0}"></b></span>`).join('');
+Deck.preset('drop', el => gsap.timeline().add(Deck.presets.rise(el), 0)
+  .fromTo($$('.dots .bub', el), { autoAlpha: 0, y: -36 }, { autoAlpha: 1, y: 0, duration: .3, ease: 'softLand', stagger: { each: .005, from: 'random' } }, .1)
+  .add(HOW.rise($$('.tally', el)), '-=.1'));
+// Slider stops sit evenly at 0, −0.25, −1, −2, −9; between stops the penalty moves linearly.
+const STOPS = [0, .25, 1, 2, 9], sl = $('#pen13'), P13 = { top: 'A' }, RH = V ? 76 : 80;
+const posToP = x => { const i = Math.min(3, Math.floor(x / 100)); return STOPS[i] + (STOPS[i + 1] - STOPS[i]) * (x / 100 - i); };
+const pToPos = p => { let i = 0; while (i < 3 && p > STOPS[i + 1]) i++; return (i + (p - STOPS[i]) / (STOPS[i + 1] - STOPS[i])) * 100; };
+function setP(p) {
+  const a = 70 - 30 * p, b = 60;   // আন্দাজি: 70 right, 30 wrong; সৎ: 60 right, 40 blank
+  [['#lbA', a], ['#lbB', b]].forEach(([id, s]) => { const sc = $(`${id} .sc`); sc.textContent = num(s); sc.classList.toggle('rd', s < 0); $(`${id} .trk i`).style.width = `${Math.max(0, s)}%`; });
+  $('#penv').textContent = p > .004 ? num(-p) : '০';
+  if (document.activeElement !== sl) sl.value = pToPos(p);
+  const top = a > b ? 'A' : a < b ? 'B' : P13.top;   // a tie keeps the order
+  if (top !== P13.top) { P13.top = top;
+    gsap.to('#lbA', { y: top === 'A' ? 0 : RH, duration: .45, ease: 'softLand', overwrite: true });
+    gsap.to('#lbB', { y: top === 'A' ? RH : 0, duration: .45, ease: 'softLand', overwrite: true }); }
+}
+gsap.set('#lbB', { y: RH }); setP(0);
+sl.addEventListener('input', () => { let x = +sl.value; const s = [0, 100, 200, 300, 400].find(v => Math.abs(v - x) < 12);
+  if (s != null) { x = s; sl.value = s; } setP(Math.round(posToP(x) * 100) / 100); });
+// Never keep focus: after a drag the Talk keys (↓ → …) work again at once. Esc also leaves it.
+['pointerup', 'change'].forEach(e => sl.addEventListener(e, () => sl.blur()));
+Talk.field(sl);
+Deck.preset('penalty', el => { const o = { p: +el.dataset.from }; return gsap.to(o, { p: +el.dataset.to, duration: 1, ease: 'softInOut', onUpdate: () => setP(o.p) }); });
+
+// ---------- S14: the loop benchmark → leaderboard → training target → the model learns to guess, turning for ever ----------
+(() => { const cx = 380, cy = 280, R = 190, P = d => [cx + R * Math.cos(d * Math.PI / 180), cy + R * Math.sin(d * Math.PI / 180)];
+  const lab = [['benchmark', 0, -26, 'middle'], ['leaderboard', 22, 10, 'start'], ['training-এর লক্ষ্য', 0, 54, 'middle'], ['model আন্দাজ|শেখে', -22, -8, 'end']];
+  let segs = '', nds = '';
+  for (let i = 0; i < 4; i++) { const a = -90 + 90 * i, [x, y] = P(a), [x1, y1] = P(a + 9), [x2, y2] = P(a + 81), t = (a + 81) * Math.PI / 180;
+    const tx = -Math.sin(t), ty = Math.cos(t), nx = Math.cos(t), ny = Math.sin(t), f = v => v.toFixed(1);
+    segs += `<g class="seg"><path class="arc" d="M${f(x1)} ${f(y1)}A${R} ${R} 0 0 1 ${f(x2)} ${f(y2)}"/><path class="hd" d="M${f(x2 + tx * 6)} ${f(y2 + ty * 6)}L${f(x2 - tx * 16 + nx * 10)} ${f(y2 - ty * 16 + ny * 10)}L${f(x2 - tx * 16 - nx * 10)} ${f(y2 - ty * 16 - ny * 10)}Z"/></g>`;
+    const [s, dx, dy, an] = lab[i], ln = s.split('|');
+    nds += `<g class="nd"><circle class="nb" cx="${f(x)}" cy="${f(y)}" r="13"/><text x="${f(x + dx)}" y="${f(y + dy - (ln.length - 1) * 18)}" text-anchor="${an}">${ln.map((l, j) => `<tspan x="${f(x + dx)}" dy="${j ? 36 : 0}">${l}</tspan>`).join('')}</text></g>`; }
+  $('#s14loop').innerHTML = `${segs}<circle id="s14mk" cx="${cx}" cy="${cy - R}" r="11" fill="#e5484d"/>${nds}`;
+  gsap.to('#s14mk', { rotation: 360, svgOrigin: `${cx} ${cy}`, duration: 7, repeat: -1, ease: 'none' });
+})();
+Deck.preset('loop', el => { const tl = gsap.timeline().add(Deck.presets.rise(el), 0), segs = $$('.seg', el);
+  $$('.nd', el).forEach((n, i) => tl.fromTo(n, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: .3, ease: 'softLand' }, .2 + i * .4)
+    .fromTo($('.arc', segs[i]), { drawSVG: '0%' }, { drawSVG: '100%', duration: .35, ease: 'softInOut' }, .32 + i * .4)
+    .fromTo($('.hd', segs[i]), { autoAlpha: 0 }, { autoAlpha: 1, duration: .1 }, .65 + i * .4));
+  return tl.fromTo('#s14mk', { autoAlpha: 0 }, { autoAlpha: 1, duration: .2 }); });
+
+// ---------- S15: 100 cells per model; teal = right, red = wrong, empty = no answer ----------
+$$('.cells').forEach(c => { const ok = +c.dataset.ok, bad = +c.dataset.bad;
+  c.innerHTML = Array.from({ length: 100 }, (_, i) => `<span class="bub ${i < ok ? 'okc' : i < ok + bad ? 'bad r' : ''}"><b class="g"></b></span>`).join(''); });
+
+Promise.all([document.fonts.load('400 1em Tiro', 'কখগ Ab'), document.fonts.load('500 1em Barlow', 'Ab'), document.fonts.load('600 1em Barlow', 'Ab'),
+  document.fonts.load('700 1em Barlow', 'Ab'), document.fonts.load('400 1em Atma', 'কখগ Ab'), document.fonts.load('600 1em Atma', 'কখগ Ab')])
+  .then(() => Deck.start({ keyboard: Talk.keys }));
+</script>
+
+</body>
+</html>

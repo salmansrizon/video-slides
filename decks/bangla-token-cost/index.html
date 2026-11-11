@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="bn" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>বাংলায় ChatGPT কেন বেশি খরচ করে?</title>
+<!-- Talk with a Cap face cam, in the shared Talk format (lib/talk.css, docs/adr/0003). Script: scripts/bangla-token-cost.txt;
+     Notes come from research/script.synced.txt (key S). Keys: ← → Slides, ↓ ↑ points, C face-cam guide.
+     Every number comes from research/experiment/results.json; the token pieces are computed live by OpenAI's real tokenizers. -->
+<link rel="stylesheet" href="../../vendor/reveal/reveal.css">
+<link rel="stylesheet" href="../../lib/deck.css">
+<link rel="stylesheet" href="../../lib/talk.css">
+<style>
+  /* Skin: a till receipt at night. Warm near-black, amber-cream ink, mono numbers, dashed ticket dividers, things print in line by line. */
+  @font-face { font-family: 'Plex'; src: url('../../vendor/fonts/IBMPlexMono-400.woff2') format('woff2'); font-weight: 400; font-display: block; }
+  @font-face { font-family: 'Plex'; src: url('../../vendor/fonts/IBMPlexMono-600.woff2') format('woff2'); font-weight: 600; font-display: block; }
+  @font-face { font-family: 'Plex'; src: url('../../vendor/fonts/IBMPlexMono-700.woff2') format('woff2'); font-weight: 700; font-display: block; }
+  @font-face { font-family: 'Hind'; src: url('../../vendor/fonts/HindSiliguri-Bengali-400.woff2') format('woff2'); font-weight: 400; font-display: block; unicode-range: U+0964-0965, U+0980-09FE, U+200C-200D, U+25CC; }
+  @font-face { font-family: 'Hind'; src: url('../../vendor/fonts/HindSiliguri-Bengali-500.woff2') format('woff2'); font-weight: 500; font-display: block; unicode-range: U+0964-0965, U+0980-09FE, U+200C-200D, U+25CC; }
+  @font-face { font-family: 'Hind'; src: url('../../vendor/fonts/HindSiliguri-Bengali-600.woff2') format('woff2'); font-weight: 600; font-display: block; unicode-range: U+0964-0965, U+0980-09FE, U+200C-200D, U+25CC; }
+  @font-face { font-family: 'Hind'; src: url('../../vendor/fonts/HindSiliguri-Bengali-700.woff2') format('woff2'); font-weight: 700; font-display: block; unicode-range: U+0964-0965, U+0980-09FE, U+200C-200D, U+25CC; }
+  /* Hind's Latin half: spaces and English words in Bangla sentences stay proportional (the mono Plex is for numbers and token chips). */
+  @font-face { font-family: 'Hind'; src: url('../../vendor/fonts/HindSiliguri-Latin-400.woff2') format('woff2'); font-weight: 400; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+  @font-face { font-family: 'Hind'; src: url('../../vendor/fonts/HindSiliguri-Latin-500.woff2') format('woff2'); font-weight: 500; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+  @font-face { font-family: 'Hind'; src: url('../../vendor/fonts/HindSiliguri-Latin-600.woff2') format('woff2'); font-weight: 600; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+  @font-face { font-family: 'Hind'; src: url('../../vendor/fonts/HindSiliguri-Latin-700.woff2') format('woff2'); font-weight: 700; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212; }
+
+  :root {
+    --bg: #0d0b09; --fg: #f3ead9; --card: #17130f; --card-2: #1e1913; --border: #2c251d; --muted-fg: #a89b88; --dim: #6e6253;
+    --accent: #f2c57c; --accent-ink: #1a1206; --yellow: #f2c57c; --yellow-fg: #f2c57c;
+    --blue: #f2c57c; --blue-fg: #f2c57c;                 /* rule cards and list icons take the amber too */
+    --red: #e5484d; --red-fg: #ff7a6b; --green: #8ad134; --green-fg: #b8ee73;
+    --radius: 10px; --radius-sm: 8px; --radius-pill: 8px;
+    --font: 'Hind', 'Plex', sans-serif; --mono: 'Plex', 'Hind', monospace;
+    --bg-art:
+      radial-gradient(ellipse 65% 55% at 38% 0%, rgba(242,197,124,.09), transparent 70%),
+      radial-gradient(rgba(242,197,124,.075) 1.5px, transparent 1.6px) 0 0 / 22px 22px;   /* dot matrix */
+    --c0: #f2c57c; --c1: #a7d7c5; --c2: #f2a6a0; --c3: #b8c4f0; --c4: #e9b8e3;            /* token colours */
+  }
+  /* deck.css sizes headings with a more specific selector than talk.css, so the Talk sizes are repeated here. */
+  .reveal { letter-spacing: 0; }
+  .reveal :is(h1, h2):not(.card *) { font-family: var(--font); font-weight: 700; letter-spacing: 0; }
+  .reveal h1:not(.card *) { font-size: 92px; line-height: 1.2; }
+  .reveal h2:not(.card *) { font-size: 64px; line-height: 1.25; }
+  html.vertical .reveal h1:not(.card *) { font-size: 80px; }
+  html.vertical .reveal h2:not(.card *) { font-size: 56px; }
+  .big, .num, .stamp { font-family: var(--mono); }
+  .panel hr { border: 0; border-top: 2px dashed var(--border); margin: 14px 0; }
+  .item .n { font: 700 30px/1 var(--mono); color: var(--accent); flex: none; }
+  .item code, .src code { font-family: var(--mono); }
+  .item code { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 2px 12px; font-size: 26px; color: var(--c1); }
+  .panel { box-sizing: border-box; }   /* full-width panels (.w) keep inside the face-cam padding */
+  .rel { position: relative; } .abs { position: absolute; z-index: 2; }
+  .panel-h .eg { margin-left: auto; font-weight: 400; }
+
+  /* Token pieces: one coloured chip per token (S1 bills, S3 Demo) */
+  .toks { display: flex; flex-wrap: wrap; gap: 5px; }
+  .toks i { font: normal 500 21px/1.5 var(--mono); padding: 2px 6px; border-radius: 5px; color: #241c14; }
+  .toks i.frag { min-width: 10px; padding: 2px 3px; opacity: .85; }
+  i.c0 { background: var(--c0); } i.c1 { background: var(--c1); } i.c2 { background: var(--c2); } i.c3 { background: var(--c3); } i.c4 { background: var(--c4); }
+
+  /* A bill inside a card (S1, S11) and the telegram (S2) */
+  .bill { font-size: 24px; }
+  .bill-h { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 16px; flex-wrap: wrap; font: 400 20px/1.4 var(--mono); color: var(--muted-fg); }
+  .bill-h b { font-size: 28px; font-weight: 700; letter-spacing: .06em; color: var(--fg); }
+  .bill-text { font-size: 25px; line-height: 1.45; }
+  .bill-total { display: flex; justify-content: space-between; align-items: baseline; font: 600 28px/1.2 var(--mono); }
+  .bill-total b { font-size: 42px; font-weight: 700; color: var(--accent); }
+  .tg-h { font: 700 26px/1.3 var(--mono); letter-spacing: .3em; color: var(--muted-fg); }
+  .tg-msg { font: 700 44px/1.25 var(--mono); letter-spacing: .03em; color: var(--accent); }
+  .tg-row { display: flex; justify-content: space-between; font-size: 26px; color: var(--muted-fg); }
+  html.vertical .tg-msg { font-size: 40px; }
+
+  /* S3 Demo: type here; the real tokenizers cut the text live */
+  .demo textarea { width: 100%; box-sizing: border-box; height: 116px; resize: none; background: var(--bg); color: var(--fg); border: 2px solid var(--border);
+                   border-radius: var(--radius-sm); font: 500 32px/1.5 var(--font); padding: 12px 20px; outline: none; display: block; }
+  .demo textarea:focus { border-color: var(--accent); }
+  .demo textarea::placeholder { color: var(--dim); }
+  .t-row { display: grid; grid-template-columns: 210px 1fr 130px; gap: 18px; align-items: start; margin-top: 18px; padding-top: 18px; border-top: 2px dashed var(--border); }
+  .t-name { font: 400 22px/1.4 var(--mono); color: var(--muted-fg); } .t-name b { display: block; color: var(--fg); font-size: 28px; }
+  .t-n { font: 700 54px/1 var(--mono); text-align: right; color: var(--accent); }
+  .t-row .toks { min-height: 44px; } .t-row .toks i { font-size: 25px; }
+  html.vertical .t-row { grid-template-columns: 1fr auto; } html.vertical .t-row .toks { grid-column: 1 / -1; grid-row: 2; }
+
+  /* S4 bytes */
+  .letters { display: flex; gap: 64px; align-items: flex-end; }
+  .letter { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .letter .ch { font: 700 92px/1.05 var(--font); } .letter .bx { display: flex; gap: 6px; }
+  .letter .bx b { width: 42px; height: 42px; border: 3px solid var(--accent); border-radius: 6px; } .letter small { color: var(--muted-fg); font-size: 24px; }
+  .bytes { display: grid; grid-template-columns: 190px 1fr; gap: 18px 24px; align-items: center; }
+  .bytes .lbl { font-size: 26px; color: var(--muted-fg); line-height: 1.3; } .bytes .lbl b { color: var(--fg); font: 700 38px/1.1 var(--mono); display: block; }
+  .cells { display: flex; flex-wrap: wrap; gap: 3px; } .cells b { width: 20px; height: 20px; border-radius: 3px; background: #3a3026; }
+  html.vertical .bytes { grid-template-columns: 1fr; gap: 10px; } html.vertical .cells b { width: 17px; height: 17px; }
+
+  /* S6–S10: the strips chart. One bar per tokenizer; its height is Bangla's token count ÷ English's. The dashed line is 1× (English). */
+  .strips { display: flex; align-items: flex-end; gap: 24px; position: relative; --lab: 58px; }
+  .strips .base { position: absolute; left: 0; right: 0; bottom: calc(var(--lab) + var(--unit)); border-top: 2px dashed color-mix(in srgb, var(--fg) 40%, transparent); }
+  .strip { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 10px; width: 108px; }
+  .strip .bar { width: 100%; border-radius: 4px 4px 0 0; background: var(--accent) repeating-linear-gradient(180deg, transparent 0 20px, rgba(26,18,6,.22) 20px 22px); }
+  .strip.eng .bar { background-color: #8f8676; } .strip.low .bar { background-color: var(--green); }
+  .strip .v { font: 700 28px/1 var(--mono); color: var(--accent); } .strip.eng .v { color: var(--fg); } .strip.low .v { color: var(--green-fg); }
+  .strip .n { font-size: 18px; color: var(--muted-fg); text-align: center; line-height: 1.25; height: 48px; }
+  .strip.old { opacity: .45; }
+  html.vertical .strips { gap: 12px; } html.vertical .strip { width: 80px; }
+  html.vertical .strip .v { font-size: 22px; } html.vertical .strip .n { font-size: 15px; }
+  .stat { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 20px; flex-wrap: wrap; font-size: 30px; line-height: 1.3; }
+  .stat small { display: block; font: 400 20px/1.4 var(--mono); color: var(--muted-fg); }
+  .stat .v { font: 400 30px/1 var(--mono); color: var(--muted-fg); white-space: nowrap; } .stat .v b { font-size: 60px; font-weight: 700; color: var(--accent); }
+  .col > .stamp { align-self: flex-start; margin: 6px 0 0 12px; }
+
+  /* S8 dictionaries: a stack of pages per tokenizer */
+  .dicts { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; width: 100%; align-items: end; }
+  .dict { display: flex; flex-direction: column; gap: 12px; }
+  .pages { display: flex; flex-direction: column-reverse; gap: 3px; min-height: 237px; }
+  .pages i { display: block; height: 9px; background: color-mix(in srgb, var(--accent) 80%, var(--bg)); border-radius: 2px; }
+  .dict .big { font-size: 68px; } .dict .lbl { font-size: 28px; color: var(--muted-fg); }
+  html.vertical .dict .big { font-size: 54px; }
+
+  /* S12 context window */
+  .wrow { display: grid; grid-template-columns: 270px 1fr; gap: 20px; align-items: center; font-size: 28px; margin-top: 16px; }
+  .wbar { height: 56px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; position: relative; overflow: hidden; }
+  .wbar .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: color-mix(in srgb, var(--green) 42%, transparent); }
+  .wbar .fill.a { background: color-mix(in srgb, var(--accent) 50%, transparent); } .wbar .fill.r { background: color-mix(in srgb, var(--red) 70%, transparent); }
+  .wbar span { position: absolute; right: 14px; top: 0; font: 700 28px/54px var(--mono); }
+  html.vertical .wrow { grid-template-columns: 1fr; gap: 6px; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- S1 · দুইটা বিল -->
+<section class="center">
+  <h2 data-enter="rise">একই কথা, দুইটা বিল</h2>
+  <div class="split">
+    <div class="panel bill" data-make="bill" data-enc="gpt4" data-lang="eng" data-title="ENGLISH" data-step="print" data-fragment-index="1"></div>
+    <div class="rel">
+      <div class="panel bill" data-make="bill" data-enc="gpt4" data-lang="ben" data-title="বাংলা" data-step="print" data-fragment-index="2"></div>
+      <span class="stamp abs" style="right:24px; top:-78px; font-size:60px" data-step="stamp" data-rotate="-9" data-fragment-index="3">×৬.৫</span>
+    </div>
+  </div>
+  <h1 data-step="rise" data-fragment-index="4" style="font-size:60px">বাংলায় ChatGPT কেন <span class="accent">বেশি খরচ</span> করে?</h1>
+  <aside class="notes">
+    <p>(৩ সেকেন্ড থামুন)</p>
+    <p>এই দুইটা বিল দেখুন।</p>
+    <p>একই কথা। ▶1 একটা ইংরেজিতে, ▶2 একটা বাংলায়।</p>
+    <p>"Scientists say the explosion caused by the collision was massive." আর বাংলায়—"বিজ্ঞানীরা জানাচ্ছেন সংঘর্ষের ফলে সৃষ্ট বিস্ফোরণ ছিল বিপুল।"</p>
+    <p>GPT-4-এর হিসাবে ইংরেজি বাক্যটা ১১ token। বাংলা বাক্যটা ৭১ token।</p>
+    <p>▶3 একই কথা, কিন্তু বিল প্রায় সাড়ে ছয় গুণ।</p>
+    <p>আপনি যদি বাংলায় কোনো chatbot, অনুবাদের app, বা AI দিয়ে কোনো product বানান, এই পার্থক্যটা সরাসরি আপনার পকেট থেকে যায়।</p>
+    <p>▶4 আজ দেখব, কেন এমন হয়, এখন অবস্থা কতটা বদলেছে, আর আপনার app-এর জন্য এর মানে কী।</p>
+  </aside>
+</section>
+
+<!-- S2 · টেলিগ্রাম -->
+<section>
+  <h2 data-enter="rise">টেলিগ্রাম: দাম শব্দ গুনে</h2>
+  <div class="split">
+    <div class="panel" data-enter="print" data-delay="0.15">
+      <div class="tg-h">TELEGRAM</div>
+      <hr>
+      <div class="tg-msg">ARRIVING TUESDAY STOP</div>
+      <hr>
+      <div class="tg-row"><span>শব্দ</span><span>৩</span></div>
+      <div class="tg-row"><span>দাম</span><span>প্রতি শব্দে</span></div>
+    </div>
+    <div class="items">
+      <div class="item" data-step="rise"><i data-lucide="coins"></i><span><b class="accent">AI</b> দাম নেয় প্রতি token-এ</span></div>
+      <div class="item" data-step="rise"><i data-lucide="arrow-left-right"></i>পাঠানো লেখা + উত্তর = token</div>
+      <div class="item" data-step="rise"><i data-lucide="book-open"></i>একবারে কতটা পড়বে = token-এর সীমা</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p>আগে একটা পুরনো জিনিসের কথা বলি—টেলিগ্রাম।</p>
+    <p>টেলিগ্রামে টাকা দিতে হতো শব্দ গুনে। তাই মানুষ লিখত "ARRIVING TUESDAY STOP"—যত কম শব্দ, তত কম খরচ।</p>
+    <p>▶1 AI-ও ঠিক এভাবেই টাকা নেয়। তবে শব্দ গুনে নয়, token গুনে।</p>
+    <p>▶2 আপনি যা পাঠান আর AI যা উত্তর দেয়—দুটোই token-এ মাপা হয়, আর প্রতিটা token-এর একটা দাম আছে।</p>
+    <p>▶3 শুধু টাকা নয়, একটা model একবারে কতটা লেখা পড়তে পারবে, সেটাও মাপা হয় token-এ।</p>
+    <p>তাই token বোঝা মানে AI-এর বিল আর সীমা—দুটোই বোঝা।</p>
+  </aside>
+</section>
+
+<!-- S3 · Token কী (Demo) -->
+<section>
+  <h2 data-enter="rise">Token: লেখার টুকরো</h2>
+  <div class="panel w demo rel" data-enter="rise" data-delay="0.15">
+    <textarea id="demo-in" spellcheck="false" placeholder="এখানে লিখুন… (Esc বা বাইরে ক্লিক করলে আবার ↓ কাজ করবে)"></textarea>
+    <div class="t-row"><div class="t-name"><b>GPT-4</b>cl100k_base</div><div class="toks" id="demo-gpt4"></div><div class="t-n" id="demo-gpt4-n">০</div></div>
+    <div class="t-row"><div class="t-name"><b>GPT-4o+</b>o200k_base</div><div class="toks" id="demo-gpt4o"></div><div class="t-n" id="demo-gpt4o-n">০</div></div>
+    <div class="abs">
+      <span data-step="say" data-text="Scientists say the explosion caused by the collision was massive."></span>
+      <span data-step="say" data-text="বিজ্ঞানীরা জানাচ্ছেন সংঘর্ষের ফলে সৃষ্ট বিস্ফোরণ ছিল বিপুল।"></span>
+      <span data-step="say" data-text="বিজ্ঞানীরা"></span>
+    </div>
+  </div>
+  <aside class="notes">
+    <p>তাহলে token জিনিসটা কী?</p>
+    <p>Token হলো লেখার একটা টুকরো। কখনো পুরো একটা শব্দ, কখনো শব্দের একটা অংশ, কখনো একটা অক্ষরেরও অংশ।</p>
+    <p>[Demo: ↓ চাপলে বাক্য নিজে বসবে; বক্সে ক্লিক করে নিজেও লিখতে পারেন, Esc চেপে বের হয়ে আবার ↓]</p>
+    <p>▶1 দেখুন, ইংরেজি বাক্যে প্রায় প্রতিটা শব্দ একটা করে টুকরো। এগারোটা টুকরো, শেষ।</p>
+    <p>▶2 আর বাংলা বাক্যে একটা শব্দই ভেঙে যাচ্ছে অনেকগুলো ছোট টুকরোয়।</p>
+    <p>▶3 শুধু "বিজ্ঞানীরা" শব্দটাই GPT-4 ভেঙেছে ১২টা টুকরোয়। কোনো কোনো টুকরো একটা অক্ষরেরও কম—অক্ষরের আধখানা।</p>
+  </aside>
+</section>
+
+<!-- S4 · Byte -->
+<section>
+  <h2 data-enter="rise">কম্পিউটারের ভেতরে: byte</h2>
+  <div class="panel letters" data-step="print" data-gap="0.25">
+    <div class="letter"><span class="ch">a</span><span class="bx"><b></b></span><small>১ byte</small></div>
+    <div class="letter"><span class="ch">ক</span><span class="bx"><b></b><b></b><b></b></span><small>৩ byte</small></div>
+    <div class="letter"><span class="ch">◌া</span><span class="bx"><b></b><b></b><b></b></span><small>৩ byte</small></div>
+  </div>
+  <div class="panel w bytes" data-step="print" data-gap="0.12">
+    <div class="lbl"><b>৬৫</b>byte · ইংরেজি</div><div class="cells" id="cells-eng"></div>
+    <div class="lbl"><b>১৬৩</b>byte · বাংলা</div><div class="cells" id="cells-ben"></div>
+  </div>
+  <span class="abs" data-step="color" data-cells="#cells-eng"></span>
+  <span class="abs" data-step="color" data-cells="#cells-ben"></span>
+  <div class="src">রং = GPT-4-এর এক একটা token (cl100k_base)। ইংরেজি ১১ টুকরো, বাংলা ৭১ টুকরো।</div>
+  <aside class="notes">
+    <p>এমন কেন হয়? এর উত্তর লুকিয়ে আছে কম্পিউটারের ভেতরে।</p>
+    <p>▶1 কম্পিউটার প্রতিটা অক্ষর রাখে byte হিসেবে। একটা ইংরেজি অক্ষর মানে ১ byte। আর একটা বাংলা অক্ষর, এমনকি একটা কার-চিহ্নও, ৩ byte।</p>
+    <p>▶2 আমাদের ইংরেজি বাক্যটা ৬৫ byte। বাংলা বাক্যটা অক্ষরে ছোট, কিন্তু byte-এ ১৬৩।</p>
+    <p>প্রতিটা AI model-এর একটা tokenizer থাকে—লেখাকে টুকরো করার নিয়ম। সে শুরু করে এই byte থেকে, তারপর যে byte-গুলো বারবার একসাথে আসে, সেগুলো জুড়ে একটা করে token বানায়।</p>
+    <p>▶3 যে লেখা দেখে সে শিখেছে, তাতে ইংরেজি ছিল অনেক বেশি। তাই "scientists" বা "explosion"-এর মতো পুরো শব্দ জুড়ে একটা token হয়ে গেছে।</p>
+    <p>▶4 বাংলা লেখা ছিল কম। তাই বাংলার অনেক byte জোড়া লাগার সুযোগই পায়নি—ভাঙা ভাঙা অবস্থাতেই থেকে গেছে।</p>
+  </aside>
+</section>
+
+<!-- S5 · পরীক্ষা -->
+<section>
+  <h2 data-enter="rise">আমাদের পরীক্ষা</h2>
+  <div class="split">
+    <div class="panel" data-step="print">
+      <div class="row" style="align-items:baseline"><span class="big">১০১২</span><span style="font-size:40px; font-weight:600">বাক্য</span></div>
+      <div class="muted" style="font-size:28px; margin-top:10px">FLORES-200 · পেশাদার অনুবাদ</div>
+      <hr>
+      <div style="font-size:30px">ইংরেজি ↔ বাংলা, একই কথা</div>
+    </div>
+    <div class="row" data-step="stream" data-gap="0.12" style="gap:14px">
+      <span class="chip">GPT-2/3</span><span class="chip">GPT-3.5/4</span><span class="chip">GPT-4o → GPT-5</span><span class="chip">Qwen 2.5</span>
+      <span class="chip">Mistral Nemo</span><span class="chip">Sarvam-1</span><span class="chip">IndicBERT v2</span><span class="chip">BanglaBERT</span>
+    </div>
+  </div>
+  <p class="say" data-step="rise">একই কথা বলতে বাংলায় <span class="accent">কত গুণ</span> বেশি token লাগে?</p>
+  <div class="src">বাক্য: FLORES-200 devtest (NLLB Team, Meta AI, CC BY-SA 4.0) · গোনা: OpenAI tiktoken ও Hugging Face tokenizers · ফলাফল: research/experiment</div>
+  <aside class="notes">
+    <p>একটা বাক্য দিয়ে তো সিদ্ধান্ত নেওয়া যায় না। তাই আমরা নিজেরাই একটা পরীক্ষা করেছি।</p>
+    <p>▶1 ১০১২টা বাক্য নিয়েছি, যেগুলো পেশাদার অনুবাদকেরা ইংরেজি থেকে বাংলায় অনুবাদ করেছেন। এই ডেটার নাম FLORES-200, ভাষা নিয়ে গবেষণায় এটা খুব পরিচিত।</p>
+    <p>▶2 তারপর একই লেখা আটটা আসল tokenizer দিয়ে গুনেছি—OpenAI-এর পুরনো আর নতুন model, কয়েকটা open model, আর বাংলা বা ভারতীয় ভাষার জন্য বানানো কয়েকটা।</p>
+    <p>▶3 প্রশ্ন একটাই: একই কথা বলতে বাংলায় কত গুণ বেশি token লাগে?</p>
+  </aside>
+</section>
+
+<!-- S6 · পুরনো model -->
+<section>
+  <h2 data-enter="rise">পুরনো model</h2>
+  <div class="split">
+    <div class="panel"><div class="strips" data-strips="eng,gpt2,cl100k" data-new="gpt2,cl100k" data-step-count="2"></div></div>
+    <div class="col">
+      <div class="panel stat" data-step="print" data-fragment-index="3">
+        <span>শব্দপ্রতি token<small>GPT-4 (cl100k_base)</small></span>
+        <span class="v">ইংরেজি <b style="color:var(--fg)">১.২</b></span>
+        <span class="v">বাংলা <b style="color:var(--red-fg)">৮.২</b></span>
+      </div>
+      <span class="stamp" data-step="stamp" data-rotate="-6" data-fragment-index="4">≈ ৬ গুণ টাকা</span>
+    </div>
+  </div>
+  <div class="src">নিজস্ব পরীক্ষা · ১০১২টি FLORES-200 বাক্য · দাগ দেওয়া রেখা = ইংরেজির সমান (১×)</div>
+  <aside class="notes">
+    <p>প্রথমে পুরনো model।</p>
+    <p>▶1 GPT-2 আর GPT-3-এর tokenizer-এ বাংলায় লেগেছে প্রায় ৯.৬ গুণ বেশি token।</p>
+    <p>▶2 GPT-3.5 আর GPT-4-এ প্রায় ৫.৯ গুণ।</p>
+    <p>▶3 আরেকভাবে দেখুন: ইংরেজিতে গড়ে একটা শব্দে লাগে প্রায় ১.২ token। আর GPT-4-এ একটা বাংলা শব্দে লাগছে ৮টারও বেশি।</p>
+    <p>▶4 মানে GPT-4-এর যুগে বাংলায় একই কাজ করাতে প্রায় ছয় গুণ টাকা লাগত।</p>
+  </aside>
+</section>
+
+<!-- S7 · নতুন tokenizer -->
+<section>
+  <h2 data-enter="rise">এবার ভালো খবর</h2>
+  <div class="split">
+    <div class="panel"><div class="strips" data-strips="eng,gpt2,cl100k,o200k" data-new="o200k" data-old="gpt2,cl100k" data-step-count="1"></div></div>
+    <div class="col">
+      <div class="panel stat" data-step="print" data-fragment-index="2"><span>আমাদের বাক্য</span>
+        <span class="v">৭১ → <b><span data-step="count" data-from="71" data-to="22" data-locale="bn-BD" data-duration="1" data-fragment-index="2">৭১</span></b> token</span></div>
+      <div class="panel stat" data-step="print" data-fragment-index="3"><span>"বিজ্ঞানীরা"</span>
+        <span class="v">১২ → <b><span data-step="count" data-from="12" data-to="4" data-locale="bn-BD" data-duration="0.8" data-fragment-index="3">১২</span></b> টুকরো</span></div>
+      <span class="stamp y" data-step="stamp" data-rotate="-6" data-fragment-index="4">এখনো ১.৭×</span>
+    </div>
+  </div>
+  <div class="src">GPT-4o, GPT-4.1, o1, o3, o4-mini, GPT-5 → o200k_base (OpenAI tiktoken 0.14 <code>encoding_name_for_model</code>) · নিজস্ব পরীক্ষা</div>
+  <aside class="notes">
+    <p>এবার ভালো খবর।</p>
+    <p>GPT-4o থেকে OpenAI নতুন একটা tokenizer ব্যবহার করছে। GPT-4.1, o3, এমনকি GPT-5-ও এটাই ব্যবহার করে।</p>
+    <p>▶1 এখানে বাংলায় লাগে প্রায় ১.৭ গুণ।</p>
+    <p>▶2 আমাদের সেই বাক্যটা? ৭১ token থেকে নেমে এসেছে ২২-এ। ▶3 আর "বিজ্ঞানীরা" শব্দটা ১২ টুকরো থেকে মাত্র ৪ টুকরোয়।</p>
+    <p>▶4 ফাঁকটা অনেক কমেছে। কিন্তু পুরোপুরি যায়নি—বাংলা এখনো প্রায় পৌনে দুই গুণ খরচ করে।</p>
+  </aside>
+</section>
+
+<!-- S8 · অভিধান দ্বিগুণ -->
+<section>
+  <h2 data-enter="rise">Tokenizer-এর অভিধান</h2>
+  <p class="lead" data-step="rise" data-fragment-index="1">কোন কোন টুকরো সে চেনে, তার তালিকা</p>
+  <div class="dicts">
+    <div class="panel dict" data-step="print" data-fragment-index="2"><div class="pages" data-n="10"></div>
+      <div class="big"><span data-step="count" data-to="100277" data-locale="bn-BD" data-duration="1" data-fragment-index="2">০</span></div><span class="lbl">GPT-4 · প্রায় ১ লাখ</span></div>
+    <div class="panel dict" data-step="print" data-fragment-index="3"><div class="pages" data-n="20"></div>
+      <div class="big"><span data-step="count" data-to="200019" data-locale="bn-BD" data-duration="1" data-fragment-index="3">০</span></div><span class="lbl">GPT-4o+ · প্রায় ২ লাখ</span></div>
+  </div>
+  <div class="rule" data-step="rise" data-fragment-index="4"><i data-lucide="book-open"></i><span>অভিধান <b>দ্বিগুণ</b>, বাংলার টুকরোও এবার জায়গা পেল</span></div>
+  <div class="src">টুকরোর সংখ্যা: tiktoken <code>n_vocab</code> (cl100k_base ১,০০,২৭৭; o200k_base ২,০০,০১৯)</div>
+  <aside class="notes">
+    <p>নতুন tokenizer কী এমন বদলাল?</p>
+    <p>▶1 প্রতিটা tokenizer-এর একটা অভিধান থাকে—কোন কোন টুকরো সে চেনে, তার তালিকা।</p>
+    <p>▶2 GPT-4-এর tokenizer চিনত প্রায় ১ লাখ টুকরো। ▶3 নতুনটা চেনে প্রায় ২ লাখ।</p>
+    <p>▶4 অভিধান দ্বিগুণ হওয়ায় বাংলার মতো ভাষার অনেক টুকরো এবার তালিকায় জায়গা পেয়েছে। তাই বাংলা শব্দ আর আগের মতো ভেঙে চুরমার হয় না।</p>
+  </aside>
+</section>
+
+<!-- S9 · Open model -->
+<section>
+  <h2 data-enter="rise">Open model-গুলো</h2>
+  <div class="panel"><div class="strips" data-strips="eng,gpt2,cl100k,o200k,qwen,mistral" data-new="mistral,qwen" data-old="gpt2,cl100k,o200k" data-step-count="2"></div></div>
+  <div class="rule" data-step="rise" data-fragment-index="3"><i data-lucide="ruler"></i><span>নতুন model মানেই বাংলায় সস্তা নয়: <b>প্রতিটা আলাদা করে মাপুন</b></span></div>
+  <div class="src">নিজস্ব পরীক্ষা · Qwen/Qwen2.5-7B-Instruct, mistralai/Mistral-Nemo-Instruct-2407 tokenizer</div>
+  <aside class="notes">
+    <p>আর open model-গুলো?</p>
+    <p>▶1 Mistral Nemo-তে প্রায় ১.৯ গুণ।</p>
+    <p>▶2 কিন্তু Qwen 2.5-এ এখনো প্রায় ৫ গুণ।</p>
+    <p>▶3 তাই "নতুন model মানেই বাংলায় সস্তা"—এটা ধরে নেওয়া যাবে না। প্রতিটা model আলাদা করে মেপে দেখতে হয়।</p>
+  </aside>
+</section>
+
+<!-- S10 · চমক -->
+<section>
+  <h2 data-enter="rise">আসল চমক</h2>
+  <div class="panel rel">
+    <div class="strips" data-strips="eng,gpt2,cl100k,o200k,qwen,mistral,sarvam,indicbert,banglabert" data-new="sarvam,indicbert,banglabert" data-old="gpt2,cl100k,o200k,qwen,mistral" data-step-count="2"></div>
+    <span class="stamp g abs" style="right:36px; top:44px" data-step="stamp" data-rotate="-5" data-fragment-index="3">সমস্যা ভাষার নয়</span>
+  </div>
+  <p class="say" data-step="rise" data-fragment-index="4">যে ভাষা বেশি দেখেছে, সেটা <span class="green">সস্তা</span>। যেটা কম দেখেছে, সেটা <span class="red">দামি</span>।</p>
+  <div class="src">নিজস্ব পরীক্ষা · sarvamai/sarvam-1, ai4bharat/IndicBERTv2-MLM-only, csebuetnlp/banglabert (BUET) tokenizer</div>
+  <aside class="notes">
+    <p>এবার আসল চমক।</p>
+    <p>▶1 যে tokenizer-গুলো ভারতীয় ভাষার জন্য বানানো—Sarvam-1 আর IndicBERT—সেখানে বাংলা আর ইংরেজি প্রায় সমান।</p>
+    <p>▶2 আর BanglaBERT, যেটা বুয়েটের গবেষকেরা বাংলা লেখা দিয়ে বানিয়েছেন, সেখানে উল্টোটা ঘটছে। ইংরেজিতেই বেশি token লাগে! বাংলায় লাগে ইংরেজির মাত্র ০.৫৯ গুণ।</p>
+    <p>▶3 তাহলে বোঝা গেল, সমস্যাটা বাংলা ভাষার নয়। Tokenizer কোন লেখা দেখে শিখেছে, সমস্যাটা সেখানে।</p>
+    <p>▶4 যে ভাষা বেশি দেখেছে, সেই ভাষা সস্তা। যে ভাষা কম দেখেছে, সেই ভাষা দামি।</p>
+  </aside>
+</section>
+
+<!-- S11 · বিল -->
+<section>
+  <h2 data-enter="rise">আপনার পকেটে</h2>
+  <p class="lead" data-enter="rise" data-delay="0.15">Token-এর দাম ভাষা দেখে বদলায় না</p>
+  <span class="eg" data-enter="rise" data-delay="0.25">ধরা যাক</span>
+  <div class="grid3">
+    <div class="panel bill" data-step="print" data-fragment-index="1"><div class="bill-h"><b>ENGLISH</b></div><div class="muted">একই app, এক মাস</div><hr>
+      <div class="bill-total"><span>মোট</span><b style="color:var(--fg)">$<span data-step="count" data-to="100" data-duration="0.8" data-fragment-index="1">0</span></b></div></div>
+    <div class="panel bill" data-step="print" data-fragment-index="2"><div class="bill-h"><b>বাংলা</b></div><div class="muted">GPT-4o+ (o200k_base) · ১.৭১×</div><hr>
+      <div class="bill-total"><span>মোট</span><b>$<span data-step="count" data-to="171" data-duration="0.9" data-fragment-index="2">0</span></b></div></div>
+    <div class="panel bill" data-step="print" data-fragment-index="3"><div class="bill-h"><b>বাংলা</b></div><div class="muted">GPT-4 (cl100k_base) · ৫.৮৮×</div><hr>
+      <div class="bill-total"><span>মোট</span><b style="color:var(--red-fg)">$<span data-step="count" data-to="588" data-duration="1.1" data-fragment-index="3">0</span></b></div></div>
+  </div>
+  <div class="rule" data-step="rise" data-fragment-index="4"><i data-lucide="calculator"></i><span>গুণটা না জেনে business plan = <b>নিশ্চিত লোকসান</b></span></div>
+  <div class="src">হিসাব: ইংরেজিতে মাসে $১০০ ধরে, নিজস্ব পরীক্ষার গুণ দিয়ে। আসল দাম model ও সময়ভেদে বদলায়।</div>
+  <aside class="notes">
+    <p>তো আপনার পকেটে এর মানে কী?</p>
+    <p>Token-এর দাম ভাষা দেখে বদলায় না। তাই যত বেশি token, তত বেশি বিল।</p>
+    <p>▶1 ধরুন আপনার একটা app ইংরেজিতে চালাতে মাসে ১০০ ডলার লাগে।</p>
+    <p>▶2 একই app, একই কাজ, পুরোটা বাংলায়—নতুন tokenizer-এর model-এ লাগবে প্রায় ১৭১ ডলার।</p>
+    <p>▶3 আর পুরনো GPT-4-এর tokenizer-এ প্রায় ৫৮৮ ডলার।</p>
+    <p>▶4 হিসাবটা শুধু সংখ্যার গুণফল—কিন্তু business plan বানানোর সময় এই গুণটা না জানলে লোকসান নিশ্চিত।</p>
+  </aside>
+</section>
+
+<!-- S12 · Context window -->
+<section>
+  <h2 data-enter="rise">মনে রাখার জায়গা</h2>
+  <div class="panel w" data-step="print" data-fragment-index="1">
+    <div class="panel-h" style="margin-bottom:0">context window: ১,০০,০০০ token<span class="eg">ধরা যাক</span></div>
+    <div class="wrow"><span>ইংরেজি</span><div class="wbar"><div class="fill" data-step="grow" data-w="100" data-fragment-index="2"></div><span>≈ ৮১ হাজার শব্দ</span></div></div>
+    <div class="wrow"><span>বাংলা · GPT-4o+</span><div class="wbar"><div class="fill a" data-step="grow" data-w="52" data-fragment-index="3"></div><span>≈ ৪২ হাজার</span></div></div>
+    <div class="wrow"><span>বাংলা · GPT-4</span><div class="wbar"><div class="fill r" data-step="grow" data-w="15" data-fragment-index="3"></div><span>≈ ১২ হাজার</span></div></div>
+  </div>
+  <span class="chip yellow" data-step="rise" data-fragment-index="4"><i data-lucide="timer"></i>বেশি token = সাধারণত বেশি অপেক্ষা (মাপা হয়নি)</span>
+  <div class="src">শব্দ = ১,০০,০০০ ÷ শব্দপ্রতি token (নিজস্ব পরীক্ষা: ইংরেজি ১.২৩, বাংলা ২.৩৬ ও ৮.২০)</div>
+  <aside class="notes">
+    <p>দ্বিতীয় দাম হলো মনে রাখার জায়গা।</p>
+    <p>▶1 প্রতিটা model একবারে নির্দিষ্ট সংখ্যক token পড়তে পারে—একে বলে context window।</p>
+    <p>▶2 ধরুন একটা model একবারে ১ লাখ token পড়তে পারে। ইংরেজিতে সেখানে আঁটে প্রায় ৮০ হাজার শব্দ।</p>
+    <p>▶3 বাংলায়? নতুন tokenizer-এ প্রায় ৪২ হাজার শব্দ। পুরনো GPT-4-এর tokenizer-এ মাত্র ১২ হাজার।</p>
+    <p>মানে একটা বড় বাংলা document, বা লম্বা একটা কথোপকথন, অনেক আগেই জায়গা ফুরিয়ে ফেলে।</p>
+    <p>▶4 আর তৃতীয় দাম সময়। AI উত্তর লেখে token ধরে ধরে। বেশি token মানে সাধারণত বেশি অপেক্ষা। এটা আমরা মাপিনি, তবে হিসাবটা সহজ।</p>
+  </aside>
+</section>
+
+<!-- S13 · গবেষণা -->
+<section>
+  <h2 data-enter="rise">গবেষকেরাও দেখেছেন</h2>
+  <div class="col w">
+    <div class="panel inc" data-step="rise"><span class="yr">2023</span><b>ভাষাভেদে ১৫ গুণ পর্যন্ত বেশি token</b><span>Petrov, La Malfa, Torr, Bibi · NeurIPS 2023</span></div>
+    <div class="panel inc" data-step="rise"><span class="yr">2023</span><b>"overcharged while obtaining poorer results"</b><span>Ahia et al. 2023 · OpenAI API, ২২টি ভাষা</span></div>
+  </div>
+  <div class="rule" data-step="rise"><i data-lucide="git-compare"></i><span>আমাদের সংখ্যা আর তাদের সিদ্ধান্ত: <b>একই দিকে</b></span></div>
+  <div class="src"><i data-lucide="link"></i>সূত্র: <a href="https://arxiv.org/abs/2305.15425">arxiv.org/abs/2305.15425</a> · <a href="https://arxiv.org/abs/2305.13707">arxiv.org/abs/2305.13707</a></div>
+  <aside class="notes">
+    <p>শুধু আমরা নই, গবেষকেরাও এটা দেখেছেন।</p>
+    <p>▶1 ২০২৩ সালে NeurIPS-এ প্রকাশিত একটা গবেষণা দেখিয়েছে, একই অনুবাদ করা লেখা ভাষাভেদে ১৫ গুণ পর্যন্ত বেশি token নিতে পারে।</p>
+    <p>▶2 আরেকটা গবেষণা OpenAI-এর API নিয়ে ২২টা ভাষায় পরীক্ষা করেছে। তাদের কথায়, অনেক ভাষার মানুষ বেশি টাকা দিচ্ছেন, অথচ উত্তর পাচ্ছেন খারাপ।</p>
+    <p>▶3 আমাদের পরীক্ষার সংখ্যা আর তাদের সিদ্ধান্ত—একই দিকে ইঙ্গিত করে।</p>
+    <p>[সূত্র slide-এর নিচে আর research/SOURCES.md-এ।]</p>
+  </aside>
+</section>
+
+<!-- S14 · কী করবেন -->
+<section>
+  <h2 data-enter="rise">কী করবেন</h2>
+  <div class="items w">
+    <div class="item" data-step="rise"><span class="n">01</span><span>বানানোর আগে token গুনুন: <code>len(enc.encode(text))</code></span></div>
+    <div class="item" data-step="rise"><span class="n">02</span><span>খরচ মাপুন বাংলা লেখা দিয়ে, যে ভাষায় user লিখবে</span></div>
+    <div class="item" data-step="rise"><span class="n">03</span><span>নতুন tokenizer-এর model নিন; বাংলা-প্রধান হলে Indic model-ও তুলনা করুন</span></div>
+    <div class="item" data-step="rise"><span class="n">04</span><span>ইংরেজিতে অনুবাদ করে পাঠানোর আগে উত্তরের মান যাচাই করুন</span></div>
+  </div>
+  <aside class="notes">
+    <p>তাহলে কী করবেন? চারটা কাজ।</p>
+    <p>▶1 প্রথম, কিছু বানানোর আগে token গুনে দেখুন। tiktoken-এর মতো tool দিয়ে এক লাইন code-এই গোনা যায়।</p>
+    <p>▶2 দ্বিতীয়, আপনার app-এর খরচ হিসাব করুন বাংলা লেখা দিয়ে, ইংরেজি দিয়ে নয়। আসল user যে ভাষায় লিখবে, সেই ভাষায় মাপুন।</p>
+    <p>▶3 তৃতীয়, নতুন tokenizer-ওয়ালা model বেছে নিন। আর বাংলা-প্রধান product হলে, ভারতীয় ভাষার জন্য বানানো model-ও একবার তুলনা করে দেখুন।</p>
+    <p>▶4 চতুর্থ, খরচ বাঁচাতে সবকিছু ইংরেজিতে অনুবাদ করে পাঠানোর আগে দেখে নিন, উত্তরের মান ঠিক থাকছে কি না। সস্তা উত্তর যদি ভুল হয়, সেটা আসলে সস্তা নয়।</p>
+  </aside>
+</section>
+
+<!-- S15 · সীমাবদ্ধতা -->
+<section>
+  <h2 data-enter="rise">সীমাবদ্ধতা</h2>
+  <div class="items w">
+    <div class="item" data-step="rise"><i data-lucide="scale"></i>এই পরীক্ষা খরচ মেপেছে, উত্তরের মান নয়</div>
+    <div class="item" data-step="rise"><i data-lucide="newspaper"></i>বাক্যগুলো খবরের ভাষার মতো; চ্যাটের বাংলায় সংখ্যা আলাদা হতে পারে</div>
+    <div class="item" data-step="rise"><i data-lucide="lock"></i>Claude ও Gemini মাপা যায়নি: tokenizer প্রকাশ্য নয়</div>
+  </div>
+  <span class="chip" data-step="rise"><i data-lucide="code"></i>code ও ফলাফল: github.com/salmansrizon/video-slides</span>
+  <aside class="notes">
+    <p>কয়েকটা সীমাবদ্ধতাও বলে রাখি।</p>
+    <p>▶1 Token কম মানেই উত্তর ভালো, তা নয়। এই পরীক্ষা শুধু খরচ মেপেছে, মান নয়।</p>
+    <p>▶2 আমাদের বাক্যগুলো খবরের ভাষার মতো। চ্যাটের বাংলা, বা ইংরেজি মেশানো বাংলায় সংখ্যাটা আলাদা হতে পারে।</p>
+    <p>▶3 আর Claude বা Gemini আমরা মাপতে পারিনি, কারণ তাদের tokenizer প্রকাশ্য নয়।</p>
+    <p>▶4 পুরো পরীক্ষার code আর ফলাফল রাখা আছে, যে কেউ নিজে চালিয়ে মিলিয়ে দেখতে পারেন।</p>
+  </aside>
+</section>
+
+<!-- S16 · শেষ কথা -->
+<section class="center">
+  <h1 data-step="rise">AI-এর বিল আসে <span class="accent">token</span>-এ</h1>
+  <p class="say" data-step="rise">সমস্যা আমাদের ভাষার নয়, AI বাংলা কম দেখেছে</p>
+  <span class="stamp y" data-step="stamp" data-rotate="-4" style="font-size:52px">অনুমান নয়, মেপে দেখুন</span>
+  <span class="chip lg" data-step="rise"><i data-lucide="message-circle"></i>আপনার app-এ কতটা বাংলা, মাসে কত token?</span>
+  <aside class="notes">
+    <p>শেষ কথা।</p>
+    <p>▶1 AI-এর বিলটা আসে token-এ। আর বাংলায় সেই token এখনো বেশি লাগে—আগের চেয়ে অনেক কম, কিন্তু এখনো বেশি।</p>
+    <p>▶2 সমস্যাটা আমাদের ভাষার নয়। সমস্যা হলো, AI বাংলা কম দেখেছে। যত বেশি ভালো বাংলা লেখা অনলাইনে আসবে, এই ফাঁক তত কমবে।</p>
+    <p>▶3 ততদিন পর্যন্ত নিয়ম একটাই: অনুমান নয়, মেপে দেখুন।</p>
+    <p>▶4 কমেন্টে জানান: আপনার app-এ কতটা বাংলা থাকে, আর মাসে কত token খরচ হয়? পরের আলোচনায় দেখব, AI কেন আত্মবিশ্বাসের সাথে ভুল কথা বলে।</p>
+  </aside>
+</section>
+
+</div></div>
+
+<script src="../../vendor/gsap/gsap.min.js"></script>
+<script src="../../vendor/gsap/SplitText.min.js"></script>
+<script src="../../vendor/reveal/reveal.js"></script>
+<script src="../../vendor/reveal/notes.js"></script>
+<script src="../../vendor/lucide/lucide.min.js"></script>
+<script src="../../vendor/js-tiktoken/tokenizers.iife.js"></script>
+<script src="../../lib/deck.js"></script>
+<script src="../../lib/talk.js"></script>
+<script>
+// ---------- data (research/experiment/results.json) ----------
+const SENT = { eng: 'Scientists say the explosion caused by the collision was massive.', ben: 'বিজ্ঞানীরা জানাচ্ছেন সংঘর্ষের ফলে সৃষ্ট বিস্ফোরণ ছিল বিপুল।' };
+const ENC = { gpt4: Tokenizers.gpt4, gpt4o: Tokenizers.gpt4o }, ENC_NAME = { gpt4: 'GPT-4 · cl100k_base', gpt4o: 'GPT-4o+ · o200k_base' };
+const PREMIUM = { eng: [1, 'ইংরেজি'], gpt2: [9.60, 'GPT-2/3'], cl100k: [5.88, 'GPT-3.5/4'], o200k: [1.71, 'GPT-4o → GPT-5'], qwen: [5.02, 'Qwen 2.5'],
+  mistral: [1.94, 'Mistral Nemo'], sarvam: [1.11, 'Sarvam-1'], indicbert: [1.02, 'IndicBERT v2'], banglabert: [0.59, 'BanglaBERT'] };
+const bn = (v, dp = 0) => Number(v).toLocaleString('bn-BD', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+// Token pieces: the characters each token starts; '' means the token is only part of a letter (a byte fragment).
+const utf8 = new TextEncoder();
+function chips(enc, text) {
+  const starts = new Map(); let off = 0;
+  for (const ch of text) { starts.set(off, ch); off += utf8.encode(ch).length; }
+  let pos = 0;
+  return Tokenizers.pieces(enc, text).map(n => { let s = ''; for (let b = pos; b < pos + n; b++) if (starts.has(b)) s += starts.get(b); pos += n; return s; });
+}
+const chipHTML = pcs => pcs.map((p, i) => `<i class="c${i % 5}${p.trim() ? '' : ' frag'}">${p.trim() ? esc(p.trim()) : ''}</i>`).join('');
+
+// ---------- build generated parts (before Deck.start, so presets measure real content) ----------
+// S1 bills: the sentence, its token chips and the total.
+document.querySelectorAll('[data-make="bill"]').forEach(el => {
+  const pcs = chips(ENC[el.dataset.enc], SENT[el.dataset.lang]);
+  el.innerHTML = `<div class="bill-h"><b>${el.dataset.title}</b><span>${ENC_NAME[el.dataset.enc]} · প্রতি token-এ দাম</span></div><hr>
+    <p class="bill-text">${esc(SENT[el.dataset.lang])}</p><hr><div class="toks">${chipHTML(pcs)}</div><hr>
+    <div class="bill-total"><span>মোট</span><b>${bn(pcs.length)} token</b></div>`;
+});
+// Byte cells for S4, each tagged with the GPT-4 token it belongs to.
+for (const lang of ['eng', 'ben']) {
+  const box = document.getElementById(`cells-${lang}`); let t = 0, html = '';
+  Tokenizers.pieces(ENC.gpt4, SENT[lang]).forEach(n => { for (let k = 0; k < n; k++) html += `<b data-t="${t}"></b>`; t++; });
+  box.innerHTML = html;
+}
+document.querySelectorAll('.pages').forEach(p => { p.innerHTML = '<i></i>'.repeat(+p.dataset.n); });
+// Strips chart (S6–S10): bar height = Bangla tokens ÷ English tokens; the dashed line marks 1× (English).
+document.querySelectorAll('[data-strips]').forEach(box => {
+  const unit = (Deck.vertical ? 400 : 380) / 9.6, fresh = (box.dataset.new || '').split(','), old = (box.dataset.old || '').split(',');
+  box.style.setProperty('--unit', `${unit}px`);
+  box.innerHTML = '<div class="base"></div>' + box.dataset.strips.split(',').map(k => {
+    const [v, name] = PREMIUM[k], step = fresh.includes(k) ? ` data-step="feed" data-fragment-index="${fresh.indexOf(k) + 1}"` : '';
+    return `<div class="strip${k === 'eng' ? ' eng' : ''}${v < 1 ? ' low' : ''}${old.includes(k) ? ' old' : ''}"${step}>
+      <div class="v">${bn(v, k === 'eng' ? 0 : 2)}×</div><div class="bar" data-h="${Math.round(v * unit)}" style="height:${Math.round(v * unit)}px"></div>
+      <div class="n">${name}</div></div>`;
+  }).join('');
+});
+// In S10 the three Indic/Bangla strips arrive as two clicks: Sarvam-1 + IndicBERT together, then BanglaBERT.
+document.querySelectorAll('[data-strips*="banglabert"] .strip[data-step]').forEach((s, i) => { s.dataset.fragmentIndex = i < 2 ? 1 : 2; });
+
+// ---------- Demo (S3): the real tokenizers, live ----------
+const demoIn = document.getElementById('demo-in');
+function demo() {
+  for (const k of ['gpt4', 'gpt4o']) {
+    const pcs = demoIn.value ? chips(ENC[k], demoIn.value) : [];
+    document.getElementById(`demo-${k}`).innerHTML = chipHTML(pcs);
+    document.getElementById(`demo-${k}-n`).textContent = bn(pcs.length);
+  }
+}
+demoIn.addEventListener('input', demo);
+Talk.field(demoIn);
+
+// ---------- this Deck's motion: things print in line by line; bars grow from the baseline ----------
+// A card drops in from the printer slot, then its lines (direct children) print one after another (data-gap seconds).
+Deck.preset('print', el => gsap.timeline()
+  .fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: 'none' }, 0)
+  .fromTo(el, { y: -36 }, { y: 0, duration: 0.4, ease: 'softLand' }, 0)
+  .fromTo(el.children, { autoAlpha: 0, y: -14 }, { autoAlpha: 1, y: 0, duration: 0.18, ease: 'softLand', stagger: +(el.dataset.gap || 0.08) }, 0.1));
+// One strip of the chart: the bar grows from the baseline and carries its value up.
+Deck.preset('feed', el => { const b = el.querySelector('.bar'), h = +b.dataset.h;
+  return gsap.timeline().fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15, ease: 'none' }, 0)
+    .fromTo(b, { height: 0 }, { height: h, duration: 0.45 + h / 900, ease: 'glide' }, 0); });
+// Demo text for one click; going back restores the previous click's text.
+Deck.preset('say', el => { const prev = el.previousElementSibling?.dataset.text ?? '';
+  let shown = null;
+  return gsap.timeline({ onUpdate() { const t = this.progress() > 0 ? el.dataset.text : prev; if (t !== shown) { shown = t; demoIn.value = t; demo(); } } }).to({}, { duration: 0.01 }); });
+// Byte cells take their token's colour, one token after another.
+const PAL = ['#f2c57c', '#a7d7c5', '#f2a6a0', '#b8c4f0', '#e9b8e3'];
+Deck.preset('color', el => { const cells = el.closest('section').querySelectorAll(`${el.dataset.cells} b`);
+  return gsap.fromTo(cells, { backgroundColor: '#3a3026' }, { backgroundColor: (i, c) => PAL[c.dataset.t % 5], duration: 0.15, stagger: 0.006, ease: 'none' }); });
+// S12: a bar fills from the left; its label prints once the bar is there.
+Deck.preset('grow', el => gsap.timeline().fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.1, ease: 'none' }, 0)
+  .fromTo(el, { width: '0%' }, { width: `${el.dataset.w}%`, duration: 0.9, ease: 'softLand' }, 0)
+  .fromTo(el.nextElementSibling, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: 'none' }, 0.3));
+
+Promise.all([document.fonts.load('700 1em Hind', 'কখগ Ab'), document.fonts.load('600 1em Hind', 'কখগ Ab'), document.fonts.load('500 1em Hind', 'কখগ Ab'),
+  document.fonts.load('400 1em Hind', 'কখগ Ab'), document.fonts.load('400 1em Plex'), document.fonts.load('600 1em Plex'), document.fonts.load('700 1em Plex')])
+  .then(() => Deck.start({ keyboard: Talk.keys }));
+</script>
+</body>
+</html>

@@ -13,6 +13,10 @@ const PKGS = {
   'basecoat-css': '1.1.0', 'chart.js': '4.6.1', d3: '7.9.0', mermaid: '12.2.0',
   'lottie-web': '5.13.0', lucide: '1.61.0', esbuild: '0.28.2',
   '@fontsource-variable/anek-bangla': '5.3.0', '@fontsource-variable/jetbrains-mono': '5.3.0',
+  '@fontsource/ibm-plex-mono': '5.3.0', '@fontsource/hind-siliguri': '5.3.0', 'js-tiktoken': '1.0.21',
+  '@fontsource/tiro-bangla': '5.3.0', '@fontsource/barlow-condensed': '5.3.0', '@fontsource/atma': '5.3.0',
+  '@fontsource-variable/noto-serif-bengali': '5.3.0', '@fontsource-variable/noto-sans-bengali': '5.3.0',
+  '@fontsource-variable/literata': '5.3.0',
 };
 // [package, file inside package, destination inside vendor/]
 const FILES = [
@@ -44,6 +48,29 @@ const FILES = [
   ['@fontsource-variable/anek-bangla', 'LICENSE', 'fonts/AnekBangla-OFL.txt'],
   ['@fontsource-variable/jetbrains-mono', 'files/jetbrains-mono-latin-wght-normal.woff2', 'fonts/JetBrainsMono-Variable.woff2'],
   ['@fontsource-variable/jetbrains-mono', 'LICENSE', 'fonts/JetBrainsMono-OFL.txt'],
+  // Faces for individual Looks (ADR 0002). SIL OFL 1.1.
+  ...[400, 600, 700].map(w => ['@fontsource/ibm-plex-mono', `files/ibm-plex-mono-latin-${w}-normal.woff2`, `fonts/IBMPlexMono-${w}.woff2`]),
+  ['@fontsource/ibm-plex-mono', 'LICENSE', 'fonts/IBMPlexMono-OFL.txt'],
+  ...[400, 500, 600, 700].map(w => ['@fontsource/hind-siliguri', `files/hind-siliguri-bengali-${w}-normal.woff2`, `fonts/HindSiliguri-Bengali-${w}.woff2`]),
+  // Latin subset too: spaces and English words inside Bangla sentences need a proportional face, not the fallback.
+  ...[400, 500, 600, 700].map(w => ['@fontsource/hind-siliguri', `files/hind-siliguri-latin-${w}-normal.woff2`, `fonts/HindSiliguri-Latin-${w}.woff2`]),
+  ['@fontsource/hind-siliguri', 'LICENSE', 'fonts/HindSiliguri-OFL.txt'],
+  // why-ai-hallucinates (OMR sheet): Tiro Bangla print, Barlow Condensed form labels, Atma red-pen hand.
+  ...['bengali', 'latin'].map(s => ['@fontsource/tiro-bangla', `files/tiro-bangla-${s}-400-normal.woff2`, `fonts/TiroBangla-${s === 'bengali' ? 'Bengali' : 'Latin'}-400.woff2`]),
+  ['@fontsource/tiro-bangla', 'LICENSE', 'fonts/TiroBangla-OFL.txt'],
+  ...[500, 600, 700].map(w => ['@fontsource/barlow-condensed', `files/barlow-condensed-latin-${w}-normal.woff2`, `fonts/BarlowCondensed-${w}.woff2`]),
+  ['@fontsource/barlow-condensed', 'LICENSE', 'fonts/BarlowCondensed-OFL.txt'],
+  ...['bengali', 'latin'].flatMap(s => [400, 600].map(w => ['@fontsource/atma', `files/atma-${s}-${w}-normal.woff2`, `fonts/Atma-${s === 'bengali' ? 'Bengali' : 'Latin'}-${w}.woff2`])),
+  ['@fontsource/atma', 'LICENSE', 'fonts/Atma-OFL.txt'],
+  // context-window-rag (light table): Noto Serif Bengali for printed sheets (plus Anek Bangla above).
+  ...['bengali', 'latin'].map(s => ['@fontsource-variable/noto-serif-bengali', `files/noto-serif-bengali-${s}-wght-normal.woff2`, `fonts/NotoSerifBengali-${s === 'bengali' ? 'Bengali' : 'Latin'}-Variable.woff2`]),
+  ['@fontsource-variable/noto-serif-bengali', 'LICENSE', 'fonts/NotoSerifBengali-OFL.txt'],
+  // prompt-injection (examiner's desk): Noto Sans Bengali, Literata (plus JetBrains Mono above).
+  ...['bengali', 'latin'].map(s => ['@fontsource-variable/noto-sans-bengali', `files/noto-sans-bengali-${s}-wght-normal.woff2`, `fonts/NotoSansBengali-${s === 'bengali' ? 'Bengali' : 'Latin'}-Variable.woff2`]),
+  ['@fontsource-variable/noto-sans-bengali', 'LICENSE', 'fonts/NotoSansBengali-OFL.txt'],
+  ['@fontsource-variable/literata', 'files/literata-latin-wght-normal.woff2', 'fonts/Literata-Variable.woff2'],
+  ['@fontsource-variable/literata', 'LICENSE', 'fonts/Literata-OFL.txt'],
+  ['js-tiktoken', 'package.json', 'js-tiktoken/package.json'], // no LICENSE file in the package; "license": "MIT" is declared here
 ];
 
 const tmp = mkdtempSync(join(tmpdir(), 'deck-vendor-'));
@@ -73,6 +100,20 @@ try {
   await esbuild.build({
     entryPoints: [join(tmp, 'three-entry.js')], bundle: true, minify: true,
     format: 'iife', globalName: 'THREE', outfile: join(VENDOR, 'three/three.iife.js'),
+    absWorkingDir: tmp, logLevel: 'warning',
+  });
+  // OpenAI's real GPT-4 (cl100k_base) and GPT-4o+ (o200k_base) tokenizers as a classic script (window.Tokenizers).
+  // Tokenizers.pieces(enc, text) -> byte length of each token, for drawing token boundaries.
+  writeFileSync(join(tmp, 'tiktoken-entry.js'), [
+    "import { Tiktoken } from 'js-tiktoken/lite';",
+    "import cl100k from 'js-tiktoken/ranks/cl100k_base';",
+    "import o200k from 'js-tiktoken/ranks/o200k_base';",
+    "export const gpt4 = new Tiktoken(cl100k), gpt4o = new Tiktoken(o200k);",
+    "export const pieces = (enc, text) => enc.encode(text).map(id => enc.textMap.get(id).length);",
+  ].join('\n'));
+  await esbuild.build({
+    entryPoints: [join(tmp, 'tiktoken-entry.js')], bundle: true, minify: true,
+    format: 'iife', globalName: 'Tokenizers', outfile: join(VENDOR, 'js-tiktoken/tokenizers.iife.js'),
     absWorkingDir: tmp, logLevel: 'warning',
   });
   esbuild.stop(); // Windows keeps esbuild.exe locked (and the temp dir undeletable) while its service runs

@@ -1,0 +1,1721 @@
+<!doctype html>
+<html lang="bn" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI কিছু মনে রাখে না: Context window, RAG আর ৯টা নিয়ম</title>
+<!-- Talk with a face cam (bottom-right). Shared Talk format (lib/talk.css, docs/adr/0003). Script: scripts/context-window-rag.txt;
+     Cues: research/script.synced.txt (speaker notes, key S). Keys: ← → Slides, ↓ ↑ points, C face-cam guide.
+     Numbers: research/SOURCES.md and Talk 1's experiment. The S5 Demo counts with OpenAI's real tokenizers (vendor/js-tiktoken). -->
+<link rel="stylesheet" href="../../vendor/reveal/reveal.css">
+<link rel="stylesheet" href="../../lib/deck.css">
+<link rel="stylesheet" href="../../lib/talk.css">
+<style>
+  /* Skin "backlit glass": deep navy, cards like frosted glass lit from inside, ice-cyan light that reads, one yellow page that matters.
+     Titles and claims in Noto Serif Bengali; labels Anek Bangla + Inter; numbers JetBrains Mono. */
+  @font-face { font-family: 'Noto Serif Bengali'; src: url('../../vendor/fonts/NotoSerifBengali-Bengali-Variable.woff2') format('woff2'); font-weight: 100 900; font-display: block;
+    unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0-1CF9, U+200C-200D, U+20B9, U+25CC, U+A8F1; }
+  @font-face { font-family: 'Noto Serif Bengali'; src: url('../../vendor/fonts/NotoSerifBengali-Latin-Variable.woff2') format('woff2'); font-weight: 100 900; font-display: block;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+  :root, :root.dark {
+    --bg: #070b14; --fg: #e6edf7; --card: #0f1626; --card-2: #142039; --border: #1f2a44; --muted-fg: #91a2c0; --dim: #4b5a7a;
+    --accent: #7dd3fc; --accent-ink: #04131d;
+    --yellow: #fde047; --yellow-fg: #fde68a; --blue: #60a5fa; --blue-fg: #93c5fd;
+    --radius: 28px; --radius-sm: 20px;
+    --serif: 'Noto Serif Bengali', serif;
+    --glow: inset 0 0 70px rgba(125,211,252,.055), inset 0 1px 0 rgba(186,230,253,.09);
+    --bg-art:
+      radial-gradient(ellipse 50% 46% at 34% 40%, rgba(125,211,252,.09), transparent 70%),
+      radial-gradient(ellipse 85% 80% at 45% 50%, rgba(30,58,110,.28), transparent 78%);
+    --chart-1: var(--accent); --chart-3: var(--yellow);
+  }
+  /* deck.css sizes headings with a stronger selector than talk.css; restate the kit's sizes, in the Deck's serif. */
+  .reveal h1:not(.card *), .reveal h2:not(.card *) { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+  .reveal h1:not(.card *) { font-size: 92px; } .reveal h2:not(.card *) { font-size: 64px; }
+  html.vertical .reveal h1:not(.card *) { font-size: 80px; } html.vertical .reveal h2:not(.card *) { font-size: 56px; }
+  .num { font-family: var(--mono); }
+  .say, .kinetic, .rule > span { font-family: var(--serif); }
+  .say { font-weight: 600; }
+  .panel, .item { box-shadow: 0 40px 100px -40px #000, var(--glow); }
+  .panel { border-color: #22314f; }
+  .panel p { font-size: 30px; line-height: 1.45; }
+  .item b { font-weight: 600; }
+  .big { font-family: var(--mono); font-weight: 700; letter-spacing: -0.04em; }
+  .n { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .yel { color: var(--yellow); }
+  small { font-size: .72em; color: var(--muted-fg); }
+
+  /* Helpers for this Deck's visuals */
+  .reveal .slides > section > .cue { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .stack { display: grid; width: 100%; } .stack > * { grid-area: 1 / 1; align-self: start; justify-self: start; }
+  .lines { display: block; background: repeating-linear-gradient(180deg, transparent 0 12px, rgba(145,162,192,.22) 12px 14px); }
+  .pgc { background: var(--card-2); border: 1px solid #2a3a5c; border-radius: 8px; box-shadow: 0 12px 24px -14px #000, var(--glow); }
+  /* The page that matters: the one yellow thing */
+  .key { background: color-mix(in srgb, var(--yellow) 15%, var(--card)) !important; border-color: color-mix(in srgb, var(--yellow) 70%, transparent) !important;
+         color: var(--yellow-fg); box-shadow: 0 0 34px -6px rgba(253,224,71,.35) !important; }
+  .key .lines { background: repeating-linear-gradient(180deg, transparent 0 12px, rgba(253,224,71,.3) 12px 14px); }
+  /* The scan light: a bright band that reads a card (added by sweep()) */
+  .scanbox { position: relative; overflow: hidden; }
+  .scan { position: absolute; z-index: 6; pointer-events: none; visibility: hidden; top: 0; bottom: 0; left: -70px; width: 140px; mix-blend-mode: screen;
+    background: linear-gradient(90deg, rgba(125,211,252,0), rgba(125,211,252,.16) 34%, rgba(186,230,253,.5) 50%, rgba(125,211,252,.16) 66%, rgba(125,211,252,0)); }
+  .scan::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; margin-left: -1.5px; background: #e0f6ff; box-shadow: 0 0 22px 6px rgba(125,211,252,.85); }
+  .scan.y { left: 0; right: 0; top: -70px; bottom: auto; width: auto; height: 140px;
+    background: linear-gradient(180deg, rgba(125,211,252,0), rgba(125,211,252,.16) 34%, rgba(186,230,253,.5) 50%, rgba(125,211,252,.16) 66%, rgba(125,211,252,0)); }
+  .scan.y::after { left: 0; right: 0; top: 50%; bottom: auto; width: auto; height: 3px; margin: -1.5px 0 0; }
+  /* Charts */
+  .cbox { position: relative; overflow: hidden; border-radius: var(--radius-sm); }
+  .chart { display: block; overflow: visible; }
+  .chart text { fill: var(--muted-fg); font-size: 22px; font-family: var(--font); }
+  .chart .grid { stroke: rgba(145,162,192,.13); stroke-width: 2; }
+  .chart .axis { stroke: var(--dim); stroke-width: 3; }
+  .chart .val { fill: var(--fg); font: 600 26px var(--mono); }
+  .chart .ln { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 8px rgba(125,211,252,.5)); }
+  .chart .pt { fill: var(--accent); }
+  .chart .dash { fill: none; stroke: var(--muted-fg); stroke-width: 3; stroke-dasharray: 12 10; }
+  .chart .ring { fill: none; stroke: var(--yellow); stroke-width: 4; stroke-linecap: round; }
+  .chart .band { fill: rgba(125,211,252,.05); stroke: rgba(125,211,252,.3); stroke-width: 2; stroke-dasharray: 6 8; }
+  .chart .l8 { fill: none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 28px; font-size: 22px; color: var(--muted-fg); margin-top: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 10px; } .legend svg { width: 46px; height: 12px; overflow: visible; }
+  .legend b { color: var(--fg); font: 600 24px var(--mono); }
+  html.vertical .legend { flex-direction: column; }
+  /* Horizontal bars: label | track | value */
+  .hbars { display: flex; flex-direction: column; gap: 14px; }
+  .hbar { display: grid; grid-template-columns: 250px 1fr 120px; align-items: center; gap: 18px; font-size: 26px; }
+  .hbar .track { height: 30px; border-radius: 8px; background: rgba(145,162,192,.08); overflow: hidden; }
+  .hbar .bb { display: block; height: 100%; border-radius: 8px; background: linear-gradient(90deg, rgba(125,211,252,.55), var(--accent)); box-shadow: 0 0 18px rgba(125,211,252,.35); }
+  .hbar .bb.lo { background: var(--dim); box-shadow: none; }
+  .hbar b { font: 600 30px var(--mono); text-align: right; }
+  .bt { font-size: 24px; color: var(--muted-fg); }
+  html.vertical .hbar { grid-template-columns: 200px 1fr 110px; font-size: 24px; }
+
+  /* S1 · the reread pile */
+  .s1-grid { display: grid; grid-template-columns: 932px 1fr; gap: 32px; width: 100%; align-items: center; }
+  .pilebox { position: relative; overflow: hidden; width: 860px; height: 500px; }
+  .pile { display: flex; gap: 3px; width: 100%; height: 100%; }
+  .turn { width: 0; flex: none; overflow: hidden; display: flex; flex-direction: column; gap: 10px; }
+  .turn:first-child { width: 280px; }
+  .msg { flex: 1 1 0; min-width: 0; overflow: hidden; padding: 12px 14px; }
+  .msg.u { flex-grow: .8; } .msg.a { flex-grow: 1.2; border-color: #2c4670; }
+  .msg small { display: block; font-size: 19px; margin-bottom: 6px; white-space: nowrap; }
+  .msg p { width: 250px; font-size: 23px !important; line-height: 1.45 !important; }
+  .msg .lines { width: 250px; height: 70%; margin-top: 8px; }
+  .keypg { position: absolute; width: 150px; height: 210px; padding: 14px; font-size: 24px; font-weight: 600; z-index: 3; }
+  .keypg .lines { height: 120px; margin-top: 10px; }
+  .qmark { position: absolute; font: 700 110px/1 var(--serif); color: var(--yellow); z-index: 4; }
+  .tally { gap: 8px; } .tally .big { font-size: 96px; }
+  html.vertical .s1-grid { grid-template-columns: 1fr; gap: 24px; }
+  html.vertical .pilebox { width: 832px; height: 620px; }
+  html.vertical .pile { flex-direction: column; }
+  html.vertical .turn { width: 100%; height: 0; flex-direction: row; }
+  html.vertical .turn:first-child { width: 100%; height: 200px; }
+  html.vertical .msg p, html.vertical .msg .lines { width: 380px; }
+  html.vertical .keypg { width: 260px; height: 100px; }
+  html.vertical .keypg .lines { height: 30px; }
+  html.vertical .tally { display: grid; grid-template-columns: auto auto auto; align-items: baseline; justify-content: start; gap: 8px 20px; }
+  html.vertical .tally .eg { grid-column: 1 / -1; justify-self: start; }
+
+  /* S2 */
+  .s2 .train { border-style: dashed; color: var(--muted-fg); }
+  .s2 .train .tile { filter: saturate(.3); }
+  .s2 .desk { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+
+  /* S3 · the reread staircase */
+  .s3-grid { display: grid; grid-template-columns: 1fr 400px; gap: 32px; width: 100%; align-items: stretch; }
+  .s3-grid > .col > .panel { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+  .tot .big { font-size: 60px; }
+  .stairs { display: flex; gap: 4px; align-items: flex-end; height: 250px; border-bottom: 3px solid var(--dim); margin: 18px 0 40px; }
+  .c { position: relative; flex: 1; height: 100%; }
+  .c > .en, .c > .bn { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; }
+  .c > .en { border-radius: 4px 4px 0 0; overflow: hidden; }
+  .en i { display: block; background: rgba(125,211,252,.42); } .en .new { flex: 1; background: var(--accent); box-shadow: 0 0 12px rgba(125,211,252,.6); }
+  .c > .bn { border: 2px dashed rgba(253,224,71,.6); border-bottom: 0; border-radius: 4px 4px 0 0; background: rgba(253,224,71,.06); }
+  .bn i { display: block; margin-top: auto; background: rgba(253,224,71,.25); opacity: 0; }
+  .c .lab { position: absolute; top: 100%; left: 50%; translate: -50% 0; margin-top: 8px; font: 500 22px/1 var(--mono); color: var(--muted-fg); white-space: nowrap; }
+  .c .top { position: absolute; left: 50%; translate: -50% 0; font: 600 24px/1 var(--mono); color: var(--accent); white-space: nowrap; }
+  html.vertical .s3-grid { grid-template-columns: 1fr; gap: 18px; }
+  html.vertical .s3-grid > .col { flex-direction: row; } html.vertical .s3-grid > .col > .panel { flex: 1; }
+  html.vertical .stairs { height: 300px; } html.vertical .tot .big { font-size: 48px; white-space: nowrap; }
+  .s3-fix { flex-wrap: nowrap; }
+  html.vertical .s3-fix { flex-direction: column; align-items: stretch; gap: 14px; }
+
+  /* S4 · the desk grew (area ∝ tokens; the camera pulls back) */
+  .s4-grid { display: grid; grid-template-columns: 672px 1fr; gap: 32px; width: 100%; align-items: center; }
+  .s4-view { position: relative; overflow: hidden; width: 600px; height: 400px; }
+  .world { position: absolute; left: 0; top: 0; transform-origin: 0 0; --cam: 8; }
+  .world > .desk { position: absolute; left: 0; top: 0; box-sizing: border-box; border: calc(5px / var(--cam)) solid rgba(125,211,252,.6); border-radius: calc(16px / var(--cam));
+    background: radial-gradient(ellipse 70% 65% at 42% 45%, rgba(125,211,252,.24), rgba(125,211,252,.05) 72%), #0c1527;
+    box-shadow: 0 0 calc(50px / var(--cam)) rgba(125,211,252,.28), inset 0 0 calc(40px / var(--cam)) rgba(125,211,252,.12); }
+  .pour i { position: absolute; width: 60px; height: 80px; background: var(--card-2); border: 1px solid #35507a; border-radius: 5px; box-shadow: 0 10px 18px -10px #000; }
+  .pour i::after { content: ''; position: absolute; inset: 12px 9px 16px; background: repeating-linear-gradient(180deg, transparent 0 8px, rgba(145,162,192,.3) 8px 10px); }
+  .s4 .item { flex-direction: column; align-items: flex-start; gap: 4px; font-size: 24px; color: var(--muted-fg); }
+  .s4 .item b { font: 700 36px/1.15 var(--mono); color: var(--accent); white-space: nowrap; }
+  .s4 .stamp { align-self: flex-start; margin: 6px 0 0 20px; }
+  html.vertical .s4-grid { grid-template-columns: 1fr; gap: 18px; }
+  html.vertical .s4-view { width: 760px; height: 400px; }
+  html.vertical .s4 .item { padding: 10px 20px; }
+  html.vertical .s4 .item b { font-size: 30px; }
+
+  /* S5 · the desk fills sooner in Bangla: experiment → FIFO simulation → live Demo */
+  .s5-stage { position: relative; width: 100%; height: 700px; }
+  .s5-stage > div { position: absolute; inset: 30px 36px; }
+  .s5-stage > div > * { position: absolute; }
+  .exp-card { left: 0; top: 0; width: 900px; }
+  .ratios { left: 0; top: 200px; display: flex; flex-direction: column; gap: 26px; --u: 128px; }
+  .ratio { display: grid; grid-template-columns: 340px auto auto; align-items: center; gap: 18px; }
+  .ratio .rl { font-size: 27px; color: var(--muted-fg); }
+  .ratio .bar { display: block; height: 48px; width: calc(var(--r) * var(--u)); border-radius: 8px; background: var(--yellow); box-shadow: 0 0 20px rgba(253,224,71,.3); }
+  .ratio.r-en .bar { background: var(--accent); box-shadow: 0 0 20px rgba(125,211,252,.35); }
+  .ratio b { font: 700 44px/1 var(--mono); }
+  .s5-eg { left: 0; top: 0; }
+  .desks { left: 0; top: 60px; display: flex; gap: 24px; }
+  .s5 .dk { width: 390px; }
+  .dk-h { display: flex; justify-content: space-between; align-items: baseline; font-size: 22px; color: var(--muted-fg); margin-bottom: 8px; }
+  .dk-h b { font-size: 30px; color: var(--fg); font-weight: 600; } .meter { font-family: var(--mono); }
+  .tray { position: relative; height: 340px; box-sizing: border-box; border-radius: var(--radius-sm); overflow: hidden;
+    background: radial-gradient(ellipse 70% 60% at 50% 40%, rgba(125,211,252,.1), transparent 75%), #0a1222; border: 2px solid rgba(125,211,252,.35);
+    box-shadow: inset 0 0 40px rgba(125,211,252,.1); }
+  .layer { position: absolute; inset: 4px; }
+  .live-l { visibility: hidden; }
+  .msg5 { position: absolute; left: 0; right: 0; top: 0; box-sizing: border-box; padding: 3px 10px; overflow: hidden; font: 400 17px/1.32 var(--serif); border-radius: 6px;
+    background: var(--card-2); border: 1px solid #2a3a5c; }
+  .msg5 small { float: right; margin-left: 8px; font: 600 14px/1.5 var(--mono); }
+  .msg5.ai { background: #17284a; }
+  .msg5 p { margin: 0; }
+  .s5-notes { left: 830px; top: 60px; width: 398px; display: flex; flex-direction: column; gap: 18px; }
+  .s5-notes .item { font-size: 26px; align-items: flex-start; }
+  .demo { left: 0; right: 0; top: 470px; display: grid; grid-template-columns: 1fr 420px; gap: 18px; align-items: start; }
+  .demo textarea { width: 100%; box-sizing: border-box; height: 110px; resize: none; padding: 12px 18px; border-radius: var(--radius-sm); outline: none;
+    font: 500 26px/1.4 var(--font); color: var(--fg); background: #0a1222; border: 2px solid var(--border); }
+  .demo textarea:focus { border-color: var(--accent); box-shadow: 0 0 24px rgba(125,211,252,.25); }
+  .demo .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .demo .chip { font-size: 22px; padding: 8px 18px; cursor: pointer; color: var(--muted-fg); }
+  .demo .chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  html.vertical .s5-stage { height: 1040px; }
+  html.vertical .exp-card { width: 832px; }
+  html.vertical .ratios { top: 230px; --u: 110px; }
+  html.vertical .ratio { grid-template-columns: auto auto; gap: 8px 16px; } html.vertical .ratio .rl { grid-column: 1 / -1; }
+  html.vertical .s5-eg { white-space: normal; max-width: 832px; }
+  html.vertical .desks { flex-direction: column; gap: 14px; top: 90px; }
+  html.vertical .s5 .dk { width: 832px; } html.vertical .tray { height: 170px; }
+  html.vertical .msg5 { right: auto; bottom: 0; font-size: 16px; padding: 4px 8px; } html.vertical .msg5 small { float: none; display: block; margin: 0; }
+  html.vertical .s5-notes { left: 0; top: 560px; width: 832px; flex-direction: row; } html.vertical .s5-notes .item { flex: 1; font-size: 24px; }
+  html.vertical .demo { top: 750px; grid-template-columns: 1fr; }
+
+  /* S6 · 20 pages; the answer page walks */
+  .s6-top { display: grid; grid-template-columns: auto 1fr; gap: 24px; width: 100%; align-items: stretch; }
+  .s6-top small { display: block; }
+  .fan { position: relative; width: 1210px; height: 250px; }
+  .fan > .pg { position: absolute; width: 100px; height: 140px; }
+  .pg .lines { position: absolute; inset: 20px 12px 22px; }
+  .fan > .pgn { position: absolute; width: 60px; margin-left: -30px; text-align: center; font: 600 22px/1 var(--mono); color: var(--muted-fg); }
+  .pg.ans { z-index: 5; } .pg.ans span { position: absolute; left: 10px; top: 10px; font-size: 20px; font-weight: 600; }
+  html.vertical .s6-top { grid-template-columns: 1fr; gap: 14px; }
+  html.vertical .fan { width: 832px; height: 700px; }
+  html.vertical .fan > .pg { width: 130px; height: 140px; }
+
+  /* S7 · U-curve; the reading light dims in the middle */
+  .lamp { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 2; }
+  /* S8 · NoLiMa example */
+  .s8-ex { display: grid; grid-template-columns: 1fr 190px 1fr; align-items: center; gap: 8px; width: 100%; }
+  .s8-ex .item { font-family: var(--serif); font-size: 28px; }
+  .s8-ex small { display: block; font-family: var(--font); }
+  .s8-link { width: 190px; height: 90px; overflow: visible; }
+  .s8-link path { fill: none; stroke: var(--accent); stroke-width: 3; stroke-dasharray: 7 8; stroke-linecap: round; }
+  .s8-link text { fill: var(--accent); font-size: 20px; font-weight: 600; font-family: var(--font); }
+  .hlw { color: var(--yellow); }
+  html.vertical .s8-ex { grid-template-columns: 1fr; }
+  html.vertical .s8-link { height: 70px; }
+  /* S9 · blank pages pile on the found page */
+  .s9-grid { display: grid; grid-template-columns: 640px 1fr; gap: 32px; width: 100%; align-items: start; }
+  .s9-pile { position: relative; width: 568px; height: 560px; }
+  .s9-pile > * { position: absolute; }
+  .s9-found { left: 150px; top: 150px; width: 240px; height: 290px; padding: 16px; font-size: 26px; font-weight: 600; z-index: 1; }
+  .s9-found .lines { height: 170px; margin-top: 14px; }
+  .s9-ok { left: 290px; top: 110px; z-index: 30; }
+  .blank9 { width: 220px; height: 280px; }
+  .s9-range .big { font-size: 72px; display: block; margin-bottom: 8px; }
+  .s9-range span, .s9-quote span { font-size: 26px; color: var(--muted-fg); }
+  .s9-quote q { display: block; font: 500 27px/1.42 var(--serif); margin-bottom: 8px; }
+  html.vertical .s9-grid { grid-template-columns: 1fr; gap: 18px; }
+  html.vertical .s9-pile { width: 832px; height: 300px; }
+  html.vertical .s9-found { left: 300px; top: 10px; height: 270px; }
+  html.vertical .s9-ok { left: 560px; top: 30px; }
+  html.vertical .s9-range .big { font-size: 60px; }
+
+  /* S10 · time to first token (the light runs in real time), the daily bill */
+  .ttft { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+  .ttft .bt { margin-bottom: 4px; }
+  .trow { display: grid; grid-template-columns: 250px auto 1fr; align-items: center; gap: 20px; }
+  .trow .tl { font: 600 28px var(--mono); }
+  .ts { position: relative; height: 54px; border-radius: 14px; overflow: hidden; border: 2px solid rgba(125,211,252,.4);
+    background: radial-gradient(ellipse 70% 80% at 45% 50%, rgba(125,211,252,.14), transparent 75%), #0a1222; }
+  .ts i { position: absolute; top: 0; bottom: 0; left: -40px; width: 80px; opacity: 0;
+    background: linear-gradient(90deg, rgba(125,211,252,0), rgba(224,246,255,.9) 50%, rgba(125,211,252,0)); }
+  .trow .tt { font: 700 44px/1 var(--mono); white-space: nowrap; color: var(--accent); }
+  .r10 .ts { width: 70px; } .r100 .ts { width: 700px; }
+  .s10 .split .item { align-items: flex-start; font-size: 26px; }
+  .s10 q { display: block; font: 500 26px/1.42 var(--serif); margin-bottom: 6px; }
+  .bill { display: flex; flex-direction: column; gap: 18px; }
+  .brow { display: flex; flex-direction: column; gap: 8px; }
+  .bl { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; font-size: 24px; color: var(--muted-fg); }
+  .bl b { font: 700 38px/1 var(--mono); color: var(--fg); white-space: nowrap; }
+  .brow .bb { display: block; height: 26px; border-radius: 8px; background: linear-gradient(90deg, rgba(125,211,252,.55), var(--accent)); }
+  .b1 .bb { background: linear-gradient(90deg, #f59e0b, var(--yellow)); }
+  .brow small { font-size: 21px; }
+  html.vertical .trow { grid-template-columns: 210px auto 1fr; gap: 14px; } html.vertical .trow .tl { font-size: 24px; } html.vertical .trow .tt { font-size: 36px; }
+  html.vertical .r10 .ts { width: 40px; } html.vertical .r100 .ts { width: 400px; }
+  html.vertical .s10 .split .item { font-size: 23px; padding: 12px 20px; } html.vertical .s10 q { font-size: 23px; }
+
+  /* S11 · RAG: four photocopied pages */
+  .s11-rag b { font-size: 34px; } .s11-rag b span { color: var(--accent); }
+  .s11-rag p { font-size: 26px !important; color: var(--muted-fg); margin-top: 6px; }
+  .s11-flow { display: flex; align-items: center; gap: 16px; }
+  .dout { position: relative; width: 380px; height: 190px; flex: none; border-radius: var(--radius-sm); overflow: hidden; border: 2px solid var(--border); background: #0a1222; }
+  .slivers { position: absolute; inset: 10px; background: repeating-linear-gradient(90deg, rgba(145,162,192,.4) 0 2px, transparent 2px 5px); opacity: .55; }
+  .dout-lab { position: absolute; left: 14px; bottom: 12px; right: 14px; padding: 8px 14px; border-radius: 12px; background: rgba(7,11,20,.85); font-size: 21px; color: var(--muted-fg); }
+  .dout-lab b { display: block; font: 700 28px var(--mono); color: var(--accent); }
+  .picks { position: relative; width: 250px; height: 160px; flex: none; }
+  .pick { position: absolute; width: 86px; height: 116px; }
+  .pick .lines { position: absolute; inset: 16px 10px 18px; }
+  .s11-q { font-size: 26px; width: 210px; flex: none; }
+  .s11-ans { font-size: 28px; font-weight: 600; flex: none; }
+  html.vertical .s11-flow { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  html.vertical .s11-flow > .arr { transform: none; margin: 0; }
+  html.vertical .s11-flow > .arr.a0 { display: none; }
+  html.vertical .dout { width: 100%; height: 130px; }
+  html.vertical .picks { width: 230px; height: 140px; }
+  html.vertical .s11-q { width: 230px; }
+
+  /* S12 · RAG pipeline in two lanes */
+  .lanes { position: relative; display: grid; grid-template-columns: 1fr; gap: 90px; width: 100%; }
+  .lane-h { font-size: 26px; color: var(--muted-fg); margin-bottom: 16px; font-weight: 600; }
+  .lane .flow { gap: 12px; }
+  .node { width: 250px; box-sizing: border-box; padding: 16px 20px; border-radius: var(--radius-sm); background: var(--card-2); border: 1px solid #2a3a5c;
+    font-size: 23px; color: var(--muted-fg); line-height: 1.35; box-shadow: var(--glow); }
+  .lane .flow > .node { display: block; }
+  .node b { display: block; font-size: 28px; color: var(--fg); font-weight: 600; margin-bottom: 4px; }
+  .node .vec { display: block; font: 500 18px var(--mono); color: var(--accent); margin-top: 6px; }
+  .node .cuts { display: flex; gap: 6px; margin-top: 8px; } .node .cuts i { flex: 1; height: 14px; border-radius: 4px; background: rgba(125,211,252,.45); }
+  .node .lines { height: 36px; margin-top: 8px; }
+  .node.store { border-color: rgba(125,211,252,.5); }
+  .edge12 { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .edge12 path { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  html.vertical .lanes { grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+  html.vertical .lane { padding: 24px 22px; }
+  html.vertical .lane .flow { align-items: stretch; } html.vertical .node { width: 100%; }
+  html.vertical .lane .arr { margin-left: auto; margin-right: auto; }
+
+  /* S13 · the meaning map (positions are an Illustration) */
+  .s13-strip { font-size: 26px; } .s13-strip .vec { font: 500 22px var(--mono); color: var(--accent); }
+  .s13-grid { display: grid; grid-template-columns: 800px 1fr; gap: 32px; width: 100%; align-items: start; }
+  .map { position: relative; width: 728px; height: 470px; margin-top: 12px; }
+  .map > * { position: absolute; }
+  .map .dot { width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 4px; background: rgba(125,211,252,.35); box-shadow: 0 0 10px rgba(125,211,252,.3); }
+  .map .snip { translate: -50% -50%; padding: 5px 12px; font: 500 19px/1.3 var(--serif); white-space: nowrap; z-index: 2; border-radius: 10px; background: var(--card-2); border: 1px solid #2a3a5c; }
+  .map .snip.en .hlx { border-radius: 6px; padding: 0 4px; }
+  .map .clab { translate: -50% 0; font-size: 26px; font-weight: 600; color: var(--muted-fg); white-space: nowrap; }
+  .map svg { left: 0; top: 0; overflow: visible; }
+  .map svg ellipse { fill: rgba(125,211,252,.03); stroke: rgba(125,211,252,.35); stroke-width: 2; }
+  .map svg line { stroke: var(--yellow); stroke-width: 3; stroke-dasharray: 6 7; }
+  .map .qs { z-index: 4; font-weight: 600; }
+  .s13-weak { right: 0; top: -6px; z-index: 5; }
+  .s13-eg { margin-bottom: 4px; }
+  .tray13 { display: flex; flex-direction: column; gap: 10px; }
+  .tray13 .got { align-self: flex-start; font: 500 21px/1.3 var(--serif); padding: 8px 14px; border-radius: 12px; background: var(--card-2); border: 1px solid rgba(125,211,252,.5); white-space: nowrap; }
+  .s13-side { display: flex; flex-direction: column; gap: 18px; }
+  .s13 .hbar { grid-template-columns: 150px 1fr 80px; font-size: 22px; }
+  html.vertical .s13-grid { grid-template-columns: 1fr; gap: 18px; }
+  html.vertical .map { width: 832px; height: 440px; }
+  html.vertical .s13-side { flex-direction: row; } html.vertical .s13-side > * { flex: 1; min-width: 0; }
+  html.vertical .tray13 .got { font-size: 18px; white-space: normal; }
+  html.vertical .s13 .hbar { grid-template-columns: 1fr 70px; } html.vertical .s13 .hbar .track { grid-column: 1 / -1; grid-row: 2; }
+
+  /* S14 · one 200K desk: 500 English pages vs ~290 Bangla pages (page size an Illustration) */
+  .s14-grid { display: grid; grid-template-columns: 664px 1fr; gap: 32px; width: 100%; align-items: start; }
+  .desks14 { display: flex; gap: 24px; }
+  .dk14 .dk-h { margin-bottom: 10px; }
+  .tray14 { position: relative; width: 280px; height: 300px; border-radius: 14px; border: 2px solid rgba(125,211,252,.4); background: #0a1222; margin-bottom: 36px;
+    box-shadow: inset 0 0 40px rgba(125,211,252,.1); }
+  .pages i { position: absolute; border-radius: 2px; background: rgba(125,211,252,.55); }
+  .dk14[data-lang=bn] .pages i { background: rgba(253,224,71,.6); }
+  .spill i { background: rgba(125,211,252,.8) !important; }
+  .s14 .over { margin-top: 0; }
+  .s14-side { display: flex; flex-direction: column; gap: 18px; }
+  .s14-dm ul { font-size: 26px !important; }
+  .fork { display: flex; flex-direction: column; gap: 14px; font-size: 24px; }
+  .fk { display: flex; align-items: center; gap: 10px; }
+  .fork .chip { font-size: 24px; padding: 8px 16px; }
+  .fork .arr { width: 28px; height: 28px; }
+  .fk-l { font-size: 22px; color: var(--muted-fg); }
+  .fk2 { padding-left: 120px; }
+  .save { font-size: 24px; color: var(--muted-fg); } .save b { color: var(--green); font-family: var(--mono); }
+  html.vertical .s14-grid { grid-template-columns: 1fr; gap: 18px; }
+  html.vertical .fork .arr { transform: none; margin: 0; }
+  html.vertical .tray14 { width: 360px; height: 230px; margin-bottom: 30px; }
+  html.vertical .fk2 { padding-left: 60px; }
+  html.vertical .s14-side { flex-direction: column; }
+
+  /* S15 · 800-token chunks with 400 overlap; the orphan chunk gets its context */
+  .cut15 { position: relative; width: 1228px; height: 200px; }
+  .cut15 > * { position: absolute; }
+  .cut15 .doc { left: 0; right: 0; top: 34px; height: 44px; border-radius: 10px; }
+  .cut15 .doc .lines { position: absolute; inset: 8px 12px; background: repeating-linear-gradient(180deg, transparent 0 9px, rgba(145,162,192,.25) 9px 12px); }
+  .cut15 .ov { top: 34px; height: 44px; background: repeating-linear-gradient(45deg, rgba(125,211,252,.25) 0 4px, transparent 4px 10px);
+    border-left: 2px dashed var(--accent); border-right: 2px dashed var(--accent); box-sizing: border-box; }
+  .cut15 .ovl { top: 0; font: 600 21px/1.2 var(--mono); color: var(--accent); white-space: nowrap; }
+  .cut15 .ck { height: 30px; box-sizing: border-box; border: 2px solid var(--accent); border-radius: 8px; font: 600 18px/26px var(--mono); padding: 0 10px; white-space: nowrap;
+    background: rgba(125,211,252,.08); box-shadow: 0 0 14px rgba(125,211,252,.2); }
+  .cut15 .ant { right: 0; top: 168px; font-size: 22px; color: var(--muted-fg); }
+  .s15-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; width: 100%; align-items: start; }
+  .s15 .hbar { grid-template-columns: 200px 1fr 100px; font-size: 22px; gap: 12px; } .s15 .hbar b { font-size: 26px; white-space: nowrap; } .w15 .eg { font-size: 20px; }
+  .s15 .say { font-size: 38px; margin-top: 6px; }
+  .orph { display: flex; flex-direction: column; gap: 12px; position: relative; }
+  .orph .hdr { font-size: 24px; border-color: rgba(125,211,252,.55); }
+  .orph .chk { font: 500 28px/1.4 var(--serif); flex-direction: column; align-items: stretch; gap: 6px; }
+  .orph .chk small { font-family: var(--font); }
+  .orph .chk .lines { height: 42px; }
+  .orph .who { position: absolute; right: 18px; top: 150px; }
+  html.vertical .cut15 { width: 832px; height: 220px; }
+  html.vertical .cut15 .ant { top: 186px; }
+  html.vertical .s15-grid { grid-template-columns: 1fr; gap: 18px; }
+  html.vertical .s15 .hbar { grid-template-columns: 170px 1fr 90px; }
+
+  /* S16 · top-20 retrieval failure rate */
+  .vbars { display: flex; gap: 28px; align-items: flex-end; height: 400px; border-bottom: 3px solid var(--dim); padding: 0 10px; margin: 18px 0 92px; }
+  .vcol { position: relative; flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; }
+  .vcol b { font: 700 36px var(--mono); text-align: center; margin-bottom: 8px; }
+  .vb { display: block; height: calc(var(--h) / 5.7 * 300px); border-radius: 10px 10px 0 0; background: linear-gradient(180deg, var(--accent), rgba(125,211,252,.35)); box-shadow: 0 0 22px rgba(125,211,252,.3); }
+  .vcol.c1 .vb { background: linear-gradient(180deg, #94a3b8, rgba(148,163,184,.3)); box-shadow: none; }
+  .vl { position: absolute; top: 100%; left: 0; right: 0; margin-top: 10px; text-align: center; font-size: 22px; color: var(--muted-fg); line-height: 1.3; }
+  .ts999 .code { font: 700 52px var(--mono); color: var(--yellow); display: block; margin-bottom: 14px; }
+  .ts999 p + p { margin-top: 12px; }
+  html.vertical .vbars { height: 360px; margin-bottom: 80px; }
+
+  /* S17 · R@10 by question style; slope across languages */
+  .s17-grid { display: grid; grid-template-columns: 640px 1fr; gap: 32px; width: 100%; align-items: start; }
+  .s17-tag .stamp { margin-left: 14px; vertical-align: middle; }
+  .g17 { display: flex; gap: 40px; align-items: flex-end; height: 320px; border-bottom: 3px solid var(--dim); padding: 0 20px; margin: 10px 0 56px; }
+  .grp { position: relative; flex: 1; height: 100%; }
+  .pair { display: flex; gap: 14px; align-items: flex-end; height: 100%; justify-content: center; }
+  .bar17 { width: 96px; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+  .bar17 b { font: 700 28px var(--mono); text-align: center; margin-bottom: 6px; }
+  .bar17 i { display: block; height: calc(var(--v) * 2.6px); border-radius: 8px 8px 0 0; background: linear-gradient(180deg, var(--accent), rgba(125,211,252,.35)); }
+  .bar17.bm i { background: linear-gradient(180deg, #94a3b8, rgba(148,163,184,.3)); }
+  .gl { position: absolute; top: 100%; left: 0; right: 0; margin-top: 10px; text-align: center; font-size: 24px; color: var(--muted-fg); }
+  .leg17 { margin: 0; }
+  .sw { display: inline-block; width: 24px; height: 24px; border-radius: 6px; background: var(--accent); } .sw.bm { background: #94a3b8; }
+  .hyb { font-size: 24px; color: var(--muted-fg); }
+  .s17-side { display: flex; flex-direction: column; gap: 18px; }
+  .s17-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .s17-pair .item { flex-direction: column; align-items: flex-start; gap: 4px; font: 500 26px/1.35 var(--serif); }
+  .s17-pair .item small { font-family: var(--font); }
+  .s17-pair .n35 { grid-column: 1 / -1; font-size: 24px; color: var(--muted-fg); } .n35 b { color: var(--yellow); font-family: var(--mono); }
+  .x17 { display: block; overflow: visible; }
+  .x17 text { font-size: 21px; font-weight: 600; fill: var(--muted-fg); font-family: var(--font); } .x17 .v { fill: var(--fg); font: 700 26px var(--mono); }
+  .x17 line.s { stroke-width: 5; stroke-linecap: round; }
+  html.vertical .s17-grid { grid-template-columns: 1fr; gap: 18px; }
+  html.vertical .g17 { height: 220px; margin-bottom: 46px; } html.vertical .bar17 i { height: calc(var(--v) * 1.8px); } html.vertical .leg17 { flex-direction: row; }
+  html.vertical .s17-side { flex-direction: column; }
+
+  /* S18 / S19 */
+  .s18 .item { font-size: 28px; align-items: flex-start; }
+  .s18 .item svg { color: var(--yellow); margin-top: 4px; }
+  .r9 { font-size: 30px; padding: 12px 20px; }
+  .r9 .rn { display: inline-grid; place-items: center; width: 48px; height: 48px; flex: none; border-radius: 14px; background: var(--accent); color: var(--accent-ink); font: 700 26px var(--mono); }
+  .close19 { display: flex; flex-direction: column; gap: 12px; }
+  .close19 .say { font-size: 44px; }
+  .close19 .row .chip { font-size: 26px; }
+  html.vertical .r9 { font-size: 27px; padding: 10px 16px; }
+
+  /* S20 · the light reads an empty desk, then finds hidden ink */
+  .desk20 { display: flex; flex-direction: column; gap: 16px; min-height: 260px; }
+  .next20 { display: grid; grid-template-columns: 1fr 380px; gap: 28px; align-items: center; }
+  .next20 b { font: 600 34px/1.35 var(--serif); }
+  .page20 { position: relative; height: 170px; border-radius: 12px; overflow: hidden; padding: 18px; }
+  .page20 .lines { height: 120px; }
+  .page20 .ink { position: absolute; left: 20px; top: 66px; font: 600 24px var(--serif); color: var(--red-fg); white-space: nowrap; }
+  .page20 .beam { position: absolute; top: 0; bottom: 0; left: -60px; width: 60px; background: linear-gradient(90deg, rgba(125,211,252,0), rgba(224,246,255,.75), rgba(125,211,252,0)); }
+  html.vertical .next20 { grid-template-columns: 1fr; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- S1 · মনে রাখে না, আবার পড়ে -->
+<section class="s1">
+  <h2 data-enter="rise">AI মনে রাখে না, আবার পড়ে</h2>
+  <div class="s1-grid">
+    <div class="panel"><div class="pilebox"><div class="pile" id="pile1"></div>
+      <div class="pgc key keypg">ঠিক উত্তর<i class="lines"></i></div><span class="qmark">?</span></div></div>
+    <div class="col tally">
+      <span class="eg">ধরা যাক · প্রতি দফা ৫০০ token</span>
+      <span class="muted">এবার পড়ল</span>
+      <b class="big" id="t1">০</b>
+      <span class="muted">token</span>
+    </div>
+  </div>
+  <i class="cue" data-enter="run" data-run="s1-in" data-delay="0"></i>
+  <i class="cue" data-step="run" data-run="s1-1"></i>
+  <i class="cue" data-step="run" data-run="s1-2"></i>
+  <i class="cue" data-step="run" data-run="s1-3"></i>
+  <i class="cue" data-step="run" data-run="s1-4"></i>
+  <div class="src"><i data-lucide="link"></i><span>ধরা যাক: প্রতি দফা ৫০০ token · প্রতিবার সব আবার পড়া: OpenAI conversation-state guide ("stateless"), Anthropic docs, Context windows</span></div>
+  <aside class="notes">
+    <p>[auto] আলো জ্বলে; প্রথম message আর উত্তর টেবিলে পড়ে, scan bar দুইবার শুরু থেকে পড়ে যায়।</p>
+    <p>একটা গোপন কথা বলি।</p>
+    <p>AI আপনার chat মনে রাখে না।</p>
+    <p>প্রতিটা message-এ সে পুরো কথোপকথন প্রথম লাইন থেকে আবার পড়ে।</p>
+    <p>▶1 ধরা যাক প্রতি দফায় ৫০০ token। প্রথমবার সে পড়ল ৫০০।</p>
+    <p>▶2 দ্বিতীয়বার আবার শুরু থেকে: ১,০০০।</p>
+    <p>▶3 বিশ নম্বর message-এ? একবারে দশ হাজার।</p>
+    <p>আর আজকের সবচেয়ে অদ্ভুত তথ্য: ▶4 ঠিক উত্তরটা হাতে ধরিয়ে দিলেও AI ভুল করতে পারে, শুধু সেটা মাঝখানে রাখলেই।</p>
+  </aside>
+</section>
+
+<!-- S2 · টেবিল, লাইব্রেরি নয় -->
+<section class="s2">
+  <h2 data-enter="rise">টেবিল, লাইব্রেরি নয়</h2>
+  <div class="split">
+    <div class="panel train" data-step="lit"><div class="panel-h"><span class="tile"><i data-lucide="lock"></i></span>Training</div>
+      <p>বহু আগে পড়ে শেখা · আলমারিতে তালাবন্ধ</p></div>
+    <div class="panel desk" data-step="read"><div class="panel-h"><span class="tile accent"><i data-lucide="panel-top"></i></span>context window</div>
+      <p>সামনের টেবিল: এই মুহূর্তে যা টেবিলে আছে, সে শুধু তা-ই পড়তে পারে</p></div>
+  </div>
+  <div class="item" data-step="lit"><i data-lucide="quote"></i><span><b class="accent">"working memory"</b> · Anthropic docs: context window হলো model-এর "working memory"</span></div>
+  <p class="say" data-step="words">লাইব্রেরি নয়, টেবিল।</p>
+  <div class="src"><i data-lucide="link"></i><span>"working memory": Anthropic docs, Context windows (platform.claude.com)</span></div>
+  <aside class="notes">
+    <p>[auto] অন্ধকার ঘর থেকে camera পিছিয়ে আসে: আলমারি আর নিভে থাকা টেবিল।</p>
+    <p>AI-এর মনে রাখা দুই রকম।</p>
+    <p>▶1 Training: বহু আগে পড়ে শেখা, আলমারিতে তালাবন্ধ।</p>
+    <p>আর ▶2 context window: সামনের টেবিল। এই মুহূর্তে সে শুধু টেবিলে যা আছে, তা-ই পড়তে পারে।</p>
+    <p>▶3 Anthropic-এর documentation-ও একে বলে model-এর "working memory"।</p>
+    <p>▶4 লাইব্রেরি নয়, টেবিল।</p>
+  </aside>
+</section>
+
+<!-- S3 · নিয়ম ১: লম্বা chat, বড় বিল -->
+<section class="s3">
+  <h2 data-enter="rise"><span class="num">১</span>লম্বা chat, বড় বিল</h2>
+  <p class="lead" data-enter="rise">chat যত লম্বা, প্রতিটা নতুন প্রশ্নের বিল তত বড়</p>
+  <div class="s3-grid">
+    <div class="panel"><span class="eg s3-eg">ধরা যাক · প্রতি দফা ৫০০ token</span><div class="stairs" id="stairs"></div></div>
+    <div class="col">
+      <div class="panel tot t3a"><span class="muted">মোট পড়া</span><b class="big" id="t3">০</b><span class="muted">token</span></div>
+      <div class="panel tot t3b"><span class="muted">বাংলায় (× ১.৭১)</span><b class="big yel">≈ ১.৮ লাখ</b><span class="muted">token</span></div>
+    </div>
+  </div>
+  <div class="row s3-fix">
+    <div class="item f1"><i data-lucide="message-square-plus"></i>নতুন বিষয় → নতুন chat</div>
+    <div class="item f2"><i data-lucide="database-zap"></i>prompt caching: বারবার পড়া অংশ ≤ মূল input-এর ১০% দাম (Claude)</div>
+  </div>
+  <i class="cue" data-step="run" data-run="s3-1"></i>
+  <i class="cue" data-step="run" data-run="s3-2"></i>
+  <i class="cue" data-step="run" data-run="s3-3"></i>
+  <i class="cue" data-step="run" data-run="s3-4"></i>
+  <i class="cue" data-step="run" data-run="s3-5"></i>
+  <div class="src"><i data-lucide="link"></i><span>ধরা যাক ৫০০ token/দফা: ৫০০ + ১,০০০ + … + ১০,০০০ = ১,০৫,০০০ · ১.৭১×: আমাদের Talk 1 পরীক্ষা (o200k_base) · cache read: Anthropic pricing (০.১×; Opus/Sonnet 5.5-এ ০.০৫×)</span></div>
+  <aside class="notes">
+    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
+    <p>নিয়ম এক: chat যত লম্বা, প্রতিটা নতুন প্রশ্নের বিল তত বড়।</p>
+    <p>▶1 ধরা যাক প্রতি দফায় ৫০০ token: প্রতিটা প্রশ্নে সিঁড়ি এক ধাপ উঁচু।</p>
+    <p>▶2 বিশ নম্বর প্রশ্নে AI পড়ছে দশ হাজার token, বিশ দফায় মোট এক লাখ পাঁচ হাজার।</p>
+    <p>▶3 বাংলায় token লাগে প্রায় ১.৭১ গুণ, সেটা একটু পরে খুলে বলছি। তাই মোট প্রায় ১.৮ লাখ।</p>
+    <p>সমাধান? ▶4 নতুন বিষয় হলে নতুন chat।</p>
+    <p>▶5 App বানালে prompt caching: Claude-এ বারবার পড়া অংশের দাম মূল input-এর ১০% বা তারও কম।</p>
+  </aside>
+</section>
+
+<!-- S4 · টেবিল বড় হলো -->
+<section class="s4">
+  <h2 data-enter="rise">টেবিল বড় হলো</h2>
+  <div class="s4-grid">
+    <div class="panel"><div class="s4-view"><div class="world"><div class="desk r1m"></div><div class="desk r100k"></div><div class="desk r4k"></div><div class="pour"></div></div></div></div>
+    <div class="items">
+      <div class="item l4k"><b>৪,০০০ token</b>GPT-3.5-Turbo · ২০২৩</div>
+      <div class="item l100k"><b>১,০০,০০০ token</b>Claude 1.3 (100K) · ২০২৩</div>
+      <div class="item l1m"><b>≈ ১০,০০,০০০ token</b>Claude Opus/Sonnet 5.5, Gemini 4 Argon; GPT-6.1 Sol ১০.৫ লাখ · নভেম্বর ২০২৬ · ≈ ৫.৫৫ লাখ ইংরেজি শব্দ (Anthropic)</div>
+      <span class="stamp y" data-step="stamp" data-rotate="-7" data-fragment-index="4">২৫০×</span>
+    </div>
+  </div>
+  <p class="say s4-q">তাহলে কি সব বই টেবিলে ঢেলে দিলেই হলো?</p>
+  <i class="cue" data-enter="run" data-run="s4-in" data-delay="0"></i>
+  <i class="cue" data-step="run" data-run="s4-1" data-fragment-index="1"></i>
+  <i class="cue" data-step="run" data-run="s4-2" data-fragment-index="2"></i>
+  <i class="cue" data-step="run" data-run="s4-3" data-fragment-index="3"></i>
+  <i class="cue" data-step="run" data-run="s4-5" data-fragment-index="5"></i>
+  <div class="src"><i data-lucide="link"></i><span>ক্ষেত্রফল ∝ token · ৪K ও ১০০K: Liu et al. 2023 §2.2 · ১০ লাখ: Anthropic, Google, OpenAI model docs (৯ নভেম্বর ২০২৬) · ৫৫৫k শব্দ: Anthropic models overview</span></div>
+  <aside class="notes">
+    <p>[auto] অন্ধকারে ছোট্ট একটা আলোর টেবিল।</p>
+    <p>টেবিলটা কত বড়?</p>
+    <p>▶1 ২০২৩-এ GPT-3.5-Turbo-র টেবিল ছিল ৪ হাজার token।</p>
+    <p>▶2 সে বছরই Claude 1.3-এর একটা version-এ ১ লাখ।</p>
+    <p>▶3 আজ, ২০২৬-এর নভেম্বরে, Claude, GPT আর Gemini-র নতুন model-এ প্রায় ১০ লাখ token, Anthropic-এর হিসাবে প্রায় সাড়ে পাঁচ লাখ ইংরেজি শব্দ।</p>
+    <p>▶4 তিন বছরে আড়াইশো গুণ।</p>
+    <p>▶5 তাহলে কি সব বই টেবিলে ঢেলে দিলেই হলো?</p>
+  </aside>
+</section>
+
+<!-- S5 · নিয়ম ২: বাংলায় টেবিল আগে ভরে -->
+<section class="s5">
+  <h2 data-enter="rise"><span class="num">২</span>বাংলায় টেবিল আগে ভরে</h2>
+  <div class="panel s5-stage">
+    <div class="exp">
+      <div class="item exp-card"><i data-lucide="flask-conical"></i><span><b>আমাদের প্রথম ভিডিওর পরীক্ষা</b><br>১০১২টা বাক্য, পেশাদার অনুবাদ (FLORES-200) · ইংরেজি আর বাংলা, আসল tokenizer দিয়ে গোনা</span></div>
+      <div class="ratios">
+        <div class="ratio r-en"><span class="rl">ইংরেজি</span><i class="bar" style="--r:1"></i><b>১×</b></div>
+        <div class="ratio r-o"><span class="rl">বাংলা · GPT-4o → GPT-5</span><i class="bar" style="--r:1.71"></i><b class="yel">১.৭১×</b></div>
+        <div class="ratio r-c"><span class="rl">বাংলা · GPT-3.5, GPT-4</span><i class="bar" style="--r:5.88"></i><b class="yel">৫.৮৮×</b></div>
+      </div>
+    </div>
+    <div class="sim">
+      <span class="eg s5-eg">ধরা যাক · টেবিল = <span class="cap n">১২০</span> token · একই কথোপকথন দুই ভাষায় · token: <span class="encn">GPT-4o+</span></span>
+      <div class="desks">
+        <div class="dk" data-lang="en"><div class="dk-h"><b>English</b><span class="meter">০ / ১২০ token</span></div><div class="tray"><div class="layer sim-l"></div><div class="layer live-l"></div></div></div>
+        <div class="dk" data-lang="bn"><div class="dk-h"><b>বাংলা</b><span class="meter">০ / ১২০ token</span></div><div class="tray"><div class="layer sim-l"></div><div class="layer live-l"></div></div></div>
+      </div>
+      <div class="s5-notes">
+        <div class="item n7"><i data-lucide="pin"></i><span><b>জরুরি নির্দেশ</b><br>system prompt-এ রাখুন, বা আবার বলুন</span></div>
+        <div class="item n8"><i data-lucide="fold-vertical"></i><span><b>compaction</b><br>পুরনো কথার সারাংশ রাখা (Anthropic)</span></div>
+      </div>
+      <div class="demo">
+        <textarea id="s5in" spellcheck="false" placeholder="বাংলা বা English লিখুন / paste করুন, তারপর Enter · Esc চাপলে আবার ↓ কাজ করবে"></textarea>
+        <div class="chips"><button class="chip on" data-enc="gpt4o">GPT-4o → GPT-5</button><button class="chip" data-enc="gpt4">GPT-3.5, GPT-4</button><button class="chip" id="s5clear">মুছুন</button></div>
+      </div>
+    </div>
+  </div>
+  <i class="cue" data-step="run" data-run="s5-1"></i>
+  <i class="cue" data-step="run" data-run="s5-2"></i>
+  <i class="cue" data-step="run" data-run="s5-3"></i>
+  <i class="cue" data-step="run" data-run="s5-4"></i>
+  <i class="cue" data-step="run" data-run="s5-5"></i>
+  <i class="cue" data-step="run" data-run="s5-6"></i>
+  <i class="cue" data-step="run" data-run="s5-7"></i>
+  <i class="cue" data-step="run" data-run="s5-8"></i>
+  <i class="cue" data-step="run" data-run="s5-9"></i>
+  <div class="src"><i data-lucide="link"></i><span>১.৭১×, ৫.৮৮×: আমাদের Talk 1 পরীক্ষা (FLORES-200 devtest, ১০১২ বাক্য) · গোনা: আসল o200k_base ও cl100k_base tokenizer · "first in, first out" ও compaction: Anthropic docs, Context windows</span></div>
+  <aside class="notes">
+    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
+    <p>নিয়ম দুই: টেবিল যত বড়ই হোক, একদিন ভরবে, আর বাংলায় ভরবে আগে।</p>
+    <p>▶1 আমাদের প্রথম ভিডিওতে পেশাদার অনুবাদকের করা ১০১২টা বাক্যের ইংরেজি আর বাংলা আসল tokenizer দিয়ে গুনেছিলাম।</p>
+    <p>▶2 GPT-4o থেকে GPT-5-এর tokenizer-এ বাংলায় লেগেছে ১.৭১ গুণ token। ▶3 GPT-3.5 আর GPT-4-এর tokenizer-এ ৫.৮৮ গুণ।</p>
+    <p>▶4 এবার ধরা যাক ছোট একটা টেবিল, একই কথোপকথন দুই ভাষায়।</p>
+    <p>ভরে গেলে কিছু chat app সবচেয়ে পুরনো কথা সরিয়ে দেয়: আগে এলে আগে বাদ। ▶5 বাংলায় আপনার প্রথম নির্দেশটাই আগে পড়ে গেল।</p>
+    <p>▶6 ইংরেজিতেও পড়বে, তবে পরে।</p>
+    <p>▶7 তাই জরুরি নির্দেশ system prompt-এ রাখুন বা আবার বলুন।</p>
+    <p>▶8 কিছু system পুরনোটার সারাংশ রাখে, Anthropic বলে compaction।</p>
+    <p>▶9 (Demo চালান)</p>
+    <p>নিজেই দেখুন, কোন ভাষায় টেবিল আগে ভরে।</p>
+    <p>[Demo: বক্সে ক্লিক করে বাংলা বা ইংরেজি লিখুন বা paste করুন, তারপর Enter। ভাষা দেখে লেখাটা নিজে থেকে ঠিক টেবিলে যায়, মাপ আসল tokenizer-এর। উপরের বোতামে GPT-4o+ বা GPT-4 বদলান। Esc চাপলে আবার ↓ → কাজ করবে।]</p>
+  </aside>
+</section>
+
+<!-- S6 · টেবিলে থাকলেই কি পড়া হয়? -->
+<section class="s6">
+  <h2 data-enter="rise">টেবিলে থাকলেই কি পড়া হয়?</h2>
+  <div class="s6-top">
+    <div class="item" data-step="lit"><i data-lucide="book-open-check"></i><span><b>"Lost in the Middle"</b><br>Liu et al. · ২০২৩ (TACL 2024)</span></div>
+    <div class="item" data-step="lit"><i data-lucide="circle-help"></i><span><small>একটা প্রশ্ন (উদাহরণ)</small>পদার্থবিজ্ঞানে প্রথম নোবেল পুরস্কার কে পেয়েছিলেন?</span></div>
+  </div>
+  <div class="panel"><div class="fan" id="fan6"></div></div>
+  <i class="cue" data-step="run" data-run="s6-3"></i>
+  <i class="cue" data-step="run" data-run="s6-4"></i>
+  <div class="src"><i data-lucide="link"></i><span>Liu et al., "Lost in the Middle", TACL 2024 §2.1 · NaturalQuestions-Open · প্রতিটা পাতা ≤ ১০০ token, ঠিক একটায় উত্তর · প্রশ্নটা উদাহরণ</span></div>
+  <aside class="notes">
+    <p>[auto] প্রশ্নটা টেবিলে লেখা হয়।</p>
+    <p>কিন্তু টেবিলে থাকলেই কি পড়া হয়?</p>
+    <p>▶1 ২০২৩-এর গবেষণা "Lost in the Middle"। ▶2 AI-কে দেওয়া হলো একটা প্রশ্ন।</p>
+    <p>▶3 সাথে Wikipedia-র ২০টা ছোট পাতা। উত্তর আছে ঠিক একটা পাতায়, বাকি ১৯টায় নেই।</p>
+    <p>▶4 তারপর উত্তরের পাতাটা সরিয়ে সরিয়ে দেখা হলো: প্রথমে, পঞ্চমে, দশমে… বিশে।</p>
+  </aside>
+</section>
+
+<!-- S7 · নিয়ম ৩: মাঝখানে হারায় -->
+<section class="s7">
+  <h2 data-enter="rise"><span class="num">৩</span>মাঝখানে হারায়</h2>
+  <div class="stack">
+    <span class="chip s7-tag"><i data-lucide="book-open-check"></i>Lost in the Middle · GPT-3.5-Turbo · প্রতিবার ২০টা পাতা</span>
+    <div class="rule s7-rule"><i data-lucide="lightbulb"></i><span>জরুরি কথা শুরুতে বা শেষে। প্রশ্নটা শেষে। কম পাতা, ঠিক পাতা।</span></div>
+  </div>
+  <div class="panel"><div class="cbox" id="cb7"><svg class="chart" id="u7"></svg><div class="lamp"></div></div></div>
+  <i class="cue" data-enter="run" data-run="s7-in" data-delay="0"></i>
+  <i class="cue" data-step="run" data-run="s7-1"></i>
+  <i class="cue" data-step="run" data-run="s7-2"></i>
+  <i class="cue" data-step="run" data-run="s7-3"></i>
+  <i class="cue" data-step="run" data-run="s7-4"></i>
+  <i class="cue" data-step="run" data-run="s7-5"></i>
+  <i class="cue" data-step="run" data-run="s7-6"></i>
+  <i class="cue" data-step="run" data-run="s7-7"></i>
+  <div class="src"><i data-lucide="link"></i><span>Liu et al., TACL 2024 · Table 6 (২০টা পাতা, GPT-3.5-Turbo; উত্তর ১ / ৫ / ১০ / ১৫ / ২০ নম্বরে) · Table 1 (পাতা ছাড়া ৫৬.১%, শুধু ঠিক পাতা ৮৮.৩%) · আলো = এই মাপ</span></div>
+  <aside class="notes">
+    <p>[auto] চার্টের খালি ঘর আঁকা হয়।</p>
+    <p>▶1 উত্তর প্রথম পাতায় থাকলে GPT-3.5-Turbo ঠিক বলেছে প্রায় ৭৬%। ▶2 শেষ পাতায় ৬৩%।</p>
+    <p>▶3 মাঝখানে, দশ নম্বরে? ৫৪%। একটা U।</p>
+    <p>(২ সেকেন্ড থামুন)</p>
+    <p>▶4 কোনো পাতাই না দিলে, শুধু training-এর শেখা থেকে: ৫৬%।</p>
+    <p>▶5 মানে ঠিক উত্তরটা হাতে দিলেন, মাঝখানে রাখলেন, আর ফল হলো না দেওয়ার চেয়েও খারাপ।</p>
+    <p>▶6 আর শুধু ঠিক পাতাটা একা দিলে? ৮৮%।</p>
+    <p>▶7 নিয়ম তিন: জরুরি কথা শুরুতে বা শেষে। প্রশ্নটা শেষে। আর কম পাতা, ঠিক পাতা।</p>
+  </aside>
+</section>
+
+<!-- S8 · নিয়ম ৪: কাজের window -->
+<section class="s8">
+  <h2 data-enter="rise"><span class="num">৪</span>কাজের window</h2>
+  <div class="stack">
+    <span class="chip s8-tag"><i data-lucide="book-open-check"></i>NoLiMa · Modarressi et al. · ICML 2025 · প্রশ্ন আর উত্তরে একই শব্দ নেই</span>
+    <div class="rule s8-rule"><i data-lucide="ruler"></i><span>গায়ের লেখা নয়, কাজের window দেখুন, নিজের ডেটায় মেপে</span></div>
+  </div>
+  <div class="stack">
+    <div class="s8-ex">
+      <div class="item s8-needle"><span><small>পাতায় লেখা</small>Yuki থাকে <span class="hlw">Semper Opera House</span>-এর পাশে।</span></div>
+      <svg class="s8-link" viewBox="0 0 190 90"><path d="M8 40 C 60 4, 130 4, 182 40"/><path d="M168 30 L 183 41 L 166 47"/><text x="95" y="76" text-anchor="middle">নিজে বুঝতে হবে</text></svg>
+      <div class="item s8-qq"><span><small>প্রশ্ন</small>কে Dresden গিয়েছে?</span></div>
+    </div>
+    <div class="item s8-ruler"><i data-lucide="gauge"></i><span><b>RULER</b> (NVIDIA, 2024): ১৭টা model, সবার দাবি অন্তত ৩২,০০০ token · ৩২K-তে সন্তোষজনক রইল মাত্র <b class="yel">অর্ধেক</b></span></div>
+  </div>
+  <div class="panel w"><div class="cbox"><svg class="chart" id="c8"></svg></div><div class="legend s8-leg"></div></div>
+  <i class="cue" data-enter="run" data-run="s8-in" data-delay="0"></i>
+  <i class="cue" data-step="run" data-run="s8-1"></i>
+  <i class="cue" data-step="run" data-run="s8-2"></i>
+  <i class="cue" data-step="run" data-run="s8-3"></i>
+  <i class="cue" data-step="run" data-run="s8-4"></i>
+  <i class="cue" data-step="run" data-run="s8-5"></i>
+  <i class="cue" data-step="run" data-run="s8-6"></i>
+  <i class="cue" data-step="run" data-run="s8-7"></i>
+  <div class="src"><i data-lucide="link"></i><span>NoLiMa (Modarressi et al., ICML 2025), Table 3 · "ছোট" = base score · RULER (Hsieh et al., NVIDIA, COLM 2024), abstract ও Table 3</span></div>
+  <aside class="notes">
+    <p>[auto] গবেষণার নাম-পাতা আর চার্টের খালি ঘর।</p>
+    <p>২০২৫-এ ICML-এ প্রকাশিত NoLiMa গবেষণায় প্রশ্ন আর উত্তরে একই শব্দ নেই।</p>
+    <p>▶1 পাতায় লেখা: "Yuki থাকে Semper Opera House-এর পাশে।" প্রশ্ন: "কে Dresden গিয়েছে?" AI-কে নিজে বুঝতে হবে, Opera House-টা Dresden-এ।</p>
+    <p>▶2 GPT-4o ছোট লেখায় পায় ৯৯%, ৩২ হাজার token-এ ৭০%।</p>
+    <p>▶3 Llama 3.3 70B ৯৭% থেকে ৪৩%। ▶4 Claude 3.5 Sonnet ৮৮% থেকে ৩০%।</p>
+    <p>▶5 অথচ গায়ে লেখা window ১ লাখ ২৮ হাজার, Claude-এর ২ লাখ।</p>
+    <p>▶6 NVIDIA-র RULER-এও তাই: ১৭টা model-এর সবার দাবি অন্তত ৩২ হাজার, অথচ ৩২ হাজারে সন্তোষজনক ফল রেখেছে মাত্র অর্ধেক।</p>
+    <p>▶7 নিয়ম চার: গায়ের লেখা নয়, কাজের window দেখুন, নিজের ডেটায় মেপে।</p>
+  </aside>
+</section>
+
+<!-- S9 · শুধু লম্বা হওয়াটাই ক্ষতি -->
+<section class="s9">
+  <h2 data-enter="rise">শুধু লম্বা হওয়াটাই ক্ষতি</h2>
+  <div class="s9-grid">
+    <div class="panel"><div class="s9-pile"><div class="pgc key s9-found">দরকারি তথ্য<i class="lines"></i></div>
+      <span class="chip green s9-ok"><i data-lucide="check"></i>খুঁজে পেয়েছে</span></div></div>
+    <div class="col">
+      <div class="item s9-tag"><i data-lucide="book-open-check"></i><span><b>Du et al.</b> · Findings of EMNLP 2025</span></div>
+      <div class="panel s9-range"><b class="big">১৩.৯% – ৮৫%</b><span>লম্বা হতেই ফল খারাপ, ফাঁকা space দিয়ে লম্বা করলেও</span></div>
+      <div class="item s9-chroma"><i data-lucide="flask-conical"></i><span><b>Chroma, ২০২৫ · ১৮টা model</b><br>Claude Opus 4, GPT-4.1, Gemini 2.5 Pro…: input লম্বা হলে ফল খারাপ, প্রায়ই অসমানভাবে</span></div>
+      <div class="panel s9-quote"><q>more context isn't automatically better. As token count grows, accuracy and recall degrade</q><span><b class="accent">context rot</b> · Anthropic docs</span></div>
+    </div>
+  </div>
+  <i class="cue" data-enter="run" data-run="s9-in" data-delay="0"></i>
+  <i class="cue" data-step="run" data-run="s9-1"></i>
+  <i class="cue" data-step="run" data-run="s9-2"></i>
+  <i class="cue" data-step="run" data-run="s9-3"></i>
+  <i class="cue" data-step="run" data-run="s9-4"></i>
+  <i class="cue" data-step="run" data-run="s9-5"></i>
+  <div class="src"><i data-lucide="link"></i><span>Du et al., "Context Length Alone Hurts LLM Performance Despite Perfect Retrieval", Findings of EMNLP 2025 · Chroma, "Context Rot" (১৪ জুলাই ২০২৫) · Anthropic docs, Context windows</span></div>
+  <aside class="notes">
+    <p>[auto] দরকারি পাতাটা টেবিলে, তারপর কথাটা লেখা হয়।</p>
+    <p>দ্বিতীয় চমক: শুধু লম্বা হওয়াটাই ক্ষতি করে।</p>
+    <p>▶1 ২০২৫-এ EMNLP-তে প্রকাশিত এক গবেষণায় AI দরকারি তথ্য ঠিকই খুঁজে পায়। ▶2 তারপর লেখা লম্বা করা হলো, একবার শুধু ফাঁকা space দিয়ে।</p>
+    <p>▶3 লম্বা হতেই ফল খারাপ হলো ১৩.৯% থেকে ৮৫% পর্যন্ত, ফাঁকা space-এও পতন থামেনি।</p>
+    <p>▶4 Chroma ২০২৫-এ Claude Opus 4, GPT-4.1 সহ ১৮টা model মেপেছে: input লম্বা হলে ফল খারাপ, প্রায়ই অসমানভাবে।</p>
+    <p>▶5 Anthropic-এর documentation-ও আজ বলে: বেশি context মানেই ভালো নয়, token বাড়লে নির্ভুলতা কমে। এর নাম context rot।</p>
+  </aside>
+</section>
+
+<!-- S10 · নিয়ম ৫: বড় টেবিল, বড় বিল -->
+<section class="s10">
+  <h2 data-enter="rise"><span class="num">৫</span>বড় টেবিল, বড় বিল</h2>
+  <div class="panel ttft">
+    <span class="bt">উত্তরের প্রথম token আসতে কত সময় (Anthropic-এর মাপ, ২০২৪-এর model; আলো চলে আসল সময় ধরে)</span>
+    <div class="trow r10"><span class="tl">১০,০০০ token</span><div class="ts"><i></i></div><span class="tt"><span class="tv">০.০</span> সে</span></div>
+    <div class="trow r100"><span class="tl">১,০০,০০০ token</span><div class="ts"><i></i></div><span class="tt"><span class="tv">০.০</span> সে</span></div>
+  </div>
+  <div class="split">
+    <div class="col">
+      <div class="item s10-q"><i data-lucide="quote"></i><span><q>A 900k-token request is billed at the same per-token rate as a 9k-token request.</q>Anthropic pricing · মানে token <b class="accent">১০০ গুণ</b>, বিলও <b class="accent">১০০ গুণ</b></span></div>
+      <div class="item s10-oai"><i data-lucide="receipt"></i><span><b>OpenAI GPT-6.1 Sol</b>: ২,৭২,০০০ token-এর বেশি হলে পুরো request-এর input-এর দাম <b class="accent">২×</b></span></div>
+    </div>
+    <div class="panel bill">
+      <span class="eg b0">ধরা যাক · Sonnet 5.5 · দিনে ১,০০০ প্রশ্ন · শুধু input</span>
+      <div class="brow b1"><div class="bl"><span>প্রতিবার পুরো ১০ লাখ token</span><b>$<span class="bv">০</span></b></div><i class="bb" style="width:100%"></i></div>
+      <div class="brow b2"><div class="bl"><span>একই document, cache থেকে পড়া</span><b>≈ $<span class="bv">০</span></b></div><i class="bb" style="width:5%"></i><small>বিল কমে, কিন্তু টেবিলের ভিড় একই</small></div>
+      <div class="brow b3"><div class="bl"><span>RAG: ঠিক ২০টা টুকরো × ৮০০ token</span><b>≈ $<span class="bv">০</span></b></div><i class="bb" style="width:1.6%"></i></div>
+    </div>
+  </div>
+  <i class="cue" data-step="run" data-run="s10-1"></i>
+  <i class="cue" data-step="run" data-run="s10-2"></i>
+  <i class="cue" data-step="run" data-run="s10-3"></i>
+  <i class="cue" data-step="run" data-run="s10-4"></i>
+  <i class="cue" data-step="run" data-run="s10-5"></i>
+  <i class="cue" data-step="run" data-run="s10-6"></i>
+  <i class="cue" data-step="run" data-run="s10-7"></i>
+  <div class="src"><i data-lucide="link"></i><span>সময়: Anthropic prompt caching post (২০২৪-এর model) · Anthropic pricing (long context) · OpenAI GPT-6.1 Sol model page · বিল ধরা যাক: input $২/MTok, cache read $০.১০/MTok (cache write বাদ); ১৬,০০০ token × ১,০০০ = $৩২</span></div>
+  <aside class="notes">
+    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
+    <p>নিয়ম পাঁচ: বড় টেবিল মানে বড় বিল আর লম্বা অপেক্ষা।</p>
+    <p>▶1 Anthropic-এর ২০২৪-এর মাপে, ১০ হাজার token-এর prompt-এ প্রথম token আসতে ১.৬ সেকেন্ড।</p>
+    <p>▶2 ১ লাখ token-এ ১১.৫ সেকেন্ড।</p>
+    <p>[এই আলো আসল সময় ধরে চলে: পুরো ১১.৫ সেকেন্ড। শেষ হওয়া পর্যন্ত অপেক্ষা করুন।]</p>
+    <p>▶3 দাম? Anthropic লিখেছে, ৯ লাখ আর ৯ হাজার token-এর request একই rate-এ বিল হয়। মানে token একশো গুণ, বিলও একশো গুণ।</p>
+    <p>▶4 OpenAI-এর GPT-6.1 Sol-এ ২ লাখ ৭২ হাজার token পেরোলে পুরো request-এর input-এর দাম দ্বিগুণ।</p>
+    <p>▶5 ধরা যাক Claude Sonnet 5.5-এ প্রতি প্রশ্নে ১০ লাখ token। দিনে ১,০০০ প্রশ্নে শুধু input ২,০০০ ডলার।</p>
+    <p>▶6 একই document বারবার পাঠালে caching বিল নামায় প্রায় ১০০ ডলারে, কিন্তু টেবিলের ভিড় কমায় না।</p>
+    <p>▶7 আর ৮০০ token-এর ঠিক ২০টা টুকরো? প্রায় ৩২ ডলার।</p>
+  </aside>
+</section>
+
+<!-- S11 · RAG: চার পাতা ফটোকপি -->
+<section class="s11">
+  <h2 data-enter="rise">RAG: চার পাতা ফটোকপি</h2>
+  <p class="say" data-step="words">পুরো লাইব্রেরি নয়, দরকারি চার পাতা।</p>
+  <div class="grid2">
+    <div class="panel s11-rag" data-step="lit"><b>RAG · <span>Retrieval-Augmented Generation</span></b><p>আগে খুঁজে আনা, প্রশ্নের সাথে টেবিলে জোড়া, তারপর লেখা</p></div>
+    <div class="item s11-tag" data-step="lit"><i data-lucide="book-open-check"></i><span><b>Lewis et al.</b> · Facebook AI Research · NeurIPS 2020</span></div>
+  </div>
+  <div class="panel w s11-sim">
+    <div class="s11-flow">
+      <div class="dout"><div class="slivers"></div><div class="dout-lab"><b>২ কোটি ১০ লাখ টুকরো</b>পুরো Wikipedia, ১০০ শব্দ করে</div></div>
+      <i data-lucide="arrow-right" class="arr a0"></i>
+      <div class="picks"></div>
+      <i data-lucide="arrow-right" class="arr a1"></i>
+      <div class="item s11-q"><span><small>পড়ে</small><br>প্রশ্ন + ওই কয়েকটা পাতা</span></div>
+      <i data-lucide="arrow-right" class="arr a2"></i>
+      <div class="item key s11-ans">উত্তর</div>
+    </div>
+  </div>
+  <i class="cue" data-step="run" data-run="s11-4"></i>
+  <i class="cue" data-step="run" data-run="s11-5"></i>
+  <i class="cue" data-step="run" data-run="s11-6"></i>
+  <div class="src"><i data-lucide="link"></i><span>Lewis et al., "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks", NeurIPS 2020 (Facebook AI Research, UCL, NYU) · Wikipedia Dec 2018 dump · প্রতি প্রশ্নে k = ৫ বা ১০</span></div>
+  <aside class="notes">
+    <p>[auto] বন্ধ ড্রয়ার আর ফাঁকা টেবিল।</p>
+    <p>তাহলে উপায়? নীলক্ষেতে কেউ পুরো লাইব্রেরি ফটোকপি করে না, ▶1 দরকারি চার পাতা করে।</p>
+    <p>▶2 RAG ঠিক এটাই: Retrieval-Augmented Generation। ▶3 নামটা ২০২০ সালে Facebook AI-এর Patrick Lewis আর সহকর্মীদের গবেষণার।</p>
+    <p>▶4 তাঁরা পুরো Wikipedia ভেঙেছিলেন ১০০ শব্দের টুকরোয়, মোট ২ কোটি ১০ লাখ।</p>
+    <p>▶5 প্রশ্ন এলে টেবিলে আনতেন মাত্র ৫ বা ১০টা।</p>
+    <p>▶6 তারপর প্রশ্ন আর ওই কয়েকটা পাতা পড়ে উত্তর।</p>
+  </aside>
+</section>
+
+<!-- S12 · RAG চার ধাপে -->
+<section class="s12">
+  <h2 data-enter="rise">RAG চার ধাপে</h2>
+  <div class="lanes">
+    <div class="panel lane l12-0"><div class="lane-h">আগে, একবারই</div><div class="flow">
+      <div class="node n-doc"><b>document</b><i class="lines"></i></div><i data-lucide="arrow-right" class="arr e-chunk"></i>
+      <div class="node n-chunk"><b>১ · chunk</b>টুকরো করা<span class="cuts"><i></i><i></i><i></i></span></div><i data-lucide="arrow-right" class="arr e-embed"></i>
+      <div class="node n-embed"><b>২ · embedding</b>সংখ্যার তালিকা<span class="vec">[০.১২, −০.৪৮, ০.৩৩ …]</span></div><i data-lucide="arrow-right" class="arr e-store"></i>
+      <div class="node store n-store"><b>জমা রাখা</b>প্রতিটা টুকরো আর তার সংখ্যা</div>
+    </div></div>
+    <div class="panel lane l12-1"><div class="lane-h">প্রতিটা প্রশ্নে</div><div class="flow">
+      <div class="node n-q"><b>প্রশ্ন</b><i class="lines"></i></div><i data-lucide="arrow-right" class="arr e-search"></i>
+      <div class="node n-search"><b>৩ · search</b>প্রশ্নের কাছাকাছি টুকরো খোঁজা</div><i data-lucide="arrow-right" class="arr e-prompt"></i>
+      <div class="node n-prompt"><b>৪ · prompt-এ বসানো</b>টুকরো + প্রশ্ন</div><i data-lucide="arrow-right" class="arr e-ans"></i>
+      <div class="node key n-ans"><b>উত্তর</b>AI লেখে<i class="lines"></i></div>
+    </div></div>
+    <svg class="edge12"><path class="e1"/><path class="e2"/></svg>
+  </div>
+  <i class="cue" data-enter="run" data-run="s12-in" data-delay="0"></i>
+  <i class="cue" data-step="run" data-run="s12-1"></i>
+  <i class="cue" data-step="run" data-run="s12-2"></i>
+  <i class="cue" data-step="run" data-run="s12-3"></i>
+  <i class="cue" data-step="run" data-run="s12-4"></i>
+  <i class="cue" data-step="run" data-run="s12-5"></i>
+  <div class="src"><i data-lucide="link"></i><span>সংজ্ঞা: Anthropic, Introducing Contextual Retrieval (২০২৪) · OpenAI embeddings guide · সংখ্যাগুলো উদাহরণ</span></div>
+  <aside class="notes">
+    <p>[auto] দুই সারি আঁকা হয়: "আগে, একবারই" আর "প্রতিটা প্রশ্নে"; document-এর পাতা।</p>
+    <p>RAG চলে চার ধাপে। প্রথম দুটো আগে একবারই।</p>
+    <p>▶1 এক: document-কে টুকরো করা, এর নাম chunk।</p>
+    <p>▶2 দুই: প্রতিটা টুকরোকে সংখ্যার তালিকায় বদলানো, এর নাম embedding।</p>
+    <p>বাকি দুটো প্রতিটা প্রশ্নে। ▶3 তিন: প্রশ্নের কাছাকাছি টুকরো খোঁজা, search।</p>
+    <p>▶4 চার: সেগুলো prompt-এ বসানো।</p>
+    <p>▶5 তারপর AI উত্তর লেখে।</p>
+  </aside>
+</section>
+
+<!-- S13 · অর্থের মানচিত্র -->
+<section class="s13">
+  <h2 data-enter="rise">অর্থের মানচিত্র</h2>
+  <div class="item s13-strip" data-enter="lit"><i data-lucide="binary"></i><span>একটা লেখা → <span class="vec">[০.০২১, −০.১১৩, ০.০৮৭, ০.৩০২, −০.০৪৫, … মোট ১৫৩৬টা সংখ্যা]</span> · OpenAI text-embedding-3-small</span></div>
+  <div class="s13-grid">
+    <div class="panel"><span class="eg s13-eg">ধরা যাক · দুই মাত্রার মানচিত্র</span><div class="map"></div></div>
+    <div class="s13-side">
+      <div class="panel tray13"><span class="bt">টেবিলে উঠল</span></div>
+      <div class="panel hbars s13-bars">
+        <span class="bt">MIRACL · বাংলা প্রশ্ন · nDCG@10 (১০০-তে)</span>
+        <div class="hbar h1"><span>পুরনো mDPR</span><span class="track"><i class="bb lo" style="width:44.3%"></i></span><b>৪৪.৩</b></div>
+        <div class="hbar h2"><span>BGE-M3</span><span class="track"><i class="bb" style="width:80%"></i></span><b>৮০.০</b></div>
+      </div>
+    </div>
+  </div>
+  <i class="cue" data-step="run" data-run="s13-1"></i>
+  <i class="cue" data-step="run" data-run="s13-2"></i>
+  <i class="cue" data-step="run" data-run="s13-3"></i>
+  <i class="cue" data-step="run" data-run="s13-4"></i>
+  <i class="cue" data-step="run" data-run="s13-5"></i>
+  <i class="cue" data-step="run" data-run="s13-6"></i>
+  <div class="src"><i data-lucide="link"></i><span>১৫৩৬ মাত্রা ও "দূরত্ব = সম্পর্ক": OpenAI embeddings guide · সংখ্যাগুলো আর মানচিত্রের জায়গা উদাহরণ · MIRACL বাংলা (dev) nDCG@10: Chen et al., BGE M3-Embedding, Table 1</span></div>
+  <aside class="notes">
+    <p>[auto] একটা লেখা থেকে সংখ্যার লম্বা তালিকা।</p>
+    <p>OpenAI-এর ছোট embedding model-এ প্রতিটা লেখা হয়ে যায় ১৫৩৬টা সংখ্যার তালিকা। অর্থ কাছাকাছি হলে সংখ্যাও কাছাকাছি।</p>
+    <p>এত মাত্রা আঁকা যায় না, তাই ▶1 ধরা যাক দুই মাত্রার মানচিত্র: ক্রিকেট, ধান চাষ আর মোবাইল বিল, তিনটা আলাদা পাড়ায়।</p>
+    <p>▶2 প্রশ্ন এল: "ধানের পাতা হলুদ হচ্ছে কেন?" সে নামল ধান চাষের পাড়ায়।</p>
+    <p>▶3 সবচেয়ে কাছের তিনটা টুকরো উঠে গেল টেবিলে।</p>
+    <p>▶4 পাশেই ইংরেজি "rice leaves turning yellow"। ভালো multilingual model ভাষা পেরিয়েও অর্থ মেলায়।</p>
+    <p>▶5 ধরা যাক দুর্বল model: পাড়াগুলো ঢিলে। ▶6 আসল মাপে, MIRACL পরীক্ষার বাংলা অংশে পুরনো mDPR পেয়েছে ১০০-তে ৪৪, BGE-M3 ৮০।</p>
+  </aside>
+</section>
+
+<!-- S14 · নিয়ম ৬: ছোট হলে পুরোটা, বড় হলে RAG -->
+<section class="s14">
+  <h2 data-enter="rise"><span class="num">৬</span>ছোট হলে পুরোটা, বড় হলে RAG</h2>
+  <span class="eg s14-cap">ধরা যাক · একই টেবিল: ২,০০,০০০ token (Anthropic: ≈ ৫০০ পাতা) · বাংলা: ১.৭১×</span>
+  <div class="s14-grid">
+    <div class="panel">
+      <div class="desks14">
+        <div class="dk dk14" data-lang="en"><div class="dk-h"><b>ইংরেজি</b><span class="n">≈ ৫০০ পাতা</span></div><div class="tray14"><div class="pages"></div><div class="pages spill"></div></div></div>
+        <div class="dk dk14" data-lang="bn"><div class="dk-h"><b>বাংলা</b><span class="n">≈ ২৯০ পাতা</span></div><div class="tray14"><div class="pages"></div><div class="pages spill"></div></div></div>
+      </div>
+      <div class="item over"><i data-lucide="layers"></i><span>এর চেয়ে বড় হলে টেবিল উপচে পড়ে → <b class="accent">RAG</b></span></div>
+    </div>
+    <div class="s14-side">
+      <div class="panel s14-dm"><div class="panel-h"><span class="tile"><i data-lucide="scale"></i></span><span>Google DeepMind<br><small>Li et al., EMNLP 2024</small></span></div>
+        <ul><li>যথেষ্ট খরচ করলে long context গড়ে RAG-কে হারায়</li><li>কিন্তু RAG অনেক সস্তা</li><li>৬০%-এর বেশি প্রশ্নে দুটোর উত্তর হুবহু এক</li></ul></div>
+      <div class="panel fork">
+        <div class="fk fk1"><span class="chip">আগে RAG</span><i data-lucide="arrow-right" class="arr"></i><span class="chip">পারছি?</span><span class="fk-l">হ্যাঁ</span><i data-lucide="arrow-right" class="arr"></i><span class="chip yellow">উত্তর</span></div>
+        <div class="fk fk2"><span class="fk-l">না</span><i data-lucide="arrow-down-right" class="arr"></i><span class="chip">পুরো document টেবিলে</span><i data-lucide="arrow-right" class="arr"></i><span class="chip yellow">উত্তর</span></div>
+        <div class="save">খরচ কমেছে: <b>Gemini-1.5-Pro −৬৫%</b> · <b>GPT-4o −৩৯%</b></div>
+      </div>
+    </div>
+  </div>
+  <i class="cue" data-step="run" data-run="s14-1"></i>
+  <i class="cue" data-step="run" data-run="s14-2"></i>
+  <i class="cue" data-step="run" data-run="s14-3"></i>
+  <i class="cue" data-step="run" data-run="s14-4"></i>
+  <i class="cue" data-step="run" data-run="s14-5"></i>
+  <div class="src"><i data-lucide="link"></i><span>Anthropic, Introducing Contextual Retrieval (২০২৪): "smaller than 200,000 tokens (about 500 pages)" · ২৯০ ≈ ৫০০ ÷ ১.৭১ (ধরা যাক; আমাদের Talk 1 পরীক্ষা) · Li et al., Google DeepMind, EMNLP 2024 (Self-Route)</span></div>
+  <aside class="notes">
+    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
+    <p>নিয়ম ছয়: ছোট হলে পুরোটা দিন, বড় হলে RAG।</p>
+    <p>▶1 Anthropic-এর পরামর্শ: পুরো জ্ঞানভাণ্ডার ২ লাখ token-এর কম হলে, মোটামুটি ৫০০ পাতা, পুরোটাই prompt-এ দিন।</p>
+    <p>▶2 বাংলায়? ধরা যাক অনুপাত ১.৭১: তাহলে আঁটবে প্রায় ২৯০ পাতার সমান।</p>
+    <p>▶3 এর চেয়ে বড় হলে টেবিল উপচে পড়ে, তখন RAG।</p>
+    <p>▶4 Google DeepMind ২০২৪: খরচ যথেষ্ট করলে long context গড়ে RAG-কে হারায়। কিন্তু RAG অনেক সস্তা, আর ৬০%-এর বেশি প্রশ্নে দুটোর উত্তর হুবহু এক।</p>
+    <p>▶5 তাঁদের উপায়: আগে RAG; model নিজে বুঝলে যে পারছে না, তখন পুরোটা। খরচ কমেছে Gemini-1.5-Pro-তে ৬৫%, GPT-4o-তে ৩৯%।</p>
+  </aside>
+</section>
+
+<!-- S15 · নিয়ম ৭: ছোট টুকরো, সাথে প্রসঙ্গ -->
+<section class="s15">
+  <h2 data-enter="rise"><span class="num">৭</span>ছোট টুকরো, সাথে প্রসঙ্গ</h2>
+  <div class="panel w"><div class="cut15"></div></div>
+  <div class="s15-grid">
+    <div class="col">
+      <div class="panel hbars w15">
+        <span class="eg">ধরা যাক · ৮০০ token-এ কত শব্দ? (আমাদের পরীক্ষার গড়)</span>
+        <div class="hbar"><span>ইংরেজি</span><span class="track"><i class="bb" style="width:100%"></i></span><b>≈ ৬৫০</b></div>
+        <div class="hbar"><span>বাংলা · GPT-4o+</span><span class="track"><i class="bb" style="width:52.3%"></i></span><b>≈ ৩৪০</b></div>
+        <div class="hbar"><span>বাংলা · GPT-4</span><span class="track"><i class="bb lo" style="width:15.4%"></i></span><b>≈ ১০০</b></div>
+      </div>
+    </div>
+    <div class="orph">
+      <div class="item hdr"><i data-lucide="tag"></i><span>প্রসঙ্গ: ACME কোম্পানির SEC filing, ২০২৩-এর Q2; আগের quarter-এ আয় ছিল $৩১৪ মিলিয়ন</span></div>
+      <div class="item chk"><small>একটা টুকরো · উদাহরণ (Anthropic)</small>…আয় ৩% বেড়েছে।<i class="lines"></i></div>
+      <span class="stamp who" data-rotate="-6">কার? কবে?</span>
+      <p class="say s15-say">মাপ শব্দে নয়, model-এর token-এ।</p>
+    </div>
+  </div>
+  <i class="cue" data-step="run" data-run="s15-1"></i>
+  <i class="cue" data-step="run" data-run="s15-2"></i>
+  <i class="cue" data-step="run" data-run="s15-3"></i>
+  <i class="cue" data-step="run" data-run="s15-4"></i>
+  <i class="cue" data-step="run" data-run="s15-5"></i>
+  <div class="src"><i data-lucide="link"></i><span>OpenAI retrieval guide (max_chunk_size_tokens ৮০০, chunk_overlap_tokens ৪০০) · Anthropic, Contextual Retrieval (ACME উদাহরণ, অনুবাদ) · শব্দ = ৮০০ ÷ শব্দপ্রতি token (Talk 1: ১.২৩ / ২.৩৬ / ৮.২০)</span></div>
+  <aside class="notes">
+    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
+    <p>নিয়ম সাত: ছোট টুকরো, সাথে তার প্রসঙ্গ।</p>
+    <p>▶1 OpenAI নিজে থেকে কাটে ৮০০ token-এ, ৪০০ token পাশেরটার সাথে মিলিয়ে। Anthropic বলে, সাধারণত কয়েকশো token।</p>
+    <p>▶2 ধরা যাক আমাদের পরীক্ষার গড়ে: ৮০০ token-এ ইংরেজির প্রায় ৬৫০ শব্দ, বাংলার প্রায় ৩৪০, আর GPT-4-এর tokenizer-এ মাত্র ১০০-র মতো।</p>
+    <p>▶3 তাই মাপ শব্দে নয়, model-এর token-এ গুনুন।</p>
+    <p>▶4 আরেক ফাঁদ, Anthropic-এর উদাহরণ: টুকরোয় শুধু লেখা "আয় ৩% বেড়েছে"। কার আয়? কবে?</p>
+    <p>▶5 প্রতিটা টুকরোর মাথায় এক লাইনের প্রসঙ্গ জুড়ুন: কোন কোম্পানির, কোন quarter-এর।</p>
+  </aside>
+</section>
+
+<!-- S16 · নিয়ম ৮: অর্থ আর শব্দ -->
+<section class="s16">
+  <h2 data-enter="rise"><span class="num">৮</span>অর্থ আর শব্দ</h2>
+  <div class="split">
+    <div class="panel s16-bars">
+      <span class="bt">ঠিক টুকরো প্রথম ২০টায় <b class="accent">না আসার</b> হার · কম = ভালো</span>
+      <div class="vbars">
+        <div class="vcol c1"><b>৫.৭%</b><i class="vb" style="--h:5.7"></i><span class="vl">সাধারণ embedding</span></div>
+        <div class="vcol c2"><b>৩.৭%</b><i class="vb" style="--h:3.7"></i><span class="vl">+ প্রসঙ্গ</span></div>
+        <div class="vcol c3"><b>২.৯%</b><i class="vb" style="--h:2.9"></i><span class="vl">+ BM25 (শব্দ-খোঁজা)</span></div>
+        <div class="vcol c4"><b>১.৯%</b><i class="vb" style="--h:1.9"></i><span class="vl">+ reranking</span></div>
+      </div>
+    </div>
+    <div class="panel ts999"><span class="code">"TS-999"</span><p><b class="accent">অর্থ-খোঁজা</b> (embedding): কাছাকাছি অর্থের লেখা আনে, হুবহু code-টা নয়</p><p><b class="yel">শব্দ-খোঁজা</b> (BM25): হুবহু "TS-999" মেলায়</p></div>
+  </div>
+  <i class="cue" data-step="run" data-run="s16-1"></i>
+  <i class="cue" data-step="run" data-run="s16-2"></i>
+  <i class="cue" data-step="run" data-run="s16-3"></i>
+  <i class="cue" data-step="run" data-run="s16-4"></i>
+  <i class="cue" data-step="run" data-run="s16-5"></i>
+  <div class="src"><i data-lucide="link"></i><span>Anthropic, Introducing Contextual Retrieval (১৯ সেপ্টেম্বর ২০২৪) · top-20 retrieval failure rate: ৫.৭ → ৩.৭ (−৩৫%) → ২.৯ (−৪৯%) → ১.৯% (−৬৭%)</span></div>
+  <aside class="notes">
+    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
+    <p>নিয়ম আট: খুঁজুন অর্থ দিয়েও, শব্দ দিয়েও।</p>
+    <p>▶1 Anthropic মেপেছে, ঠিক টুকরোটা প্রথম ২০টায় না আসার হার। সাধারণ embedding-এ ৫.৭%।</p>
+    <p>▶2 প্রসঙ্গ জুড়লে ৩.৭%।</p>
+    <p>▶3 সাথে শব্দ মিলিয়ে খোঁজা, BM25, যোগ করলে ২.৯%।</p>
+    <p>▶4 শেষে আরেকবার বাছাই, reranking: ১.৯%।</p>
+    <p>▶5 কারণ embedding অর্থ খোঁজে, কিন্তু "TS-999"-এর মতো error code হুবহু মেলাতে শব্দ-খোঁজাই ভরসা।</p>
+  </aside>
+</section>
+
+<!-- S17 · নিয়ম ৯: user-এর ভাষায় test -->
+<section class="s17">
+  <h2 data-enter="rise"><span class="num">৯</span>user-এর ভাষায় test</h2>
+  <div class="item s17-tag"><i data-lucide="graduation-cap"></i><span><b>North South University</b> · Reza, Maria, Nimi · arXiv 2608.14886 (আগস্ট ২০২৬) · ২৮৪টা সরকারি কৃষি প্রকাশনা <span class="stamp sm y">preprint · peer review হয়নি</span></span></div>
+  <div class="s17-grid">
+    <div class="panel">
+      <div class="legend leg17"><span><i class="sw"></i>embedding-খোঁজা</span><span class="lbm"><i class="sw bm"></i>শব্দ-খোঁজা (BM25)</span></div>
+      <div class="g17">
+        <div class="grp"><div class="pair"><div class="bar17 em f-em" style="--v:97"><b>৯৭.০%</b><i></i></div><div class="bar17 bm f-bm" style="--v:53.9"><b>৫৩.৯%</b><i></i></div></div><span class="gl">বইয়ের ভাষায় (formal)</span></div>
+        <div class="grp"><div class="pair"><div class="bar17 em k-em" style="--v:9.3"><b>৯.৩%</b><i></i></div><div class="bar17 bm k-bm" style="--v:52.3"><b>৫২.৩%</b><i></i></div></div><span class="gl">কৃষকের ভাষায়</span></div>
+      </div>
+      <span class="hyb">সব প্রশ্ন মিলিয়ে সেরা: দুটো একসাথে (hybrid ৫৩.৯%)</span>
+    </div>
+    <div class="s17-side">
+      <div class="s17-pair">
+        <div class="item key"><small>কৃষকের প্রশ্ন · ধরা যাক</small>"ধানের পাতায় বাদামি দাগ"</div>
+        <div class="item"><small>বইয়ে যা লেখা · ধরা যাক</small><span><i>Bipolaris oryzae</i> সংক্রমণ</span></div>
+        <span class="n35">Document-এর এমন নামের মাত্র <b>৩.৫%</b> কৃষকের প্রশ্নে হুবহু আসে</span>
+      </div>
+      <div class="panel x17p"><svg class="x17"></svg></div>
+    </div>
+  </div>
+  <i class="cue" data-step="run" data-run="s17-1"></i>
+  <i class="cue" data-step="run" data-run="s17-2"></i>
+  <i class="cue" data-step="run" data-run="s17-3"></i>
+  <i class="cue" data-step="run" data-run="s17-4"></i>
+  <i class="cue" data-step="run" data-run="s17-5"></i>
+  <i class="cue" data-step="run" data-run="s17-6"></i>
+  <div class="src"><i data-lucide="link"></i><span>Reza, Maria, Nimi (NSU), "Where Does Retrieval Fail?", arXiv 2608.14886, preprint · R@10 = ঠিক পাতা প্রথম ১০টায় · বাংলা প্রশ্ন → বাংলা document; ইংরেজি প্রশ্ন → বাংলা document · প্রশ্ন আর বইয়ের লাইন উদাহরণ</span></div>
+  <aside class="notes">
+    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
+    <p>নয় নম্বর নিয়ম: user যেভাবে প্রশ্ন করেন, সেভাবেই test করুন।</p>
+    <p>▶1 একদম আমাদের দেশের গবেষণা। ২০২৬-এর আগস্টে North South University-র গবেষকেরা সরকারি কৃষি প্রকাশনার ২৮৪টা document দিয়ে RAG মেপেছেন। এখনো preprint, peer review হয়নি।</p>
+    <p>▶2 বইয়ের ভাষায় formal প্রশ্নে embedding-খোঁজা ঠিক পাতাটা প্রথম ১০টায় এনেছে ৯৭% ক্ষেত্রে।</p>
+    <p>▶3 কৃষক যেভাবে বলেন, লক্ষণ দিয়ে, নিজের ভাষায়, সেই প্রশ্নে মাত্র ৯%।</p>
+    <p>▶4 ধরা যাক কৃষক লিখলেন "ধানের পাতায় বাদামি দাগ", আর বইয়ে আছে রোগের বৈজ্ঞানিক নাম। Document-এর এমন নামের মাত্র ৩.৫% কৃষকের প্রশ্নে হুবহু আসে।</p>
+    <p>▶5 সেখানে শব্দ-খোঁজা BM25 পেয়েছে ৫২%; সব মিলিয়ে সেরা দুটো একসাথে।</p>
+    <p>▶6 আর ইংরেজি প্রশ্নে বাংলা document খুঁজলে শব্দ-খোঁজা নামে প্রায় শূন্যে, embedding প্রায় টিকে থাকে।</p>
+  </aside>
+</section>
+
+<!-- S18 · সীমাবদ্ধতা -->
+<section class="s18">
+  <h2 data-enter="rise">সীমাবদ্ধতা</h2>
+  <div class="items w">
+    <div class="item" data-step="lit"><i data-lucide="triangle-alert"></i><span>বেশিরভাগ গবেষণা ইংরেজিতে, ২০২৩–২০২৫-এর model-এ। Model দ্রুত ভালো হচ্ছে: ১০ লাখ token-এর এক পরীক্ষায় Opus 4.6 <b class="accent n">৭৬%</b>, Sonnet 4.5 <b class="accent n">১৮.৫%</b> (Anthropic-এর নিজের দাবি)</span></div>
+    <div class="item" data-step="lit"><i data-lucide="triangle-alert"></i><span>RAG কাছাকাছি কিন্তু ভুল পাতাও আনে; Chroma: এমন একটা পাতাই ফল খারাপ করে। ঠিক পাতা না এলে AI পড়বে কোথা থেকে?</span></div>
+    <div class="item" data-step="lit"><i data-lucide="triangle-alert"></i><span>NSU-র গবেষণা preprint, একটাই বিষয়ে; একটা ভুল setting-এ score <b class="accent n">৪৬.৪% → ৬.৩%</b></span></div>
+    <div class="item" data-step="lit"><i data-lucide="triangle-alert"></i><span>আমাদের token-অনুপাত শুধু OpenAI-এর tokenizer-এর; embedding model-এর tokenizer আলাদা</span></div>
+    <div class="item" data-step="lit"><i data-lucide="triangle-alert"></i><span>দাম বদলায়; এখানের সব দাম ৯ নভেম্বর ২০২৬-এর</span></div>
+  </div>
+  <div class="src"><i data-lucide="link"></i><span>Anthropic, Introducing Claude Opus 4.6 (৫ ফেব্রুয়ারি ২০২৬; MRCR v2, 8-needle, 1M; কোম্পানির দাবি) · Chroma, Context Rot (distractors) · NSU arXiv 2608.14886 (Gemini Dense R@10 ০.৪৬৪ → ০.০৬৩)</span></div>
+  <aside class="notes">
+    <p>[auto] কাচের কিনারে "সীমাবদ্ধতা" লেখা হয়।</p>
+    <p>এবার সীমাবদ্ধতা।</p>
+    <p>▶1 বেশিরভাগ গবেষণা ইংরেজিতে, ২০২৩ থেকে ২০২৫-এর model-এ। Model দ্রুত ভালো হচ্ছে: Anthropic-এর নিজের দাবি, ১০ লাখ token-এর এক পরীক্ষায় Opus 4.6 পেয়েছে ৭৬%, Sonnet 4.5 মাত্র ১৮.৫%।</p>
+    <p>▶2 RAG কাছাকাছি কিন্তু ভুল পাতাও আনে; Chroma দেখেছে, এমন একটা পাতাই ফল খারাপ করে। ঠিক পাতা না এলে AI সেটা পড়বে কোথা থেকে?</p>
+    <p>▶3 NSU-র গবেষণাটা preprint, একটাই বিষয়ে; একটা ভুল setting-এ তাদের score ৪৬% থেকে ৬%-এ নেমেছিল।</p>
+    <p>▶4 আমাদের token-এর অনুপাত শুধু OpenAI-এর tokenizer-এর; embedding model-এর tokenizer আলাদা।</p>
+    <p>▶5 দাম বদলায়; এগুলো ৯ নভেম্বর ২০২৬-এর।</p>
+  </aside>
+</section>
+
+<!-- S19 · নয়টা নিয়ম, এক টেবিলে -->
+<section class="s19">
+  <h2 data-enter="rise">নয়টা নিয়ম, এক টেবিলে</h2>
+  <div class="grid2 rules9">
+    <div class="item r9" data-step="lit"><span class="rn">১</span>নতুন বিষয়, নতুন chat</div>
+    <div class="item r9" data-step="lit"><span class="rn">২</span>বাংলায় টেবিল আগে ভরে</div>
+    <div class="item r9" data-step="lit"><span class="rn">৩</span>জরুরিটা শুরুতে বা শেষে</div>
+    <div class="item r9" data-step="lit"><span class="rn">৪</span>কাজের window মাপুন</div>
+    <div class="item r9" data-step="lit"><span class="rn">৫</span>বড় টেবিল, বড় বিল</div>
+    <div class="item r9" data-step="lit"><span class="rn">৬</span>ছোট হলে পুরোটা, বড় হলে RAG</div>
+    <div class="item r9" data-step="lit"><span class="rn">৭</span>টুকরোয় প্রসঙ্গ জুড়ুন</div>
+    <div class="item r9" data-step="lit"><span class="rn">৮</span>অর্থ আর শব্দ, দুটোয় খুঁজুন</div>
+    <div class="item r9" data-step="lit"><span class="rn">৯</span>user-এর ভাষায় test</div>
+  </div>
+  <div class="panel close19 w">
+    <p class="say">AI মনে রাখে না, সে পড়ে।</p>
+    <div class="row"><span class="chip">টেবিলে কম রাখুন</span><span class="chip">ঠিক রাখুন</span><span class="chip">জরুরিটা শুরুতে বা শেষে</span><span class="chip yellow">বাংলায় মেপে দেখুন</span></div>
+  </div>
+  <i class="cue" data-step="run" data-run="s19-10"></i>
+  <aside class="notes">
+    <p>নয়টা নিয়ম, এক টেবিলে।</p>
+    <p>▶1 নতুন বিষয়, নতুন chat।</p>
+    <p>▶2 বাংলায় টেবিল আগে ভরে।</p>
+    <p>▶3 জরুরিটা শুরুতে বা শেষে।</p>
+    <p>▶4 কাজের window মাপুন।</p>
+    <p>▶5 বড় টেবিল, বড় বিল।</p>
+    <p>▶6 ছোট হলে পুরোটা, বড় হলে RAG।</p>
+    <p>▶7 টুকরোয় প্রসঙ্গ জুড়ুন।</p>
+    <p>▶8 অর্থ আর শব্দ, দুটোয় খুঁজুন।</p>
+    <p>▶9 আর user-এর ভাষায় test।</p>
+    <p>▶10 AI মনে রাখে না, সে পড়ে। তাই টেবিলে কম রাখুন, ঠিক রাখুন, জরুরিটা শুরুতে বা শেষে, আর বাংলায় মেপে দেখুন।</p>
+  </aside>
+</section>
+
+<!-- S20 · কমেন্টে লিখুন -->
+<section class="s20">
+  <h2 data-enter="rise">কমেন্টে লিখুন</h2>
+  <div class="panel desk20 w">
+    <div class="item s20-c"><i data-lucide="message-circle"></i><span>আপনি AI-কে কোন document পড়াতে চান? কত পাতা, কোন ভাষায়?</span></div>
+    <div class="item s20-n"><i data-lucide="calculator"></i><span>সবটা টেবিলে আঁটবে, নাকি RAG লাগবে? হিসাব করে উত্তর দেব</span></div>
+  </div>
+  <div class="panel next20 w">
+    <div><small>পরের আলোচনা</small><br><b>RAG যে পাতা আনে, তাতে যদি লুকানো নির্দেশ থাকে?</b></div>
+    <div class="pgc page20"><i class="lines"></i><span class="ink">"আগের সব নির্দেশ ভুলে যাও…"</span><i class="beam"></i></div>
+  </div>
+  <i class="cue" data-enter="run" data-run="s20-in" data-delay="0"></i>
+  <i class="cue" data-step="run" data-run="s20-1"></i>
+  <i class="cue" data-step="run" data-run="s20-2"></i>
+  <i class="cue" data-step="run" data-run="s20-3"></i>
+  <aside class="notes">
+    <p>[auto] scan bar খালি টেবিল পড়তে পড়তে মাঝপথে থেমে যায়।</p>
+    <p>▶1 কমেন্টে লিখুন: আপনি AI-কে কোন document পড়াতে চান? কত পাতা, কোন ভাষায়?</p>
+    <p>▶2 সবটা টেবিলে আঁটবে, নাকি RAG লাগবে, হিসাব করে উত্তর দেব।</p>
+    <p>▶3 আর পরের আলোচনায়: RAG যে পাতা আনে, তাতে যদি কেউ লুকিয়ে নির্দেশ লিখে রাখে?</p>
+  </aside>
+</section>
+
+</div></div>
+
+<script src="../../vendor/gsap/gsap.min.js"></script>
+<script src="../../vendor/gsap/SplitText.min.js"></script>
+<script src="../../vendor/gsap/DrawSVGPlugin.min.js"></script>
+<script src="../../vendor/reveal/reveal.js"></script>
+<script src="../../vendor/reveal/notes.js"></script>
+<script src="../../vendor/lucide/lucide.min.js"></script>
+<script src="../../vendor/js-tiktoken/tokenizers.iife.js"></script>
+<script src="../../lib/deck.js"></script>
+<script src="../../lib/talk.js"></script>
+<script>
+// ---------- helpers ----------
+const V = Deck.vertical, NS = 'http://www.w3.org/2000/svg';
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const bn = (v, dp = 0) => Number(v).toLocaleString('bn-BD', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+// Layout offset inside `stop` (transforms and Reveal's scaling don't skew it).
+function pos(el, stop) { let x = 0, y = 0; for (let e = el; e && e !== stop; e = e.offsetParent) { x += e.offsetLeft; y += e.offsetTop; } return { x, y, w: el.offsetWidth, h: el.offsetHeight }; }
+const svgEl = (tag, at, parent, text) => { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); if (text != null) e.textContent = text; parent?.append(e); return e; };
+const BUILD = [];   // generated parts, built before Deck.start
+const RUN = {};     // per-Slide Steps: <i class="cue" data-step="run" data-run="name">
+Deck.preset('run', el => { const f = RUN[el.dataset.run]; if (!f) { console.error(`no RUN["${el.dataset.run}"]`); return gsap.timeline(); } return f(el, el.closest('section')); });
+
+// ---------- skin motion: light does the work ----------
+// A card lights up: it brightens out of the dark glass; the fade covers only the first 0.2 s.
+const lit = (el, o = {}) => gsap.timeline()
+  .fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: 'none', immediateRender: o.ir ?? true }, 0)
+  .fromTo(el, { y: o.y ?? 16, filter: 'brightness(0.3)' }, { y: 0, filter: 'brightness(1)', duration: o.d ?? 0.6, ease: 'softLand', immediateRender: o.ir ?? true }, 0);
+// The scan light reads a box from a to b (px along x, or y with axis 'y'). Several Steps may share one bar.
+function scanbar(box, axis = 'x') {
+  let bar = box.querySelector(':scope > .scan');
+  if (!bar) { box.classList.add('scanbox'); bar = document.createElement('i'); bar.className = `scan${axis === 'y' ? ' y' : ''}`; box.append(bar); }
+  return bar;
+}
+function sweep(box, a, b, dur, { axis = 'x', hold = false } = {}) {
+  const bar = scanbar(box, axis);
+  const tl = gsap.timeline()
+    .fromTo(bar, { [axis]: a }, { [axis]: b, duration: dur, ease: 'none', immediateRender: false }, 0)
+    .fromTo(bar, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.12, ease: 'none', immediateRender: false }, 0);
+  if (!hold) tl.fromTo(bar, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.25, ease: 'gentleIn', immediateRender: false }, dur);
+  return tl;
+}
+// A page that falls out of the window: dims and drops.
+const fall = (el, o = {}) => gsap.fromTo(el, { autoAlpha: 1, y: 0, filter: 'brightness(1)' },
+  { autoAlpha: 0, y: o.y ?? 50, filter: 'brightness(0.3)', duration: 0.45, ease: 'accelExit', immediateRender: false });
+Deck.preset('lit', el => lit(el));
+Deck.preset('read', el => gsap.timeline().add(lit(el), 0).add(sweep(el, 0, el.offsetWidth, 1.1), 0.3));
+Deck.preset('fall', el => fall(el));
+// From oversize, for points and marks (nothing grows from zero).
+const pop = (els, ir = true) => gsap.timeline()
+  .fromTo(els, { scale: 1.8, transformOrigin: '50% 50%' }, { scale: 1, duration: 0.4, ease: 'snapSettle', stagger: 0.09, immediateRender: ir }, 0)
+  .fromTo(els, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15, ease: 'none', stagger: 0.09, immediateRender: ir }, 0);
+// Number roll in Bengali digits; several Steps may share one element.
+function countTo(el, from, to, dur = 1, dp = 0, ease = 'glide') {
+  const o = { v: from };
+  return gsap.fromTo(o, { v: from }, { v: to, duration: dur, ease, immediateRender: false, onUpdate: () => { el.textContent = bn(o.v, dp); } });
+}
+const growX = (els, stagger = 0.15, d = 0.6) => gsap.fromTo(els, { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: d, ease: 'softLand', stagger });
+const growY = (els, stagger = 0.1, d = 0.6, ir = true) => gsap.fromTo(els, { scaleY: 0, transformOrigin: '50% 100%' }, { scaleY: 1, duration: d, ease: 'softLand', stagger, immediateRender: ir });
+
+// ---------- S1 · the reread pile ----------
+const CHAT1 = [['চায়ের দোকানের Facebook পেজের জন্য একটা নাম বলো।', '"ক্যাম্পাস চা কর্নার" কেমন? ছোট, আর মনে রাখা সহজ।'],
+  ['আরেকটু ছোট করো।', 'তাহলে শুধু "চা কর্নার"।']];
+BUILD.push(() => {
+  $('#pile1').innerHTML = Array.from({ length: 20 }, (_, i) => {
+    const [u, a] = CHAT1[i] || [];
+    const body = t => (t ? `<p>${esc(t)}</p>` : '<i class="lines"></i>');
+    return `<div class="turn"><div class="msg u pgc"><small>আপনি</small>${body(u)}</div><div class="msg a pgc"><small>AI</small>${body(a)}</div></div>`;
+  }).join('');
+});
+const S1 = V ? { big: 200, small: 28, gap: 3 } : { big: 280, small: 40, gap: 3 }, s1Size = V ? 'height' : 'width', s1Ax = V ? 'y' : 'x';
+const s1Len = 20 * S1.small + 19 * S1.gap;
+const s1Sweep = (sec, end, dur) => sweep($('.pilebox', sec), -80, end + 80, dur, { axis: s1Ax });
+RUN['s1-in'] = (el, sec) => {
+  const [u, a] = $('.turn', sec).children;
+  return gsap.timeline()
+    .add(lit(u), 0.2).add(s1Sweep(sec, S1.big, 0.7), 0.6)
+    .add(lit(a), 1.4).add(s1Sweep(sec, S1.big, 0.7), 1.8);
+};
+RUN['s1-1'] = (el, sec) => gsap.timeline()
+  .add(lit($('.tally', sec)), 0)
+  .add(s1Sweep(sec, S1.big, 0.8), 0.1)
+  .add(countTo($('#t1'), 0, 500, 0.8), 0.1);
+RUN['s1-2'] = (el, sec) => {
+  const t2 = $$('.turn', sec)[1];
+  return gsap.timeline()
+    .fromTo(t2, { [s1Size]: 0 }, { [s1Size]: S1.big, duration: 0.35, ease: 'softLand' }, 0)
+    .add(lit(t2.children[0]), 0.1).add(lit(t2.children[1]), 0.3)
+    .add(s1Sweep(sec, 2 * S1.big + S1.gap, 1.1), 0.6)
+    .add(countTo($('#t1'), 500, 1000, 1.1), 0.6);
+};
+RUN['s1-3'] = (el, sec) => {
+  const turns = $$('.turn', sec), tl = gsap.timeline();
+  turns.forEach((t, i) => tl.fromTo(t, { [s1Size]: i < 2 ? S1.big : 0 }, { [s1Size]: S1.small, duration: 0.5, ease: 'softLand', immediateRender: i >= 2 }, i < 2 ? 0 : 0.1 + i * 0.025));
+  return tl.add(s1Sweep(sec, s1Len, 2.2), 0.7).add(countTo($('#t1'), 1000, 10000, 2.2), 0.7);
+};
+RUN['s1-4'] = (el, sec) => {
+  const key = $('.keypg', sec), q = $('.qmark', sec), box = $('.pilebox', sec);
+  const mid = 9 * (S1.small + S1.gap) + S1.small / 2;
+  // Park the answer page over turn 10, the middle of the pile.
+  const kx = V ? (box.offsetWidth - key.offsetWidth) / 2 : mid - key.offsetWidth / 2, ky = V ? mid - key.offsetHeight / 2 : (box.offsetHeight - key.offsetHeight) / 2;
+  gsap.set(key, { left: kx, top: ky }); gsap.set(q, { left: kx + key.offsetWidth + 14, top: ky - 10 });
+  const dur = 2.4, hit = 0.6 + dur * (80 + mid) / (s1Len + 160);
+  return gsap.timeline()
+    .fromTo(key, { y: V ? 0 : -200, x: V ? 200 : 0, scale: 1.15, autoAlpha: 0 }, { y: 0, x: 0, scale: 1, autoAlpha: 1, duration: 0.55, ease: 'softLand' }, 0)
+    .add(s1Sweep(sec, s1Len, dur), 0.6)
+    .to(key, { opacity: 0.3, duration: 0.5, ease: 'softInOut' }, hit)
+    .fromTo(q, { autoAlpha: 0, scale: 1.6 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'snapSettle' }, hit + 0.15);
+};
+
+// ---------- S3 · the reread staircase (500 tokens a turn, an Illustration) ----------
+const S3U = V ? 8.5 : 7;   // px per 500 tokens
+BUILD.push(() => {
+  $('#stairs').innerHTML = Array.from({ length: 20 }, (_, i) => {
+    const k = i + 1, old = `<i class="old" style="height:${((k - 1) / k) * 100}%"></i>`;
+    return `<div class="c"><div class="bn" style="height:${k * S3U * 1.71}px">${old}</div><div class="en" style="height:${k * S3U}px"><i class="new"></i>${old}</div>`
+      + ([1, 5, 10, 15, 20].includes(k) ? `<span class="lab">${bn(k)}</span>` : '')
+      + (k === 20 ? `<b class="top" style="bottom:${k * S3U * 1.71 + 12}px">১০,০০০</b>` : '') + '</div>';
+  }).join('');
+});
+RUN['s3-1'] = (el, sec) => gsap.timeline()
+  .add(lit($('.t3a', sec)), 0)
+  .add(growY($$('.en', sec).slice(0, 5), 0.09, 0.45), 0.1).add(countTo($('#t3'), 0, 7500, 0.6), 0.1);
+RUN['s3-2'] = (el, sec) => gsap.timeline()
+  .add(growY($$('.en', sec).slice(5), 0.04, 0.45), 0).add(countTo($('#t3'), 7500, 105000, 0.9), 0)
+  .fromTo($('.c .top', sec), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'softLand' }, 0.75);
+RUN['s3-3'] = (el, sec) => gsap.timeline().add(growY($$('.bn', sec), 0.03, 0.45), 0).add(lit($('.t3b', sec)), 0.5);
+RUN['s3-4'] = (el, sec) => lit($('.s3-fix .f1', sec));
+RUN['s3-5'] = (el, sec) => gsap.timeline().add(lit($('.s3-fix .f2', sec)), 0)
+  .fromTo($$('.en .old', sec), { opacity: 1 }, { opacity: 0.25, duration: 0.5, ease: 'softInOut', stagger: 0.02 }, 0.2)
+  .fromTo($$('.bn .old', sec), { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'softInOut', stagger: 0.02 }, 0.2);
+
+// ---------- S4 · the desk grew (camera pulls back; area ∝ tokens) ----------
+const S4 = V ? { W: 760, H: 400 } : { W: 600, H: 400 }, S4c0 = 8, S4c1 = 3;
+const K100 = Math.sqrt(0.1), K4 = Math.sqrt(0.004);
+const s4cam = (sec, c) => { const w = $('.world', sec); w.style.transform = `scale(${c})`; w.style.setProperty('--cam', c); };
+BUILD.push(() => {
+  const sec = $('section.s4');
+  [['.r1m', 1], ['.r100k', K100], ['.r4k', K4]].forEach(([s, k]) => gsap.set($(s, sec), { width: S4.W * k, height: S4.H * k }));
+  s4cam(sec, S4c0);
+  // Pages poured on the 1M desk in ▶5 (positions are an Illustration).
+  const r = Deck.seeded(41), box = $('.pour', sec);
+  box.innerHTML = Array.from({ length: 12 }, (_, i) => {
+    const x = (0.36 + (i % 4) * 0.15 + r() * 0.08) * S4.W - 30, y = (0.08 + Math.floor(i / 4) * 0.26 + r() * 0.05) * S4.H;
+    return `<i style="left:${x.toFixed(0)}px;top:${y.toFixed(0)}px;rotate:${(r() * 26).toFixed(1)}deg"></i>`;
+  }).join('');
+});
+// The tiny desk switches on; each larger desk lights up while the camera pulls back.
+RUN['s4-in'] = (el, sec) => lit($('.r4k', sec), { y: 0 });
+RUN['s4-1'] = (el, sec) => lit($('.l4k', sec));
+function s4grow(sec, sel, k, c0, c1) {
+  const p = { c: c0 }, cut = `${((1 - k) * 100).toFixed(2)}%`;
+  return gsap.timeline()
+    .add(lit($(sel, sec), { y: 0, d: 0.9 }), 0)
+    .fromTo($(sel, sec), { clipPath: `inset(0% ${cut} ${cut} 0%)` }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.1, ease: 'glide' }, 0)
+    .fromTo(p, { c: c0 }, { c: c1, duration: 1.2, ease: 'glide', immediateRender: false, onUpdate: () => s4cam(sec, p.c) }, 0);
+}
+RUN['s4-2'] = (el, sec) => s4grow(sec, '.r100k', K4 / K100, S4c0, S4c1).add(lit($('.l100k', sec)), 0.9);
+RUN['s4-3'] = (el, sec) => s4grow(sec, '.r1m', K100, S4c1, 1).add(lit($('.l1m', sec)), 0.9);
+RUN['s4-5'] = (el, sec) => gsap.timeline()
+  .fromTo($$('.pour i', sec), { y: -70, scale: 1.25, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.4, ease: 'softLand', stagger: { each: 0.05, from: 'random' } }, 0)
+  .add(lit($('.s4-q', sec)), 0.5);
+
+// ---------- S5 · FIFO desks, English vs Bangla (desk size is an Illustration; token counts are real, GPT-4o+ tokenizer) ----------
+const CHAT5 = {
+  en: ['From now on, always reply in Bangla, and keep every answer under three lines.', 'Sure. I will reply in Bangla and keep it short.',
+    'I run a small tea stall near the university. Suggest a name for my Facebook page.', "How about 'Campus Cha Corner'? It is short, local and easy to remember.",
+    'Nice. Now write a first post announcing our new ginger tea at twenty taka.', 'New at Campus Cha Corner: fresh ginger tea, only twenty taka a cup. Come try it after class!',
+    'Make a second version for the rainy season, mention hot singara too.', 'Rain outside, warmth inside: hot ginger tea and crispy singara are waiting at Campus Cha Corner.'],
+  bn: ['এখন থেকে সব উত্তর বাংলায় দেবে, আর প্রতিটা উত্তর তিন লাইনের মধ্যে রাখবে।', 'ঠিক আছে। আমি বাংলায় উত্তর দেব, আর ছোট করে।',
+    'আমার বিশ্ববিদ্যালয়ের পাশে একটা ছোট চায়ের দোকান আছে। Facebook পেজের জন্য একটা নাম বলো।', "'ক্যাম্পাস চা কর্নার' কেমন? ছোট, এলাকার, আর মনে রাখা সহজ।",
+    'ভালো। এবার বিশ টাকার নতুন আদা-চা নিয়ে প্রথম পোস্টটা লিখে দাও।', 'ক্যাম্পাস চা কর্নারে নতুন: তাজা আদা-চা, কাপ মাত্র বিশ টাকা। ক্লাসের পরে চলে আসুন!',
+    'বর্ষার জন্য আরেকটা version বানাও, গরম সিঙ্গারার কথাও বলো।', 'বাইরে বৃষ্টি, ভেতরে উষ্ণতা: ক্যাম্পাস চা কর্নারে অপেক্ষা করছে গরম আদা-চা আর মচমচে সিঙ্গারা।'],
+};
+const S5 = { cap: 120, live: 500, tray: V ? 820 : 328 }, S5ax = V ? 'x' : 'y', S5len = V ? 'width' : 'height';
+const ntok = { gpt4o: t => Tokenizers.gpt4o.encode(t).length, gpt4: t => Tokenizers.gpt4.encode(t).length };
+const S5N = { en: CHAT5.en.map(ntok.gpt4o), bn: CHAT5.bn.map(ntok.gpt4o) };
+// First in, first out: after k messages, which are still on the desk and where (in tokens from the top / left rim).
+function fifo(ns, cap, k) {
+  let start = 0, total = 0;
+  for (let i = 0; i < k; i++) { total += ns[i]; while (total > cap && start < i) total -= ns[start++]; }
+  const off = {}; let acc = 0;
+  for (let i = start; i < k; i++) { off[i] = acc; acc += ns[i]; }
+  return { start, off, total: acc };
+}
+const msgHTML = (t, i, n) => `<div class="msg5${i % 2 ? ' ai' : ''}${i === 0 ? ' key' : ''}"><small>${i % 2 ? 'AI' : 'আপনি'} · ${bn(n)}</small><p>${esc(t)}</p></div>`;
+BUILD.push(() => {
+  const sec = $('section.s5'), ppt = S5.tray / S5.cap;
+  for (const lang of ['en', 'bn']) {
+    const box = $(`.dk[data-lang=${lang}] .sim-l`, sec);
+    box.innerHTML = CHAT5[lang].map((t, i) => msgHTML(t, i, S5N[lang][i])).join('');
+    [...box.children].forEach((el, i) => { el.style[S5len] = `${S5N[lang][i] * ppt - 3}px`; });
+  }
+});
+const meterTo = (el, from, to, cap) => { const o = { v: from };
+  return gsap.fromTo(o, { v: from }, { v: to, duration: 0.4, ease: 'glide', immediateRender: false, onUpdate: () => { el.textContent = `${bn(o.v)} / ${bn(cap)} token`; } }); };
+// One message lights up on both desks: older ones slide toward the rim; any that no longer fit dim and drop out of the window.
+function s5add(sec, k) {
+  const tl = gsap.timeline(), px = v => v * S5.tray / S5.cap;
+  for (const lang of ['en', 'bn']) {
+    const ns = S5N[lang], a = fifo(ns, S5.cap, k - 1), b = fifo(ns, S5.cap, k), sheets = $$(`.dk[data-lang=${lang}] .sim-l .msg5`, sec);
+    for (let i = 0; i < k; i++) {
+      const el = sheets[i];
+      if (i === k - 1) tl.fromTo(el, { [S5ax]: px(b.off[i]), autoAlpha: 0, filter: 'brightness(0.3)' }, { [S5ax]: px(b.off[i]), autoAlpha: 1, filter: 'brightness(1)', duration: 0.5, ease: 'softLand' }, 0.1);
+      else if (i in b.off) { if (a.off[i] !== b.off[i]) tl.fromTo(el, { [S5ax]: px(a.off[i]) }, { [S5ax]: px(b.off[i]), duration: 0.4, ease: 'softLand', immediateRender: false }, 0.1); }
+      else if (i in a.off) tl.fromTo(el, { [S5ax]: px(a.off[i]), autoAlpha: 1, filter: 'brightness(1)', rotation: 0 },
+        { [S5ax]: px(a.off[i]) - 50, autoAlpha: 0, filter: 'brightness(0.3)', rotation: -4, duration: 0.55, ease: 'accelExit', immediateRender: false }, 0);
+    }
+    tl.add(meterTo($(`.dk[data-lang=${lang}] .meter`, sec), a.total, b.total, S5.cap), 0.1);
+  }
+  return tl;
+}
+RUN['s5-1'] = (el, sec) => lit($('.exp-card', sec));
+RUN['s5-2'] = (el, sec) => gsap.timeline().add(lit($$('.r-en, .r-o', sec)), 0).add(growX($$('.r-en .bar, .r-o .bar', sec), 0.12), 0.1);
+RUN['s5-3'] = (el, sec) => gsap.timeline().add(lit($('.r-c', sec)), 0).add(growX($('.r-c .bar', sec), 0, 0.9), 0.1);
+RUN['s5-4'] = (el, sec) => {
+  const tl = gsap.timeline()
+    .add(fall($('.exp', sec), { y: 40 }), 0)
+    .add(lit($('.s5-eg', sec)), 0.3).add(lit($('.desks', sec)), 0.35);
+  for (let k = 1; k <= 5; k++) tl.add(s5add(sec, k), 0.75 + (k - 1) * 0.42);
+  return tl;
+};
+RUN['s5-5'] = (el, sec) => s5add(sec, 6);
+RUN['s5-6'] = (el, sec) => gsap.timeline().add(s5add(sec, 7), 0).add(s5add(sec, 8), 0.6);
+RUN['s5-7'] = (el, sec) => lit($('.n7', sec));
+RUN['s5-8'] = (el, sec) => lit($('.n8', sec));
+// Demo opens: the simulated messages leave, the desks switch to live text (desk = 500 tokens, an Illustration).
+const LIVE = { en: [], bn: [] }; let ENC5 = 'gpt4o';
+function s5mode(sec, live) {
+  $('.s5-eg .cap', sec).textContent = bn(live ? S5.live : S5.cap);
+  $$('.live-l', sec).forEach(l => { l.style.visibility = live ? 'visible' : 'hidden'; });
+  for (const lang of ['en', 'bn']) {
+    if (live) s5layout(sec, lang);
+    else $(`.dk[data-lang=${lang}] .meter`, sec).textContent = `${bn(fifo(S5N[lang], S5.cap, 8).total)} / ${bn(S5.cap)} token`;
+  }
+}
+RUN['s5-9'] = (el, sec) => {
+  let shown = null;
+  return gsap.timeline()
+    .add(fall($$('.sim-l', sec), { y: 30 }), 0)
+    .add(lit($('.demo', sec)), 0.2)
+    .fromTo({ v: 0 }, { v: 0 }, { v: 1, duration: 0.01, immediateRender: false, onUpdate() { const on = this.progress() > 0; if (on !== shown) { shown = on; s5mode(sec, on); } } }, 0.3);
+};
+function s5layout(sec, lang, fresh) {
+  const list = LIVE[lang], ppt = S5.tray / S5.live, ns = list.map(m => m.n[ENC5]), st = fifo(ns, S5.live, list.length);
+  list.forEach((m, i) => {
+    const len = Math.max(Math.min(ns[i] * ppt, S5.tray) - 3, 6);
+    $('small', m.el).textContent = `${bn(ns[i])} token`;
+    if (i < st.start) {
+      if (m.on) gsap.to(m.el, { [S5ax]: '-=50', autoAlpha: 0, filter: 'brightness(0.3)', duration: 0.55, ease: 'accelExit' });
+      m.on = false; return;
+    }
+    if (m === fresh || !m.on) gsap.fromTo(m.el, { [S5ax]: st.off[i] * ppt, autoAlpha: 0, filter: 'brightness(0.3)', [S5len]: len }, { [S5ax]: st.off[i] * ppt, autoAlpha: 1, filter: 'brightness(1)', duration: 0.5, ease: 'softLand' });
+    else gsap.to(m.el, { [S5ax]: st.off[i] * ppt, [S5len]: len, duration: 0.4, ease: 'softLand' });
+    m.on = true;
+  });
+  $(`.dk[data-lang=${lang}] .meter`, sec).textContent = `${bn(st.total)} / ${bn(S5.live)} token`;
+}
+BUILD.push(() => {
+  const sec = $('section.s5'), ta = $('#s5in');
+  const add = text => {
+    text = text.trim(); if (!text) return;
+    const lang = (text.match(/[ঀ-৿]/g) || []).length > (text.match(/[A-Za-z]/g) || []).length ? 'bn' : 'en';
+    const box = $(`.dk[data-lang=${lang}] .live-l`, sec);
+    box.insertAdjacentHTML('beforeend', msgHTML(text, LIVE[lang].length, 0));
+    const m = { el: box.lastElementChild, n: { gpt4o: ntok.gpt4o(text), gpt4: ntok.gpt4(text) }, on: false };
+    m.el.classList.remove('key');
+    LIVE[lang].push(m); s5layout(sec, lang, m);
+  };
+  Talk.field(ta);   // typing doesn't move the Deck; Esc gives the keys back
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); add(ta.value); ta.value = ''; } });
+  $$('.chip[data-enc]', sec).forEach(b => b.addEventListener('click', () => {
+    ENC5 = b.dataset.enc; $$('.chip[data-enc]', sec).forEach(c => c.classList.toggle('on', c === b)); b.blur();
+    $('.s5-eg .encn', sec).textContent = ENC5 === 'gpt4o' ? 'GPT-4o+' : 'GPT-4';
+    ['en', 'bn'].forEach(l => s5layout(sec, l));
+  }));
+  $('#s5clear').addEventListener('click', e => { e.currentTarget.blur(); for (const l of ['en', 'bn']) { LIVE[l].forEach(m => m.el.remove()); LIVE[l] = []; s5layout(sec, l); } });
+});
+
+// ---------- S6 · 20 Wikipedia pages; the answer page walks 1 → 5 → 10 → 15 → 20 ----------
+const s6slot = i => (V ? { x: (i % 5) * 172 + 4, y: Math.floor(i / 5) * 172 + 6 } : { x: i * 58 + 4, y: 30 });
+BUILD.push(() => {
+  const r = Deck.seeded(66);
+  $('#fan6').innerHTML = Array.from({ length: 20 }, (_, i) => { const p = s6slot(i);
+    return `<div class="pgc pg" style="left:${p.x}px;top:${p.y + r() * 20}px;rotate:${(r() * 7).toFixed(1)}deg"><i class="lines"></i></div>`
+      + `<b class="pgn" style="left:${p.x + (V ? 65 : 50)}px;top:${p.y + (V ? 150 : 180)}px">${bn(i + 1)}</b>`; }).join('')
+    + `<div class="pgc pg key ans" style="left:${s6slot(0).x}px;top:${s6slot(0).y}px"><span>উত্তর</span><i class="lines"></i></div>`;
+});
+RUN['s6-3'] = (el, sec) => gsap.timeline()
+  .fromTo($$('.pg:not(.ans), .pgn', sec), { y: -30, autoAlpha: 0, filter: 'brightness(0.3)' }, { y: 0, autoAlpha: 1, filter: 'brightness(1)', duration: 0.35, ease: 'softLand', stagger: 0.035 }, 0)
+  .add(lit($('.pg.ans', sec), { y: -40 }), 0.75);
+RUN['s6-4'] = (el, sec) => {
+  const a = $('.pg.ans', sec), o = s6slot(0), tl = gsap.timeline();
+  let prev = { x: 0, y: 0 };
+  [4, 9, 14, 19].forEach((i, k) => {
+    const p = s6slot(i), to = { x: p.x - o.x, y: p.y - o.y }, t = k * 0.9;
+    tl.fromTo(a, { x: prev.x, y: prev.y }, { x: to.x, y: to.y, duration: 0.5, ease: 'softInOut', immediateRender: false }, t)
+      .fromTo(a, { scale: 1 }, { scale: 1.12, duration: 0.25, ease: 'glide', yoyo: true, repeat: 1, immediateRender: false }, t);
+    prev = to;
+  });
+  return tl;
+};
+// ---------- S7 · Lost in the Middle U-curve (Liu et al. Table 6 / Table 1) ----------
+const U7 = [[1, 75.8], [5, 57.2], [10, 53.8], [15, 55.4], [20, 63.2]], CLOSED7 = 56.1, ORACLE7 = 88.3;
+const C7 = V ? { W: 832, H: 700, x0: 96, top: 40, bot: 610 } : { W: 1228, H: 560, x0: 100, top: 40, bot: 470 };
+const x7 = p => C7.x0 + ((p - 1) / 19) * (C7.W - 50 - C7.x0), y7 = v => C7.top + ((95 - v) / 57) * (C7.bot - C7.top);
+const acc7 = p => { for (let i = 1; i < U7.length; i++) if (p <= U7[i][0]) { const [a, va] = U7[i - 1], [b, vb] = U7[i]; return va + ((p - a) / (b - a)) * (vb - va); } return U7.at(-1)[1]; };
+BUILD.push(() => {
+  const s = $('#u7'), { W, H, x0, bot } = C7;
+  Object.assign(s.style, { width: `${W}px`, height: `${H}px` }); s.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const g = svgEl('g', { class: 'frame' }, s);
+  [50, 60, 70, 80, 90].forEach(v => { svgEl('line', { class: 'grid', x1: x0, x2: W - 20, y1: y7(v), y2: y7(v) }, g); svgEl('text', { x: x0 - 16, y: y7(v) + 8, 'text-anchor': 'end' }, g, `${bn(v)}%`); });
+  svgEl('line', { class: 'axis', x1: x0, x2: W - 20, y1: bot, y2: bot }, g);
+  [1, 5, 10, 15, 20].forEach(p => svgEl('text', { x: x7(p), y: bot + 34, 'text-anchor': 'middle' }, g, bn(p)));
+  svgEl('text', { x: x0, y: bot + 74 }, g, 'উত্তরের পাতা কত নম্বরে (২০টার মধ্যে) →');
+  svgEl('text', { x: x0 - 70, y: C7.top - 12 }, g, 'ঠিক উত্তর');
+  svgEl('polyline', { class: 'ln u', points: U7.map(([p, v]) => `${x7(p)},${y7(v)}`).join(' ') }, s);
+  U7.forEach(([p, v]) => { const pg = svgEl('g', { class: `pt-g p${p}` }, s);
+    svgEl('circle', { class: 'pt', cx: x7(p), cy: y7(v), r: 11 }, pg);
+    const lab = { 1: [18, -18, 'start'], 5: [18, -18, 'start'], 10: [0, 46, 'middle'], 15: [0, 46, 'middle'], 20: [20, -24, 'end'] }[p];
+    svgEl('text', { class: 'val', x: x7(p) + lab[0], y: y7(v) + lab[1], 'text-anchor': lab[2] }, pg, `${bn(v, 1)}%`); });
+  const cb = svgEl('g', { class: 'cb' }, s);
+  svgEl('line', { class: 'dash', x1: x0, x2: W - 20, y1: y7(CLOSED7), y2: y7(CLOSED7) }, cb);
+  svgEl('text', { class: 'val', x: W - 20, y: y7(CLOSED7) + 38, 'text-anchor': 'end', style: 'font-size:24px' }, cb, `পাতা ছাড়া · ${bn(CLOSED7, 1)}%`);
+  const ring = svgEl('g', { class: 'mid' }, s);
+  svgEl('ellipse', { class: 'ring', cx: x7(10), cy: y7(53.8) + 18, rx: 64, ry: 50 }, ring);
+  svgEl('text', { class: 'val', x: x7(10), y: y7(53.8) + 98, 'text-anchor': 'middle', style: `font-size:26px;fill:${'#fde047'}` }, ring, 'না দেওয়ার চেয়েও খারাপ');
+  const or = svgEl('g', { class: 'or' }, s);
+  svgEl('line', { class: 'dash', x1: x0, x2: W - 20, y1: y7(ORACLE7), y2: y7(ORACLE7) }, or);
+  svgEl('text', { class: 'val', x: x0 + 14, y: y7(ORACLE7) - 14, style: 'font-size:24px' }, or, `শুধু ঠিক পাতাটা একা · ${bn(ORACLE7, 1)}%`);
+});
+const drawIn = (els, d = 0.6, st = 0.05) => gsap.fromTo(els, { drawSVG: '0%' }, { drawSVG: '100%', duration: d, ease: 'softInOut', stagger: st });
+const fadeIn = (els, st = 0.02) => gsap.fromTo(els, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, stagger: st });
+const labelIn = el => gsap.fromTo(el, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'softLand' });
+// The tag on top gives way to the rule card: the rule lights up in its place.
+const ontoTag = (sec, rule, tag) => gsap.timeline().add(lit($(rule, sec)), 0.1).add(fall($(tag, sec), { y: -20 }), 0);
+RUN['s7-in'] = (el, sec) => gsap.timeline().add(lit($('.s7-tag', sec)), 0)
+  .add(drawIn($$('#u7 .frame line', sec)), 0.1).add(fadeIn($$('#u7 .frame text', sec)), 0.3);
+RUN['s7-1'] = (el, sec) => pop($('.p1', sec));
+RUN['s7-2'] = (el, sec) => pop($('.p20', sec));
+RUN['s7-3'] = (el, sec) => {
+  const box = $('#cb7', sec), scan = scanbar(box), lamp = $('.lamp', sec), o = { t: 0 };
+  const dark = v => (0.55 * (75.8 - v)) / (75.8 - 53.8);
+  lamp.style.background = `linear-gradient(90deg, ${U7.map(([p, v]) => `rgba(7,11,20,${dark(v).toFixed(3)}) ${((x7(p) / C7.W) * 100).toFixed(1)}%`).join(', ')})`;
+  return gsap.timeline()
+    .add(pop($$('.p5, .p10, .p15', sec)), 0)
+    .add(drawIn($('#u7 .u', sec), 0.9), 0.25)
+    // The reading light: its brightness follows the measured curve as it crosses positions 1 → 20.
+    .fromTo(o, { t: 0 }, { t: 1, duration: 2.4, ease: 'none', immediateRender: false, onUpdate: () => {
+      const p = 1 + o.t * 19, on = o.t > 0 && o.t < 1;
+      gsap.set(scan, { x: x7(p), autoAlpha: on ? 0.12 + (0.88 * (acc7(p) - 53.8)) / (75.8 - 53.8) : 0 }); } }, 0.4)
+    .fromTo(lamp, { opacity: 0 }, { opacity: 1, duration: 0.9, ease: 'softInOut' }, 1.3);
+};
+RUN['s7-4'] = (el, sec) => gsap.timeline().add(drawIn($('.cb line', sec)), 0).add(labelIn($('.cb text', sec)), 0.3);
+RUN['s7-5'] = (el, sec) => gsap.timeline().add(drawIn($('.mid ellipse', sec), 0.55), 0).add(labelIn($('.mid text', sec)), 0.35);
+RUN['s7-6'] = (el, sec) => gsap.timeline().add(drawIn($('.or line', sec)), 0).add(labelIn($('.or text', sec)), 0.3);
+RUN['s7-7'] = (el, sec) => ontoTag(sec, '.s7-rule', '.s7-tag');
+
+// ---------- S8 · NoLiMa accuracy vs length (Table 3), claimed windows far right ----------
+const N8 = [['GPT-4o', [99.3, 98.1, 98.0, 95.7, 89.2, 81.6, 69.7], '#7dd3fc', 'none'], ['Llama 3.3 70B', [97.3, 94.2, 87.4, 81.5, 72.1, 59.5, 42.7], '#60a5fa', '16 10'],
+  ['Claude 3.5 Sonnet', [87.5, 85.4, 84.0, 77.6, 61.7, 45.7, 29.8], '#94a3b8', '2 11']];
+const C8 = V ? { W: 832, H: 420, x0: 80 } : { W: 1228, H: 320, x0: 90 };
+const x8 = v => C8.x0 + ((v + 1) / 8.9) * (C8.W - 30 - C8.x0), y8 = p => 20 + ((100 - p) / 100) * (C8.H - 100), b8 = C8.H - 80;
+BUILD.push(() => {
+  const s = $('#c8'), { W, H, x0 } = C8, bot = b8;
+  Object.assign(s.style, { width: `${W}px`, height: `${H}px` }); s.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const band = svgEl('g', { class: 'claim' }, s);
+  svgEl('rect', { class: 'band', x: x8(5) + 14, y: 20, width: x8(7.64) - x8(5) - 4, height: bot - 20, rx: 10 }, band);
+  svgEl('text', { x: x8(5) + (x8(7) - x8(5)) * 0.42, y: 60, 'text-anchor': 'middle' }, band, '৩২K-এর পরে');
+  svgEl('text', { x: x8(5) + (x8(7) - x8(5)) * 0.42, y: 88, 'text-anchor': 'middle' }, band, 'মাপা হয়নি');
+  [[7, 'GPT-4o, Llama', '১২৮K'], [Math.log2(200), 'Claude', '২০০K']].forEach(([v, t, k]) => {
+    svgEl('line', { class: 'dash', x1: x8(v), x2: x8(v), y1: 20, y2: bot }, band);
+    svgEl('text', { class: 'val', style: 'font-size:18px', transform: `translate(${x8(v) - 10},${bot - 12}) rotate(-90)` }, band, t);
+    svgEl('text', { x: x8(v), y: bot + 32, 'text-anchor': 'middle' }, band, k);
+  });
+  const g = svgEl('g', { class: 'frame' }, s);
+  [0, 25, 50, 75, 100].forEach(v => { svgEl('line', { class: 'grid', x1: x0, x2: x8(5) + 10, y1: y8(v), y2: y8(v) }, g); svgEl('text', { x: x0 - 14, y: y8(v) + 8, 'text-anchor': 'end' }, g, `${bn(v)}%`); });
+  svgEl('line', { class: 'axis', x1: x0, x2: W - 20, y1: bot, y2: bot }, g);
+  ['ছোট', '১K', '২K', '৪K', '৮K', '১৬K', '৩২K'].forEach((t, i) => svgEl('text', { x: x8(i - 1), y: bot + 32, 'text-anchor': 'middle' }, g, t));
+  svgEl('text', { x: x0, y: bot + 68 }, g, 'লেখার দৈর্ঘ্য (token, log) →');
+  const leg = $('.s8-leg');
+  N8.forEach(([name, vals, col, dash], m) => {
+    const lg = svgEl('g', { class: `m8 m8-${m}` }, s);
+    svgEl('polyline', { class: 'l8', stroke: col, 'stroke-dasharray': dash, points: vals.map((v, i) => `${x8(i - 1)},${y8(v)}`).join(' ') }, lg);
+    vals.forEach((v, i) => svgEl('circle', { fill: col, cx: x8(i - 1), cy: y8(v), r: i === 0 || i === 6 ? 9 : 6 }, lg));
+    svgEl('text', { class: 'val', x: x8(5) + 16, y: y8(vals[6]) + 9, style: 'font-size:22px' }, lg, `${bn(vals[6], 1)}%`);
+    leg.insertAdjacentHTML('beforeend', `<span class="li8"><svg viewBox="0 0 46 12"><line x1="2" y1="6" x2="44" y2="6" stroke="${col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${dash === 'none' ? '' : dash.replace(/\d+/g, n => n / 2)}"/></svg>${name} <b>${bn(vals[0], 1)}% → ${bn(vals[6], 1)}%</b></span>`);
+  });
+});
+RUN['s8-in'] = (el, sec) => gsap.timeline().add(lit($('.s8-tag', sec)), 0)
+  .add(drawIn($$('#c8 .frame line', sec)), 0.1).add(fadeIn($$('#c8 .frame text', sec)), 0.3);
+RUN['s8-1'] = (el, sec) => gsap.timeline().add(lit($('.s8-needle', sec)), 0).add(lit($('.s8-qq', sec)), 0.25)
+  .add(drawIn($$('.s8-link path', sec), 0.5, 0.3), 0.5).add(fadeIn($('.s8-link text', sec)), 0.8);
+const s8line = m => (el, sec) => { const g = $(`.m8-${m}`, sec);
+  return gsap.timeline()
+    .add(drawIn($('polyline', g), 0.9), 0)
+    .add(pop($$('circle', g)), 0.05).add(pop($('text', g)), 0.85)
+    .add(labelIn($$('.li8', sec)[m]), 0.3); };
+RUN['s8-2'] = s8line(0); RUN['s8-3'] = s8line(1); RUN['s8-4'] = s8line(2);
+RUN['s8-5'] = (el, sec) => lit($('#c8 .claim', sec), { y: 0 });
+RUN['s8-6'] = (el, sec) => gsap.timeline().add(fall($('.s8-ex', sec), { y: 30 }), 0).add(lit($('.s8-ruler', sec)), 0.2);
+RUN['s8-7'] = (el, sec) => ontoTag(sec, '.s8-rule', '.s8-tag');
+
+// ---------- S9 · blank pages pile on; the found page dims ----------
+BUILD.push(() => {
+  const r = Deck.seeded(9), box = $('.s9-pile'), W = V ? 832 : 568, H = V ? 300 : 560;
+  box.insertAdjacentHTML('beforeend', Array.from({ length: 16 }, (_, i) =>
+    `<div class="pgc blank9" style="left:${((0.5 + r()) * (W - 220)).toFixed(0)}px;top:${((0.5 + r()) * (H - 280)).toFixed(0)}px;rotate:${(r() * 18).toFixed(1)}deg;z-index:${2 + i}"></div>`).join(''));
+});
+RUN['s9-in'] = (el, sec) => lit($('.s9-found', sec));
+RUN['s9-1'] = (el, sec) => gsap.timeline().add(lit($('.s9-tag', sec)), 0).add(pop($('.s9-ok', sec)), 0.3);
+RUN['s9-2'] = (el, sec) => gsap.timeline()
+  .fromTo($$('.blank9', sec), { y: -60, autoAlpha: 0, filter: 'brightness(0.3)' }, { y: 0, autoAlpha: 1, filter: 'brightness(1)', duration: 0.35, ease: 'softLand', stagger: 0.09 }, 0)
+  .fromTo($$('.s9-found, .s9-ok', sec), { opacity: 1 }, { opacity: 0.3, duration: 1.4, ease: 'none', immediateRender: false }, 0.2);
+RUN['s9-3'] = (el, sec) => lit($('.s9-range', sec));
+RUN['s9-4'] = (el, sec) => lit($('.s9-chroma', sec));
+RUN['s9-5'] = (el, sec) => lit($('.s9-quote', sec));
+
+// ---------- S10 · time to first token, played in real time; the daily bill (an Illustration on official prices) ----------
+const ttft = (sec, row, dur) => { const r = $(row, sec), ts = $('.ts', r), i = $('.ts i', r);
+  return gsap.timeline().add(lit(r), 0)
+    .fromTo(i, { x: 0, opacity: 0 }, { x: ts.offsetWidth, opacity: 1, duration: dur, ease: 'none' }, 0.35)
+    .fromTo(i, { opacity: 1 }, { opacity: 0, duration: 0.2, immediateRender: false }, 0.35 + dur)
+    .add(countTo($('.tv', r), 0, dur, dur, 1, 'none'), 0.35); };
+RUN['s10-1'] = (el, sec) => ttft(sec, '.r10', 1.6);
+RUN['s10-2'] = (el, sec) => ttft(sec, '.r100', 11.5);
+RUN['s10-3'] = (el, sec) => lit($('.s10-q', sec));
+RUN['s10-4'] = (el, sec) => lit($('.s10-oai', sec));
+const billRow = (sec, row, to) => { const r = $(row, sec);
+  return gsap.timeline().add(lit(r), 0).add(growX($('.bb', r), 0, 0.7), 0.1).add(countTo($('.bv', r), 0, to, 0.8), 0.1); };
+RUN['s10-5'] = (el, sec) => gsap.timeline().add(lit($('.bill', sec)), 0).add(billRow(sec, '.b1', 2000), 0.2);
+RUN['s10-6'] = (el, sec) => billRow(sec, '.b2', 100);
+RUN['s10-7'] = (el, sec) => billRow(sec, '.b3', 32);
+
+// ---------- S11 · 21M chunks; five pages lift out onto the desk ----------
+BUILD.push(() => {
+  const r = Deck.seeded(11), n = 5, w = V ? 230 : 250;
+  $('.s11 .picks').innerHTML = Array.from({ length: n }, (_, i) =>
+    `<div class="pgc pick" style="left:${(i * (w - 86) / (n - 1)).toFixed(0)}px;top:${(16 + r() * 30).toFixed(0)}px;rotate:${(r() * 10).toFixed(1)}deg"><i class="lines"></i></div>`).join('');
+});
+RUN['s11-4'] = (el, sec) => { const d = $('.dout', sec);
+  return gsap.timeline().add(lit($('.s11-sim', sec)), 0)
+    .fromTo($('.slivers', d), { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 0.8, ease: 'softLand' }, 0.2)
+    .add(lit($('.dout-lab', d)), 0.7); };
+RUN['s11-5'] = (el, sec) => { const d = pos($('.dout', sec), sec), cx = d.x + d.w / 2 - 43, cy = d.y + d.h / 2 - 58;
+  return gsap.timeline().add(lit($('.a0', sec), { y: 0 }), 0)
+    .fromTo($$('.pick', sec), { x: (i, t) => cx - pos(t, sec).x, y: (i, t) => cy - pos(t, sec).y, autoAlpha: 0, filter: 'brightness(0.3)' },
+      { x: 0, y: 0, autoAlpha: 1, filter: 'brightness(1)', duration: 0.6, ease: 'softLand', stagger: 0.12 }, 0.1); };
+RUN['s11-6'] = (el, sec) => gsap.timeline().add(lit($('.a1', sec), { y: 0 }), 0).add(lit($('.s11-q', sec)), 0.15)
+  .add(lit($('.a2', sec), { y: 0 }), 0.6).add(lit($('.s11-ans', sec)), 0.75);
+
+// ---------- S12 · RAG pipeline: lane "once, in advance" and lane "every question" ----------
+const node12 = (sec, id) => lit($(`.n-${id}`, sec));
+const edge12 = (sec, id) => gsap.fromTo($(`.e-${id}`, sec), { autoAlpha: 0, x: -14 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'softLand' });
+RUN['s12-in'] = (el, sec) => {
+  // The store → search link, measured in layout offsets (lanes stack in Landscape, sit side by side in Vertical).
+  const lanes = $('.lanes', sec), a = pos($('.n-store', sec), lanes), b = pos($('.n-search', sec), lanes), [p1, p2] = $$('.edge12 path', sec);
+  if (!V) { const x1 = a.x + a.w / 2, y1 = a.y + a.h + 10, x2 = b.x + b.w / 2, y2 = b.y - 10;
+    p1.setAttribute('d', `M${x1} ${y1} C${x1} ${y1 + 70}, ${x2} ${y2 - 70}, ${x2} ${y2}`); p2.setAttribute('d', `M${x2 - 10} ${y2 - 13} L${x2} ${y2} L${x2 + 10} ${y2 - 13}`); }
+  else { const x1 = a.x + a.w + 8, y1 = a.y + a.h / 2, x2 = b.x - 8, y2 = b.y + b.h / 2;
+    p1.setAttribute('d', `M${x1} ${y1} C${x1 + 50} ${y1}, ${x2 - 50} ${y2}, ${x2} ${y2}`); p2.setAttribute('d', `M${x2 - 13} ${y2 - 10} L${x2} ${y2} L${x2 - 13} ${y2 + 10}`); }
+  return gsap.timeline().add(lit($$('.lane', sec)), 0).add(node12(sec, 'doc'), 0.4);
+};
+RUN['s12-1'] = (el, sec) => gsap.timeline().add(edge12(sec, 'chunk'), 0).add(node12(sec, 'chunk'), 0.2);
+RUN['s12-2'] = (el, sec) => gsap.timeline().add(edge12(sec, 'embed'), 0).add(node12(sec, 'embed'), 0.2).add(edge12(sec, 'store'), 0.7).add(node12(sec, 'store'), 0.9);
+RUN['s12-3'] = (el, sec) => gsap.timeline().add(node12(sec, 'q'), 0).add(edge12(sec, 'search'), 0.3).add(node12(sec, 'search'), 0.5)
+  .add(drawIn($$('.edge12 path', sec), 0.45, 0.4), 0.9);
+RUN['s12-4'] = (el, sec) => gsap.timeline().add(edge12(sec, 'prompt'), 0).add(node12(sec, 'prompt'), 0.2);
+RUN['s12-5'] = (el, sec) => gsap.timeline().add(edge12(sec, 'ans'), 0).add(node12(sec, 'ans'), 0.2);
+
+// ---------- S13 · meaning map: three neighbourhoods, a question, its nearest pieces ----------
+const M13 = V ? { W: 832, H: 440 } : { W: 728, H: 470 };
+const CL13 = [['ক্রিকেট', 0.22, 0.27, 0.19, 0.2, 0.22, 0.02, [['সাকিবের ব্যাটিং', 0.2, 0.17], ['টেস্টে ফলো-অন', 0.3, 0.3], ['বিপিএল ফাইনাল', 0.16, 0.4]]],
+  ['মোবাইল বিল', 0.24, 0.76, 0.19, 0.17, 0.42, 0.53, [['প্রিপেইড রিচার্জ', 0.19, 0.66], ['ইন্টারনেট প্যাক', 0.32, 0.77], ['বিল বেশি কাটছে', 0.17, 0.87]]],
+  ['ধান চাষ', 0.68, 0.54, 0.25, 0.3, 0.68, 0.17, [['পাতা হলদে: নাইট্রোজেন', 0.56, 0.36, 'near'], ['পাতা পোড়া রোগ', 0.84, 0.42, 'near'], ['ইউরিয়া কখন দেবেন', 0.56, 0.68, 'near'], ['rice leaves turning yellow', 0.8, 0.79, 'en']]]];
+const Q13 = [0.7, 0.53];
+BUILD.push(() => {
+  const map = $('.s13 .map'), { W, H } = M13, r = Deck.seeded(13), px = (fx, fy) => `left:${(fx * W).toFixed(0)}px;top:${(fy * H).toFixed(0)}px`;
+  const s = svgEl('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}` }, map);
+  let html = '';
+  CL13.forEach(([name, cx, cy, rx, ry, lx, ly, snips]) => {
+    svgEl('ellipse', { class: 'ring13', cx: cx * W, cy: cy * H, rx: rx * W, ry: ry * H }, s);
+    html += `<span class="clab" style="${px(lx, ly)}">${name}</span>`;
+    for (let k = 0; k < 12; k++) html += `<i class="dot" style="${px(cx + r() * rx * 1.3, cy + r() * ry * 1.3)}"></i>`;
+    snips.forEach(([t, fx, fy, kind]) => { html += `<span class="snip${kind ? ` ${kind}` : ''}" style="${px(fx, fy)}">${t}</span>`; });
+  });
+  html += `<span class="snip key qs" style="${px(...Q13)}">ধানের পাতা হলুদ হচ্ছে কেন?</span>`;
+  html += `<span class="eg s13-weak">ধরা যাক · দুর্বল model: পাড়াগুলো ঢিলে</span>`;
+  map.insertAdjacentHTML('beforeend', html);
+  CL13[2][7].filter(sn => sn[3] === 'near').forEach(([t, fx, fy]) => svgEl('line', { class: 'nn', x1: Q13[0] * W, y1: Q13[1] * H, x2: fx * W, y2: fy * H }, s));
+  const tray = $('.s13 .tray13');
+  CL13[2][7].filter(sn => sn[3] === 'near').forEach(([t]) => tray.insertAdjacentHTML('beforeend', `<span class="got">${t}</span>`));
+});
+RUN['s13-1'] = (el, sec) => { const r = Deck.seeded(31), { W, H } = M13, items = $$('.map .dot, .map .snip:not(.qs)', sec);
+  return gsap.timeline().add(lit($('.s13-eg', sec)), 0)
+    .fromTo(items, { x: () => r() * W * 0.8, y: () => r() * H * 0.8, autoAlpha: 0 }, { x: 0, y: 0, autoAlpha: 1, duration: 0.9, ease: 'softInOut', stagger: { each: 0.012, from: 'random' } }, 0.1)
+    .add(drawIn($$('.ring13', sec), 0.6, 0.12), 1.0)
+    .fromTo($$('.map .clab', sec), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'softLand', stagger: 0.12 }, 1.2); };
+RUN['s13-2'] = (el, sec) => lit($('.map .qs', sec), { y: -50 });
+RUN['s13-3'] = (el, sec) => { const gots = $$('.got', sec), near = $$('.map .snip.near', sec);
+  const tl = gsap.timeline().add(drawIn($$('.map line.nn', sec), 0.4, 0.1), 0);
+  gots.forEach((g, i) => { const a = pos(near[i], sec), b = pos(g, sec);
+    tl.fromTo(g, { x: a.x - b.x - b.w / 2, y: a.y - b.y - b.h / 2, autoAlpha: 0, filter: 'brightness(0.3)' }, { x: 0, y: 0, autoAlpha: 1, filter: 'brightness(1)', duration: 0.6, ease: 'softLand' }, 0.55 + i * 0.12); });
+  return tl; };
+RUN['s13-4'] = (el, sec) => gsap.fromTo($('.map .snip.en', sec), { borderColor: '#2a3a5c', color: '#e6edf7', boxShadow: '0 0 0 rgba(125,211,252,0)' },
+  { borderColor: '#7dd3fc', color: '#7dd3fc', boxShadow: '0 0 24px rgba(125,211,252,.55)', duration: 0.45, ease: 'softInOut' });
+RUN['s13-5'] = (el, sec) => { const r = Deck.seeded(55), { W, H } = M13;
+  return gsap.timeline().add(lit($('.s13-weak', sec)), 0)
+    .fromTo($$('.map .dot', sec), { x: 0, y: 0 }, { x: () => r() * W * 0.34, y: () => r() * H * 0.34, duration: 0.9, ease: 'softInOut', immediateRender: false }, 0.15)
+    .fromTo($$('.map .snip:not(.qs)', sec), { x: 0, y: 0 }, { x: () => r() * W * 0.05, y: () => r() * H * 0.05, duration: 0.9, ease: 'softInOut', immediateRender: false }, 0.15)
+    .fromTo($$('.ring13, .map line.nn', sec), { opacity: 1 }, { opacity: 0.2, duration: 0.6, ease: 'softInOut', immediateRender: false }, 0.15); };
+RUN['s13-6'] = (el, sec) => gsap.timeline().add(lit($('.s13-bars', sec)), 0).add(growX($$('.s13-bars .bb', sec)), 0.2);
+
+// ---------- S14 · 200K-token desk: 500 English pages vs ~290 Bangla pages (page size an Illustration) ----------
+BUILD.push(() => {
+  const [TW, TH] = V ? [360, 230] : [280, 300];
+  const fill = (box, n, cols, rows) => { const cw = TW / cols, ch = TH / rows;
+    box.innerHTML = Array.from({ length: n }, (_, i) =>
+      `<i style="left:${((i % cols) * cw + 1).toFixed(1)}px;top:${(Math.floor(i / cols) * ch + 1).toFixed(1)}px;width:${(cw - 2).toFixed(1)}px;height:${(ch - 2).toFixed(1)}px"></i>`).join(''); };
+  fill($('.s14 [data-lang=en] .pages:not(.spill)'), 500, 25, 20);
+  fill($('.s14 [data-lang=bn] .pages:not(.spill)'), 290, 19, 16);
+  const r = Deck.seeded(14);
+  $$('.s14 .spill').forEach((sp, k) => { const cw = TW / (k ? 19 : 25) - 2, ch = TH / (k ? 16 : 20) - 2;
+    sp.innerHTML = Array.from({ length: 22 }, () => `<i style="left:${(TW * 0.15 + (0.5 + r()) * TW * 0.65).toFixed(0)}px;top:${(TH - 14 + (0.5 + r()) * 34).toFixed(0)}px;width:${cw.toFixed(1)}px;height:${ch.toFixed(1)}px;rotate:${(r() * 80).toFixed(0)}deg"></i>`).join(''); });
+});
+const rain = (els, each) => gsap.fromTo(els, { y: -30, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.25, ease: 'softLand', stagger: { each, from: 'random' } });
+RUN['s14-1'] = (el, sec) => gsap.timeline().add(lit($('.s14-cap', sec)), 0).add(lit($('[data-lang=en] .dk-h .n', sec)), 0.2)
+  .add(rain($$('[data-lang=en] .pages:not(.spill) i', sec), 0.002), 0.2);
+RUN['s14-2'] = (el, sec) => gsap.timeline().add(lit($('[data-lang=bn] .dk-h .n', sec)), 0)
+  .add(rain($$('[data-lang=bn] .pages:not(.spill) i', sec), 0.0035), 0.1);
+RUN['s14-3'] = (el, sec) => gsap.timeline()
+  .fromTo($$('.s14 .spill i', sec), { y: -70, rotation: 0, autoAlpha: 0 }, { y: 0, rotation: i => (i % 2 ? 25 : -25), autoAlpha: 1, duration: 0.6, ease: 'softLand', stagger: { each: 0.02, from: 'random' } }, 0)
+  .add(lit($('.s14 .over', sec)), 0.6);
+RUN['s14-4'] = (el, sec) => lit($('.s14-dm', sec));
+RUN['s14-5'] = (el, sec) => gsap.timeline().add(lit($('.fork', sec)), 0)
+  .fromTo($$('.fork .fk > *, .fork .save', sec), { autoAlpha: 0, x: -14, filter: 'brightness(0.3)' }, { autoAlpha: 1, x: 0, filter: 'brightness(1)', duration: 0.3, ease: 'softLand', stagger: 0.18 }, 0.1);
+
+// ---------- S15 · 800-token chunks with 400 overlap; the orphan chunk gets its context ----------
+BUILD.push(() => {
+  const box = $('.s15 .cut15'), W = V ? 832 : 1228, k = W / 2000;
+  box.innerHTML = '<div class="pgc doc"><i class="lines"></i></div>'
+    + [[400, 800], [800, 1200]].map(([a, b]) => `<i class="ov" style="left:${a * k}px;width:${(b - a) * k}px"></i>`).join('')
+    + `<span class="ovl" style="left:${400 * k}px">↓ ৪০০ token মিল</span>`
+    + [[0, 'টুকরো ১'], [400, 'টুকরো ২'], [800, 'টুকরো ৩']].map(([a, t], i) => `<span class="ck" style="left:${a * k}px;width:${800 * k}px;top:${92 + i * 34}px">${t} · ৮০০ token</span>`).join('')
+    + '<span class="ant">Anthropic: সাধারণত কয়েকশো token</span>';
+});
+RUN['s15-1'] = (el, sec) => gsap.timeline().add(lit($('.cut15', sec).parentNode), 0).add(lit($('.cut15 .doc', sec)), 0.1)
+  .add(lit($$('.cut15 .ck', sec)), 0.3)
+  .add(fadeIn($$('.cut15 .ov, .cut15 .ovl', sec), 0.1), 0.9)
+  .add(lit($('.cut15 .ant', sec)), 1.2);
+RUN['s15-2'] = (el, sec) => gsap.timeline().add(lit($('.w15', sec)), 0).add(growX($$('.w15 .bb', sec), 0.2), 0.2);
+RUN['s15-3'] = (el, sec) => lit($('.s15-say', sec));
+RUN['s15-4'] = (el, sec) => gsap.timeline().add(lit($('.orph .chk', sec)), 0).add(Deck.presets.stamp($('.orph .who', sec)), 0.5);
+RUN['s15-5'] = (el, sec) => gsap.timeline().add(lit($('.orph .hdr', sec), { y: -50 }), 0)
+  .fromTo($('.orph .who', sec), { opacity: 1 }, { opacity: 0.18, duration: 0.3, ease: 'softInOut', immediateRender: false }, 0.4);
+
+// ---------- S16 · top-20 retrieval failure rate, Anthropic Contextual Retrieval ----------
+const vcol = (sec, n) => { const c = $(`.vcol.c${n}`, sec);
+  return gsap.timeline().fromTo(c, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15 }, 0)
+    .add(growY($('.vb', c)), 0).add(lit($('b', c), { y: 24 }), 0.35); };
+RUN['s16-1'] = (el, sec) => gsap.timeline().add(lit($('.s16-bars', sec)), 0).add(vcol(sec, 1), 0.2);
+RUN['s16-2'] = (el, sec) => vcol(sec, 2);
+RUN['s16-3'] = (el, sec) => vcol(sec, 3);
+RUN['s16-4'] = (el, sec) => vcol(sec, 4);
+RUN['s16-5'] = (el, sec) => lit($('.ts999', sec));
+
+// ---------- S17 · R@10 by question style (BN→BN) and across languages (EN→BN) ----------
+BUILD.push(() => {
+  const s = $('.s17 .x17'), [W, H] = V ? [832, 200] : [556, 260], xa = 150, xb = W - 150, y0 = H - 40, k = (H - 100) / 55, y = v => y0 - v * k;
+  Object.assign(s.style, { width: `${W}px`, height: `${H}px` }); s.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svgEl('text', { x: 0, y: 22 }, s, 'ইংরেজি প্রশ্নে বাংলা document খুঁজলে');
+  [xa, xb].forEach(x => svgEl('line', { x1: x, x2: x, y1: 40, y2: y0, stroke: 'rgba(145,162,192,.25)', 'stroke-width': 2 }, s));
+  svgEl('text', { x: xa, y: y0 + 30, 'text-anchor': 'middle' }, s, 'বাংলা প্রশ্ন');
+  svgEl('text', { x: xb, y: y0 + 30, 'text-anchor': 'middle' }, s, 'ইংরেজি প্রশ্ন');
+  [['BM25', 50.6, 0.4, '#94a3b8', -10], ['embedding', 46.4, 42.5, '#7dd3fc', 28]].forEach(([n, a, b, c, dy]) => {
+    const g = svgEl('g', { class: 'xl' }, s);
+    svgEl('line', { class: 's', x1: xa, y1: y(a), x2: xb, y2: y(b), stroke: c }, g);
+    svgEl('text', { class: 'v', x: xa - 14, y: y(a) + dy, 'text-anchor': 'end' }, g, `${bn(a, 1)}%`);
+    svgEl('text', { class: 'v', x: xb + 14, y: b < 5 ? y(b) - 6 : y(b) + 9 }, g, `${bn(b, 1)}%`);
+  });
+});
+const bar17 = (sec, sel) => { const b = $(sel, sec);
+  return gsap.timeline().fromTo(b, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15 }, 0)
+    .add(growY($('i', b)), 0).add(lit($('b', b), { y: 24 }), 0.3); };
+RUN['s17-1'] = (el, sec) => lit($('.s17-tag', sec));
+RUN['s17-2'] = (el, sec) => gsap.timeline().add(lit($('.s17-grid > .panel', sec)), 0).add(lit($$('.gl', sec)[0]), 0.1).add(bar17(sec, '.f-em'), 0.15);
+RUN['s17-3'] = (el, sec) => gsap.timeline().add(lit($$('.gl', sec)[1]), 0).add(bar17(sec, '.k-em'), 0.15);
+RUN['s17-4'] = (el, sec) => lit($$('.s17-pair > *', sec));
+RUN['s17-5'] = (el, sec) => gsap.timeline().add(lit($('.leg17 .lbm', sec)), 0)
+  .add(bar17(sec, '.f-bm'), 0.1).add(bar17(sec, '.k-bm'), 0.3).add(lit($('.hyb', sec)), 0.8);
+RUN['s17-6'] = (el, sec) => { const s = $('.x17', sec);
+  return gsap.timeline().add(lit($('.x17p', sec)), 0).add(fadeIn($$(':scope > text, :scope > line', s), 0.05), 0.1)
+    .add(drawIn($$('.xl line', s), 0.8, 0.25), 0.3).add(fadeIn($$('.xl text', s), 0.08), 0.6); };
+
+// ---------- S19 · the nine rules dim back; the closing line lights up ----------
+RUN['s19-10'] = (el, sec) => gsap.timeline()
+  .fromTo($$('.r9', sec), { opacity: 1 }, { opacity: 0.4, duration: 0.5, ease: 'softInOut', stagger: 0.03, immediateRender: false }, 0)
+  .add(lit($('.close19', sec)), 0.3)
+  .fromTo($$('.close19 .chip', sec), { autoAlpha: 0, x: -14 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'softLand', stagger: 0.12 }, 0.7);
+
+// ---------- S20 · the light reads the empty desk and stops mid-way; later it finds hidden ink ----------
+RUN['s20-in'] = (el, sec) => { const d = $('.desk20', sec); return sweep(d, -80, d.offsetWidth * 0.62, 1.8, { hold: true }); };
+RUN['s20-1'] = (el, sec) => lit($('.s20-c', sec));
+RUN['s20-2'] = (el, sec) => lit($('.s20-n', sec));
+RUN['s20-3'] = (el, sec) => { const pg = $('.page20', sec), w = pg.offsetWidth, o = { t: 0 }, ink = $('.ink', pg), beam = $('.beam', pg);
+  gsap.set(ink, { clipPath: 'inset(-10% 100% -10% 0)' }); gsap.set(beam, { autoAlpha: 0 });
+  return gsap.timeline().add(lit($('.next20', sec)), 0)
+    // The beam passes over the page; ink invisible in plain light shows up behind it.
+    .fromTo(o, { t: 0 }, { t: 1, duration: 1.8, ease: 'none', immediateRender: false, onUpdate: () => {
+      gsap.set(beam, { x: o.t * (w + 120), autoAlpha: o.t > 0 && o.t < 1 ? 1 : 0 });
+      gsap.set(ink, { clipPath: `inset(-10% ${Math.min(100, Math.max(0, 100 - ((o.t * (w + 60) - ink.offsetLeft) / ink.offsetWidth) * 100)).toFixed(1)}% -10% 0)` }); } }, 0.5); };
+
+// ---------- start: serif first, then build the generated parts, then the Deck ----------
+Promise.all(['400', '600'].map(w => document.fonts.load(`${w} 1em "Noto Serif Bengali"`, 'কখগ Ab')))
+  .then(() => { BUILD.forEach(f => f()); return Deck.start({ keyboard: Talk.keys }); });
+</script>
+</body>
+</html>
