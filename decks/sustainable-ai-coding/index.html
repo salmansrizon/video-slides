@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>টেকসই AI Coding</title>
-<!-- Live talk with a Cap face cam. Script: scripts/script2.txt (speaker notes, key S). Keys: ← → Slides, ↓ ↑ points, C face-cam guide. -->
+<!-- Live talk with a Cap face cam. Script: scripts/script2.txt (speaker notes, key S). Keys: ← → Slides, ↓ ↑ points, C face-cam guide.
+     Voiced video: index.html?play follows assets/vo.mp3 (Space plays, ← → jump a Slide); node tools/render-deck.mjs makes the MP4. -->
 <link rel="stylesheet" href="../../vendor/reveal/reveal.css">
 <link rel="stylesheet" href="../../lib/deck.css">
 <script src="../../vendor/tailwind/tailwind.browser.js"></script>
@@ -33,6 +34,11 @@
   .reveal .slides > section { padding: 90px 480px 96px 140px; align-items: flex-start; text-align: left; gap: 36px; }
   html.vertical .reveal .slides > section { padding: 180px 88px 560px; gap: 40px; }
   .reveal .slides > section.center { align-items: center; text-align: center; }
+  html.play:not(.vertical) .reveal .slides > section { padding-right: 140px; }   /* voiced video (?play): no face cam, use the full frame */
+  /* Reels (?play&format=vertical): no face cam, everything 15 % bigger. Padding is in zoomed px: on screen it keeps
+     top 220 / right 130 / bottom 400 / left 88 clear of the Reels / Shorts buttons and caption. */
+  html.play.vertical .reveal .slides > section { zoom: 1.15; padding: 191px 113px 348px 77px; }
+  html.play.vertical .src { bottom: 300px; }
   html.cam .reveal .slides::after { content: ''; position: absolute; right: 40px; bottom: 40px; width: 400px; height: 400px;
     border: 4px dashed rgba(240,68,90,.8); border-radius: 50%; pointer-events: none; z-index: 50; }
 
@@ -41,7 +47,7 @@
   html.vertical .reveal h1:not(.card *) { font-size: 80px; }
   html.vertical .reveal h2:not(.card *) { font-size: 56px; }
 
-  .yellow { color: var(--yellow); } .red { color: #ff6b7d; } .green { color: var(--green); } .blue { color: #6aa5ff; }
+  .yellow, .reveal h1.yellow { color: var(--yellow); } .red { color: #ff6b7d; } .green { color: var(--green); } .blue { color: #6aa5ff; }
   .muted { color: var(--muted-foreground); }
   .lead { font-size: 40px; line-height: 1.45; color: var(--muted-foreground); max-width: 1300px; }
   .say { font-size: 46px; font-weight: 600; line-height: 1.4; max-width: 1300px; text-wrap: balance; }
@@ -153,7 +159,7 @@
 <div class="reveal"><div class="slides">
 
 <!-- S1 · শিরোনাম -->
-<section class="center">
+<section class="center" data-at="0.00" data-auto="7.88">
   <span class="chip blue" data-enter="rise"><i data-lucide="shield-check"></i>AI Coding · Sustainable Systems</span>
   <h1 data-enter="words" data-delay="0.15">AI দিয়ে কোড লিখছেন?<br><span class="yellow">সিস্টেম টিকবে তো?</span></h1>
   <p class="lead" data-enter="rise" data-delay="0.6">বিপদ এলেও যে software টিকে থাকে, সেটা বানানোর নিয়ম</p>
@@ -169,7 +175,7 @@
 </section>
 
 <!-- S2 · Code ≠ System -->
-<section>
+<section data-at="19.99" data-auto="9.47 12.00">
   <div class="row" data-enter="stream" data-gap="0.12">
     <span class="chip"><img src="assets/logos/cursor/logo.svg" alt="">Cursor</span>
     <span class="chip"><img src="assets/logos/claude/logo.svg" alt="">Claude Code</span>
@@ -188,7 +194,7 @@
 </section>
 
 <!-- S3 · দুই ধরনের builder -->
-<section>
+<section data-at="45.16" data-auto="3.67 12.43 18.98">
   <h2 data-enter="rise">দুই ধরনের builder</h2>
   <div class="split">
     <div class="panel" data-step="rise">
@@ -212,7 +218,7 @@
 </section>
 
 <!-- S4 · বিপর্যয় স্বাভাবিক ঘটনা -->
-<section>
+<section data-at="70.90" data-auto="4.50 17.38 29.41 39.70">
   <h2 data-enter="rise">বড়রাও ভাঙে</h2>
   <div class="col w">
     <div class="panel inc" data-step="rise"><span class="yr">2012</span><b>Knight Capital</b><span>একটা server-এ পুরনো code রয়ে গেল → ~৪৫ মিনিটে ৪৪০ মিলিয়ন ডলারের বেশি ক্ষতি</span></div>
@@ -236,7 +242,7 @@
 </section>
 
 <!-- S5 · পরিচিত বিপদের তালিকা -->
-<section>
+<section data-at="122.68" data-auto="5.21 15.71 27.81">
   <h2 data-enter="rise">পরিচিত বিপদ, জানা সমাধান</h2>
   <div class="grid2">
     <div class="items" data-step="stream" data-gap="0.12">
@@ -264,7 +270,7 @@
 </section>
 
 <!-- S6 · টেকসই loop -->
-<section>
+<section data-at="154.73" data-auto="2.88 8.07 14.93">
   <h2 data-enter="rise">টেকসই loop</h2>
   <div class="grid3" data-step="stream" data-gap="0.15">
     <div class="panel step-card"><span class="n">01</span><b>সিদ্ধান্ত</b><small>কোডের আগে প্রশ্ন</small></div>
@@ -286,7 +292,7 @@
 </section>
 
 <!-- S7 · ১. কোডের আগে সিদ্ধান্ত -->
-<section>
+<section data-at="178.59" data-auto="4.08 20.63 32.46">
   <h2 data-enter="rise"><span class="num">১</span>কোডের আগে সিদ্ধান্ত</h2>
   <div class="grid2" data-step="stream" data-gap="0.1">
     <div class="item"><i data-lucide="users"></i>কারা, কতজন?</div>
@@ -311,7 +317,7 @@
 </section>
 
 <!-- S8 · ২. লিখে রাখুন -->
-<section>
+<section data-at="215.66" data-auto="3.97 12.16 19.00">
   <h2 data-enter="rise"><span class="num">২</span>লিখে রাখুন</h2>
   <div class="split">
     <div class="term" data-step="rise">
@@ -341,7 +347,7 @@
 </section>
 
 <!-- S9 · ৩. Prompt-এ সীমা দিন -->
-<section>
+<section data-at="240.32" data-auto="5.47 12.58 25.85">
   <h2 data-enter="rise"><span class="num">৩</span>Prompt-এ সীমা দিন</h2>
   <div class="split">
     <div class="term" data-step="rise">
@@ -369,7 +375,7 @@
 </section>
 
 <!-- S10 · ৪. ছোট ধাপ, প্রতিটা ধাপে git -->
-<section>
+<section data-at="270.31" data-auto="4.55 9.70">
   <h2 data-enter="rise"><span class="num">৪</span>ছোট ধাপ, প্রতিটা ধাপে git</h2>
   <div class="term">
     <div class="term-bar"><b></b><b></b><b></b><span>git log --oneline</span></div>
@@ -393,7 +399,7 @@
 </section>
 
 <!-- S11 · ৫. যে test সত্যিই ভুল ধরে -->
-<section>
+<section data-at="288.56" data-auto="4.55 10.42 17.93 20.18">
   <h2 data-enter="rise"><span class="num">৫</span>যে test সত্যিই ভুল ধরে</h2>
   <div class="flow">
     <div data-step="rise"><span class="chip green lg"><i data-lucide="check"></i>test pass</span></div>
@@ -411,7 +417,7 @@
 </section>
 
 <!-- S12 · ৬. Agent-এর হাতে কোন চাবি? -->
-<section>
+<section data-at="314.79" data-auto="4.04 12.10 23.83">
   <h2 data-enter="rise"><span class="num">৬</span>Agent-এর হাতে কোন চাবি?</h2>
   <div class="split">
     <div class="col" data-step="dim" data-to="0.3" data-fragment-index="2">
@@ -438,7 +444,7 @@
 </section>
 
 <!-- S13 · ৭. Secret আর package -->
-<section>
+<section data-at="348.84" data-auto="5.52 16.30 26.06">
   <h2 data-enter="rise"><span class="num">৭</span>Secret আর package</h2>
   <div class="split">
     <div class="panel" data-step="rise" data-fragment-index="1">
@@ -464,7 +470,7 @@
 </section>
 
 <!-- S14 · ৮. Backup নয়, restore -->
-<section>
+<section data-at="388.96" data-auto="2.16 8.95 23.43">
   <h2 data-enter="rise"><span class="num">৮</span>Backup নয়, restore</h2>
   <div class="flow w" data-step="stream" data-gap="0.25">
     <span class="chip green lg"><i data-lucide="archive"></i>Backup · দুপুর ২টা</span>
@@ -486,7 +492,7 @@
 </section>
 
 <!-- S15 · ৯. টাকা একবারই কাটবে -->
-<section>
+<section data-at="418.99" data-auto="2.08 11.66 20.54">
   <h2 data-enter="rise"><span class="num">৯</span>টাকা একবারই কাটবে</h2>
   <div class="flow" data-step="stream" data-gap="0.3">
     <span class="chip green"><i data-lucide="credit-card"></i>টাকা কাটল</span>
@@ -512,7 +518,7 @@
 </section>
 
 <!-- S16 · ১০. Traffic আর cache -->
-<section>
+<section data-at="448.91" data-auto="2.61 12.54">
   <h2 data-enter="rise"><span class="num">১০</span>Traffic আর cache</h2>
   <div class="split">
     <div class="panel" data-step="rise">
@@ -532,7 +538,7 @@
 </section>
 
 <!-- S17 · ১১. নিরাপদে release -->
-<section>
+<section data-at="476.56" data-auto="3.07 9.65 20.25">
   <h2 data-enter="rise"><span class="num">১১</span>নিরাপদে release</h2>
   <div class="item green" data-step="rise"><i data-lucide="shield-check"></i>CI gate: test pass না করলে merge নয়</div>
   <div class="flow rollout" data-step="stream" data-gap="0.2">
@@ -554,7 +560,7 @@
 </section>
 
 <!-- S18 · ১২. চোখ রাখুন -->
-<section>
+<section data-at="505.47" data-auto="4.30 10.08">
   <h2 data-enter="rise"><span class="num">১২</span>চোখ রাখুন</h2>
   <div class="grid2" data-step="stream" data-gap="0.12">
     <div class="item"><i data-lucide="scroll-text"></i>Logs</div>
@@ -574,7 +580,7 @@
 </section>
 
 <!-- S19 · ভাঙলে কী করবেন -->
-<section>
+<section data-at="521.15" data-auto="4.85 8.93 12.92 17.35 21.74">
   <h2 data-enter="rise"><i data-lucide="siren" style="width:64px;height:64px;color:#ff6b7d"></i>ভাঙলে কী করবেন</h2>
   <div class="items w">
     <div class="item red" data-step="rise"><i data-lucide="octagon-x"></i><span><b>থামান:</b> rollback বা feature বন্ধ</span></div>
@@ -594,7 +600,7 @@
 </section>
 
 <!-- S20 · Vibe coder-এর survival kit -->
-<section>
+<section data-at="548.11" data-auto="6.31 21.12">
   <h2 data-enter="rise"><span class="tile yellow"><i data-lucide="sparkles"></i></span>Vibe coder-এর survival kit</h2>
   <div class="grid2">
     <div class="items" data-step="stream" data-gap="0.12">
@@ -618,7 +624,7 @@
 </section>
 
 <!-- S21 · Developer-এর playbook -->
-<section>
+<section data-at="584.13" data-auto="3.04 13.60">
   <h2 data-enter="rise"><span class="tile"><i data-lucide="code"></i></span>Developer-এর playbook</h2>
   <div class="grid2">
     <div class="items" data-step="stream" data-gap="0.12">
@@ -641,7 +647,7 @@
 </section>
 
 <!-- S22 · সাত দিনের শুরু -->
-<section>
+<section data-at="606.76" data-auto="3.81 13.52 22.82">
   <h2 data-enter="rise"><i data-lucide="calendar-days" style="width:64px;height:64px;color:var(--yellow)"></i>সাত দিনের শুরু</h2>
   <div class="grid2">
     <div class="items" data-step="stream" data-gap="0.12">
@@ -666,7 +672,7 @@
 </section>
 
 <!-- S23 · শেষ কথা -->
-<section class="center">
+<section class="center" data-at="635.68" data-auto="1.84 6.89">
   <h1 data-enter="words">AI কোড লেখে।</h1>
   <h1 class="yellow" data-step="rise">সিস্টেম টিকিয়ে রাখা আপনার দায়িত্ব।</h1>
   <span class="chip blue lg" data-step="rise"><i data-lucide="message-circle"></i>কমেন্টে: আপনার প্রজেক্টের সবচেয়ে বড় GUESS কোনটা?</span>
@@ -678,6 +684,7 @@
 </section>
 
 </div></div>
+<audio data-vo src="assets/vo.mp3" preload="none"></audio>
 
 <script src="../../vendor/gsap/gsap.min.js"></script>
 <script src="../../vendor/gsap/SplitText.min.js"></script>

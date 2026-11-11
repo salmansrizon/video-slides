@@ -1,6 +1,6 @@
 # Video Slides
 
-Animated HTML Decks for the user's videos. The user opens each Deck in Chrome, clicks through it live and screen-records it themselves; no MP4 rendering here. Vocabulary: [CONTEXT.md](CONTEXT.md). Why plain HTML: [docs/adr/0001](docs/adr/0001-plain-html-decks.md).
+Animated HTML Decks for the user's videos. The user opens each Deck in Chrome, clicks through it live and screen-records it themselves, or gives a voiceover and has the Deck rendered to an MP4 (see Voiced video below). Vocabulary: [CONTEXT.md](CONTEXT.md). Why plain HTML: [docs/adr/0001](docs/adr/0001-plain-html-decks.md).
 
 ## Layout
 
@@ -9,7 +9,8 @@ Animated HTML Decks for the user's videos. The user opens each Deck in Chrome, c
 - `templates/deck/` — the starter, one sample Slide per content type. Copy the folder to `decks/<video-name>/` so the `../../` paths keep working
 - `lib/deck.js`, `lib/deck.css` — shared runtime (Steps, presets, eases, Format switch) and look. Edit only for changes every Deck should get
 - `vendor/` — pinned library copies. `node vendor/update.mjs` re-downloads them (versions listed at its top). Never link a CDN
-- `tools/check-deck.mjs` (clicks through a Deck headless in both Formats, reports console errors, saves a screenshot per Step), `tools/sync-notes.mjs` (Script VO → speaker notes, checks Cues = Steps), `tools/find-image.mjs` (free-license photos), `tools/embed.mjs` (JSON/3D/texture files for file://)
+- `tools/check-deck.mjs` (clicks through a Deck headless in both Formats, reports console errors, saves a screenshot per Step), `tools/sync-notes.mjs` (Script VO → speaker notes, checks Cues = Steps), `tools/find-image.mjs` (free-license photos), `tools/embed.mjs` (JSON/3D/texture files for file://), `tools/time-deck.mjs` and `tools/render-deck.mjs` (voiceover → Slide times → MP4)
+- `renders/` — rendered MP4s (not in git)
 - `library/` — reusable Assets gathered so far: LottieFiles characters (`lottie/INDEX.md`, `preview.html`), the style reference video's frames and `STYLE.md`, logos. Copy into a Deck's `assets/` before use; never link `library/` from a Deck
 - `.claude/skills/` — motionmaxxing, video-shotcraft (see Skills below)
 
@@ -51,10 +52,22 @@ Every Talk uses one format ([docs/adr/0003](docs/adr/0003-shared-talk-format.md)
 - The Deck's Look is a skin: override the variables at the top of `lib/talk.css` (`--bg --card --accent --font --mono --radius` …) in the Deck's `<style>`, and give it its own motion presets. Fonts are the same in every Talk (Inter + Anek Bangla; JetBrains Mono for code and source lines), set by `lib/talk.css`. Don't restyle the layout or the face-cam padding.
 - Content stays out of the right 480 px (Landscape) and bottom 560 px (Vertical).
 
+## Voiced video (Deck + voiceover → MP4)
+
+For a Deck with a recorded or generated voiceover instead of a live talk. 16:9, plus 9:16 reels (step 6).
+
+1. Put the audio in the Deck's `assets/` and add `<audio data-vo src="assets/vo.mp3" preload="none"></audio>` after the `.reveal` div. The Notes must hold the spoken text with its Cues (step 2 above).
+2. Word times, on this Mac, nothing uploaded: `uvx --python 3.12 --from mlx-whisper mlx_whisper <audio> --model mlx-community/whisper-large-v3-turbo --language bn --word-timestamps True --output-format json --output-dir <dir> --output-name vo`.
+3. `node tools/time-deck.mjs <deck> <dir>/vo.json` writes `data-at` (seconds into the audio where the Slide appears) and `data-auto` (its Steps, seconds after that) on every `<section>`. Rows it marks `?` were not heard clearly: check them by ear. Never type these times by hand; re-run after the Script or audio changes.
+4. Preview: `index.html?play` (Space plays / pauses, ← → jump a Slide). `html.play` is set, so a Deck can restyle for the video (the sustainable-ai-coding Deck drops its face-cam margin). Opened without `?play` the Deck is the live talk, unchanged.
+5. `node tools/render-deck.mjs <deck> [--outro library/outro-16x9-follow.mp4]` → `renders/<video-name>.mp4` (1920×1080, 30 fps, H.264 + AAC). It steps `Deck.seek(t)` frame by frame, so everything on a Slide must be reachable from its `data-enter` / `data-step` timelines (the "GSAP owns time" rule); anything running on its own clock renders frozen.
+6. Reels (one 9:16 MP4 per Slide, from the same voiceover): `node tools/render-deck.mjs <deck> --format vertical --slides 7-18 --outro outro/renders/outro-9x16-follow.mp4` → `renders/<video-name>-reels/S<NN>.mp4`. Each reel runs from its Slide's `data-at` to the next one's, then holds 0.5 s. Style `html.play.vertical` in the Deck for the reel layout (no face cam; keep top 220 / right 130 / bottom 400 px clear of the apps' buttons). Check stills of every Slide's last Step first.
+7. Look at stills before the full render: `node .claude/skills/motionmaxxing/scripts/render.mjs "<file URL of the deck>?play" --still <t,t,t> <dir>`.
+
 ## Skills
 
 Rules in this file win over both skills.
 
 - Scripts in these skills that launch Chrome only search macOS/Linux paths: set `CHROME_PATH="C:/Program Files/Google/Chrome/Application/chrome.exe"` (check-deck.mjs does this itself).
-- **motionmaxxing**: use its judgment on timing, type and motion (`references/motion.md`, `type.md`, `transitions.md`, `layout.md`, `slop.md`). Its page-chrome bans apply to Decks. Its film pipeline (`render.mjs`, `look.py`, needs ffmpeg, which is not installed) only if the user asks for an MP4.
+- **motionmaxxing**: use its judgment on timing, type and motion (`references/motion.md`, `type.md`, `transitions.md`, `layout.md`, `slop.md`). Its page-chrome bans apply to Decks. Of its film pipeline, `render.mjs` is what `tools/render-deck.mjs` drives (needs ffmpeg, installed via Homebrew); the rest (`look.py`, `mix.py`, `voice.py`) only if the user asks.
 - **video-shotcraft**: use its shot cards (`references/shots/<category>/*.md`, gallery https://vincentwei1021.github.io/video-shotcraft/) as animation ideas and rebuild them in GSAP. Don't run its Remotion pipeline, mode questions, Workbench or publishing flow. Its instructions are in Chinese.

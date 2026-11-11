@@ -1,0 +1,86 @@
+<!doctype html>
+<html data-composition-variables='[{"id":"cta","type":"string","label":"CTA text","default":"Follow DataEntropy","maxLength":40}]'><head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<!-- same stylesheet URL the host already loads (deduped by the browser) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  #root {
+    --navy: #172554; --violet: #6D4AFF; --lavender: #C4B5FD;
+    position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden;
+    font-family: Inter, 'Noto Sans Bengali', Arial, sans-serif;
+  }
+  .endcard-layer { position: absolute; }
+  #endcard-bg { inset: 0; background: #fff; }
+  .endcard-dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(109,74,255,0.16) 1.6px, transparent 1.6px);
+    background-size: 32px 32px; -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 0%, transparent 70%); mask-image: radial-gradient(ellipse at 50% 40%, #000 0%, transparent 70%); }
+  #endcard-sweep { left: 90px; top: 480px; width: 900px; height: 440px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(196,181,253,0.45), transparent 65%); filter: blur(30px); }
+
+  /* vertical lockup (bars above wordmark), tagline, CTA — all above y 1574 */
+  #endcard-center { left: 0; right: 0; top: 470px; display: flex; flex-direction: column; align-items: center; transform-origin: 50% 30%; }
+  .endcard-lockup { display: flex; flex-direction: column; align-items: center; gap: 44px; }
+  .endcard-bars { display: flex; align-items: flex-end; gap: 22px; }
+  .endcard-bar { display: block; width: 80px; border-radius: 40px; overflow: hidden; }
+  .endcard-fill { display: block; width: 80px; height: 100%; border-radius: 40px; }
+  .endcard-wmwrap { overflow: hidden; padding: 40px 24px 50px 24px; margin: -40px -24px -50px -24px; }
+  .endcard-wm { font-size: 130px; font-weight: 700; letter-spacing: -3.5px; color: var(--navy); line-height: .9; white-space: nowrap; }
+  .endcard-v { color: var(--violet); }
+  .endcard-tagline { margin-top: 64px; font-size: 52px; line-height: 1.25; font-weight: 500; color: var(--navy); text-align: center; }
+  .endcard-tagline > span { display: block; white-space: nowrap; }
+  .endcard-tagline .endcard-v { font-weight: 600; }
+  .endcard-cta { margin-top: 72px; display: inline-flex; align-items: center; gap: 18px; background: var(--violet); color: #fff; font-weight: 600; font-size: 36px;
+    padding: 28px 52px; border-radius: 18px; box-shadow: 0 20px 44px rgba(109,74,255,0.32); white-space: nowrap; }
+  .endcard-arrow { display: block; width: 34px; height: 34px; }
+  .endcard-arrow svg { display: block; width: 34px; height: 34px; }
+</style>
+
+<div id="root" data-composition-id="outro" data-width="1080" data-height="1920" data-duration="7">
+  <div id="endcard-bg" class="endcard-layer"><div class="endcard-dots"></div></div>
+  <div id="endcard-sweep" class="endcard-layer"></div>
+
+  <div id="endcard-center" class="endcard-layer">
+    <div class="endcard-lockup">
+      <div class="endcard-bars">
+        <i class="endcard-bar" style="height:104px"><i class="endcard-fill" id="endcard-b0" style="background:linear-gradient(160deg,#DCD3FF,#B9AAF8)"></i></i>
+        <i class="endcard-bar" style="height:165px"><i class="endcard-fill" id="endcard-b1" style="background:linear-gradient(160deg,#C9B8FD,#9A80F6)"></i></i>
+        <i class="endcard-bar" style="height:224px"><i class="endcard-fill" id="endcard-b2" style="background:linear-gradient(160deg,#B49CFB,#7E5EF6)"></i></i>
+        <i class="endcard-bar" style="height:291px"><i class="endcard-fill" id="endcard-b3" style="background:linear-gradient(160deg,#9878FA,#6D4AFF)"></i></i>
+      </div>
+      <div class="endcard-wmwrap" id="endcard-wmwrap"><div class="endcard-wm" id="endcard-wm">Data<span class="endcard-v">Entropy</span></div></div>
+    </div>
+    <div class="endcard-tagline" id="endcard-tagline"><span>Practical Data Skills.</span><span class="endcard-v">Real Career Impact.</span></div>
+    <div class="endcard-cta" id="endcard-cta"><span id="endcard-ctatext">Follow DataEntropy</span>
+      <span class="endcard-arrow" id="endcard-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.__timelines = window.__timelines || {};
+  const vars = (window.__hyperframes && window.__hyperframes.getVariables) ? window.__hyperframes.getVariables() : {};
+  if (vars.cta) document.getElementById("endcard-ctatext").textContent = vars.cta;
+  const tl = gsap.timeline({ paused: true });
+  const H = [104, 165, 224, 291];
+
+  // sc17: logo intro (0.5 -> 2.0 = 1.5s) after the host wipe clears
+  [0, 1, 2, 3].forEach((b) => {
+    tl.fromTo("#endcard-b" + b, { y: H[b] }, { y: 0, duration: 0.55, ease: "brand" }, 0.5 + b * 0.25);
+  });
+  tl.fromTo("#endcard-wmwrap", { x: -900 }, { x: 0, duration: 0.7, ease: "brand" }, 1.5);
+  tl.fromTo("#endcard-wm", { x: 900 }, { x: 0, duration: 0.7, ease: "brand" }, 1.5);
+  tl.fromTo("#endcard-sweep", { x: -560, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "sine.inOut" }, 1.9);
+  tl.fromTo("#endcard-tagline", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "brand" }, 2.2);
+
+  // sc18: soft zoom, CTA rises, arrow nudges twice, hold
+  tl.fromTo("#endcard-center", { scale: 1 }, { scale: 1.02, duration: 3.5, ease: "sine.inOut" }, 3.5);
+  tl.fromTo("#endcard-cta", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "brand" }, 3.6);
+  [4.5, 5.5].forEach((t) => {
+    tl.to("#endcard-arrow", { x: 8, duration: 0.22, ease: "sine.inOut" }, t);
+    tl.to("#endcard-arrow", { x: 0, duration: 0.3, ease: "sine.inOut" }, t + 0.22);
+  });
+
+  window.__timelines["outro"] = tl;
+</script>
+</template>
+</body></html>

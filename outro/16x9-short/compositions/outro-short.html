@@ -1,0 +1,70 @@
+<!doctype html>
+<html><head><meta charset="UTF-8" /></head>
+<body>
+<template>
+<!-- same stylesheet URL the host already loads (deduped by the browser) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  #root {
+    --navy: #172554; --violet: #6D4AFF; --lavender: #C4B5FD;
+    position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden;
+    font-family: Inter, 'Noto Sans Bengali', Arial, sans-serif;
+  }
+  .endcard-layer { position: absolute; }
+  #endcard-bg { inset: 0; background: #fff; }
+  .endcard-dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(109,74,255,0.16) 1.6px, transparent 1.6px);
+    background-size: 32px 32px; -webkit-mask-image: radial-gradient(ellipse at 50% 45%, #000 0%, transparent 70%); mask-image: radial-gradient(ellipse at 50% 45%, #000 0%, transparent 70%); }
+  #endcard-sweep { left: 520px; top: 200px; width: 900px; height: 300px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(196,181,253,0.45), transparent 65%); filter: blur(30px); }
+
+  /* approved keyframe 3 geometry */
+  #endcard-center { left: 0; right: 0; top: 300px; display: flex; flex-direction: column; align-items: center; transform-origin: 50% 30%; }
+  .endcard-lockup { display: flex; align-items: flex-end; gap: 44px; }
+  .endcard-bars { display: flex; align-items: flex-end; gap: 16px; }
+  .endcard-bar { display: block; width: 58px; border-radius: 29px; overflow: hidden; }
+  .endcard-fill { display: block; width: 58px; height: 100%; border-radius: 29px; }
+  .endcard-wmwrap { overflow: hidden; padding: 40px 24px 50px 0; margin: -40px -24px -50px 0; }
+  .endcard-wm { font-size: 150px; font-weight: 700; letter-spacing: -4px; color: var(--navy); line-height: .9; white-space: nowrap; }
+  .endcard-v { color: var(--violet); }
+  .endcard-tagline { margin-top: 44px; font-size: 44px; font-weight: 500; color: var(--navy); white-space: nowrap; }
+  .endcard-tagline .endcard-v { font-weight: 600; }
+  .endcard-cta { margin-top: 64px; display: inline-flex; align-items: center; gap: 16px; background: var(--violet); color: #fff; font-weight: 600; font-size: 32px;
+    padding: 24px 44px; border-radius: 18px; box-shadow: 0 20px 44px rgba(109,74,255,0.32); white-space: nowrap; }
+  .endcard-arrow { display: block; width: 30px; height: 30px; }
+  .endcard-arrow svg { display: block; width: 30px; height: 30px; }
+</style>
+
+<div id="root" data-composition-id="outroshort" data-width="1920" data-height="1080" data-duration="2">
+  <div id="endcard-bg" class="endcard-layer"><div class="endcard-dots"></div></div>
+  <div id="endcard-sweep" class="endcard-layer"></div>
+
+  <div id="endcard-center" class="endcard-layer">
+    <div class="endcard-lockup">
+      <div class="endcard-bars">
+        <i class="endcard-bar" style="height:74px"><i class="endcard-fill" id="endcard-b0" style="background:linear-gradient(160deg,#DCD3FF,#B9AAF8)"></i></i>
+        <i class="endcard-bar" style="height:118px"><i class="endcard-fill" id="endcard-b1" style="background:linear-gradient(160deg,#C9B8FD,#9A80F6)"></i></i>
+        <i class="endcard-bar" style="height:160px"><i class="endcard-fill" id="endcard-b2" style="background:linear-gradient(160deg,#B49CFB,#7E5EF6)"></i></i>
+        <i class="endcard-bar" style="height:208px"><i class="endcard-fill" id="endcard-b3" style="background:linear-gradient(160deg,#9878FA,#6D4AFF)"></i></i>
+      </div>
+      <div class="endcard-wmwrap" id="endcard-wmwrap"><div class="endcard-wm" id="endcard-wm">Data<span class="endcard-v">Entropy</span></div></div>
+    </div>
+    <div class="endcard-tagline" id="endcard-tagline">Practical Data Skills. <span class="endcard-v">Real Career Impact.</span></div>
+  </div>
+</div>
+
+<script>
+  window.__timelines = window.__timelines || {};
+  const tl = gsap.timeline({ paused: true });
+  const H = [74, 118, 160, 208];
+  [0, 1, 2, 3].forEach((b) => {
+    tl.fromTo("#endcard-b" + b, { y: H[b] }, { y: 0, duration: 0.45, ease: "brand" }, 0.05 + b * 0.15);
+  });
+  tl.fromTo("#endcard-wmwrap", { x: -900 }, { x: 0, duration: 0.55, ease: "brand" }, 0.55);
+  tl.fromTo("#endcard-wm", { x: 900 }, { x: 0, duration: 0.55, ease: "brand" }, 0.55);
+  tl.fromTo("#endcard-sweep", { x: -560, opacity: 0 }, { x: 0, opacity: 1, duration: 0.6, ease: "sine.inOut" }, 0.9);
+  tl.fromTo("#endcard-tagline", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "brand" }, 1.0);
+  tl.fromTo("#endcard-center", { scale: 1 }, { scale: 1.015, duration: 2, ease: "sine.inOut" }, 0);
+  window.__timelines["outroshort"] = tl;
+</script>
+</template>
+</body></html>
