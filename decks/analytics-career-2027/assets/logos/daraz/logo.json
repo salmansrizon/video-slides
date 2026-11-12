@@ -1,0 +1,15 @@
+{
+ "brand": "Daraz",
+ "domain": "daraz.com.bd",
+ "files": [
+  {
+   "file": "logo-icon.ico",
+   "kind": "raster-icon",
+   "source": "site-icon-raster",
+   "url": "https://laz-img-cdn.alicdn.com/imgextra/i1/O1CN01V8uEDV1jdZ9U2wL90_!!6000000004571-73-tps-64-64.ico",
+   "note": "raster only: do not enlarge past its size; prefer typesetting the name"
+  }
+ ],
+ "note": "Trademark: nominative use only (identify the brand), unmodified official artwork, never recoloured, redrawn or presented as the film's own mark.",
+ "ok": false
+}

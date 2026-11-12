@@ -1,0 +1,15 @@
+{
+ "brand": "foodi",
+ "domain": "foodibd.com",
+ "files": [
+  {
+   "file": "logo-icon.png",
+   "kind": "raster-icon",
+   "source": "site-icon-raster",
+   "url": "https://foodibd.com/apple-touch-icon.png",
+   "note": "raster only: do not enlarge past its size; prefer typesetting the name"
+  }
+ ],
+ "note": "Trademark: nominative use only (identify the brand), unmodified official artwork, never recoloured, redrawn or presented as the film's own mark.",
+ "ok": false
+}
