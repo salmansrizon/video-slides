@@ -50,6 +50,7 @@ Every Talk uses one format ([docs/adr/0003](docs/adr/0003-shared-talk-format.md)
 - Every Slide: `<h2>` title first (add `<span class="num">` for numbered rules), optional `.lead`, then content from the kit in `lib/talk.css` (`.panel .item .chip .tile .stamp .rule .term .flow .inc .split .grid2 .kinetic .big .eg`), `.src` source line when a number is shown. Title Slide: `<section class="center">` with `<h1>`.
 - Dark, solid background always: no grids, dots, glows or shapes behind text. Graphs, simulations and Demos go inside a `.panel`; no full-screen scenes.
 - The Deck's Look is a skin: override the variables at the top of `lib/talk.css` (`--bg --card --accent --font --mono --radius` …) in the Deck's `<style>`, and give it its own motion presets. Fonts are the same in every Talk (Inter + Anek Bangla; JetBrains Mono for code and source lines), set by `lib/talk.css`. Don't restyle the layout or the face-cam padding.
+- Shared Looks: `lib/looks/clay.css` (load after `talk.css`, [docs/adr/0004](docs/adr/0004-shared-looks.md); specimen `decks/look-clay/`). Kit parts from it, usable in any Look: `.traj` agent trajectory (`traj`, `node` presets), `.frame` sandbox box, `.code` code panel (`line` preset: add / cur / del). See the comments in `lib/talk.js`.
 - Content stays out of the right 480 px (Landscape) and bottom 560 px (Vertical).
 
 ## Voiced video (Deck + voiceover → MP4)

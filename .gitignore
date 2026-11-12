@@ -1,3 +1,8 @@
 /renders/
 .DS_Store
 .hyperframes/
+
+# Third-party text kept local (public repo): talk transcripts, full job-ad texts
+*-talk-transcript.txt
+decks/*/research/jobposts/posts.json
+decks/*/research/jobposts/*.log

@@ -1,0 +1,15 @@
+/* Clay Look for Talk Decks: warm olive charcoal, clay-coral agent line, green checks, pink failures, lavender people.
+   Modelled on library/reference/lydia-hallie-claude-code-vlfCjWuv4es/STYLE.md (fonts stay the Talk's Inter, docs/adr/0004).
+   Load after lib/talk.css: <link rel="stylesheet" href="../../lib/looks/clay.css">. Signature part: .traj (lib/talk.js).
+   Calm motion: keep one diagram on screen and change it in place across Steps (node, dim, mark), rather than new Slides. */
+:root {
+  --bg: #1f1f1c; --fg: #f2f0ea; --card: #2a2a26; --card-2: #33332e; --border: #3b3a35; --muted-fg: #a3a198; --dim: #66655e;
+  --accent: #d9776a; --accent-ink: #1f1f1c;
+  --red: #e8507a; --green: #5fd36b; --blue: #9b9cf5; --yellow: #e6c46c;
+  --red-fg: #f47c9c; --green-fg: #8fe397; --blue-fg: #b6b7fb; --yellow-fg: #f0d690;
+  --radius: 14px; --radius-sm: 10px;
+}
+.panel, .term { box-shadow: none; }
+.reveal h1:not(.card *) { font-weight: 400 !important; letter-spacing: -0.02em; }
+.reveal h2:not(.card *) { font-weight: 500 !important; letter-spacing: -0.01em; }
+.big { font-weight: 300; color: var(--fg); }

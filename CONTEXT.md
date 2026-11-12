@@ -69,7 +69,7 @@ A working piece inside a Slide that really runs while recording (a SQL query on 
 _Avoid_: Live coding, sandbox, playground
 
 **Look**:
-A Talk Deck's own skin on the shared Talk format: its colours, shapes and motion, chosen for its topic. The Slide layout, the parts, the typefaces and the solid dark background are the same in every Talk.
+A Talk Deck's own skin on the shared Talk format: its colours, shapes and motion, chosen for its topic. The Slide layout, the parts, the typefaces and the solid dark background are the same in every Talk. A Look is either written for one Deck or shared from `lib/looks/` (Clay).
 _Avoid_: Theme, style, template, world
 
 **Asset**:

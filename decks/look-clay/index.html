@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="bn" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clay Look specimen</title>
+<!-- Specimen of the Clay Look (lib/looks/clay.css) and the agent trajectory part (.traj in lib/talk.css + lib/talk.js).
+     Not a video: copy Slides from here into a Talk. Reference: library/reference/lydia-hallie-claude-code-vlfCjWuv4es/STYLE.md -->
+<link rel="stylesheet" href="../../vendor/reveal/reveal.css">
+<link rel="stylesheet" href="../../lib/deck.css">
+<link rel="stylesheet" href="../../lib/talk.css">
+<link rel="stylesheet" href="../../lib/looks/clay.css">
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- S1 · cover -->
+<section>
+  <h1 data-enter="rise">Claude Code<br>ঠিকভাবে ব্যবহার</h1>
+  <p class="lead" data-enter="rise">Clay Look · specimen</p>
+  <div class="traj" data-enter="traj" data-delay="0.3" data-waves="3">
+    <i data-enter="node" data-delay="0.9" data-at=".25" class="check"></i>
+    <i data-enter="node" data-delay="1.0" data-at=".5" class="check"></i>
+    <i data-enter="node" data-delay="1.1" data-at=".75" class="check"></i>
+  </div>
+</section>
+
+<!-- S2 · in the loop -->
+<section>
+  <h2>In the loop</h2>
+  <div class="row"><span class="chip">auth.test.ts is failing, can you fix it?</span></div>
+  <div class="traj" data-enter="traj">
+    <i data-step="node" data-at=".12">Read</i>
+    <i data-step="node" data-at=".3">Edit ✓</i>
+    <i data-step="node" data-at=".42" class="human up">Fix the code, not the test</i>
+    <i data-step="node" data-at=".55"><b>Bash</b> npm test ✓</i>
+    <i data-step="node" data-at=".78" class="bad"><b>Bash</b> git reset --hard ✕</i>
+    <i data-step="node" data-at="1" class="check"></i>
+  </div>
+</section>
+
+<!-- S3 · sandbox -->
+<section>
+  <h2>Sandbox</h2>
+  <div class="frame" data-enter="rise"><span class="frame-h">sandbox · enforced by the OS</span>
+    <div class="traj" data-enter="traj" data-delay="0.2" data-waves="1">
+      <i data-step="node" data-at=".5"><b>Bash</b> npm test</i>
+      <i data-step="node" data-at=".75" class="fail up">.env</i>
+    </div>
+  </div>
+  <div class="row" data-step="rise"><span class="chip">which files it reads</span><span class="chip">which hosts it reaches</span></div>
+</section>
+
+<!-- S4 · verdict -->
+<section>
+  <h2>Can I take it back?</h2>
+  <div class="split">
+    <div class="panel" data-step="rise"><div class="panel-h green">Yes <span class="muted" style="font-size:24px">leave it to the model</span></div>
+      <ul><li>Edits to code, tests, docs</li><li>Anything git can revert</li></ul></div>
+    <div class="panel" data-step="rise"><div class="panel-h red">No <span class="muted" style="font-size:24px">make it a rule</span></div>
+      <ul><li>Deletes something for good</li><li>Exposes a secret</li></ul></div>
+  </div>
+  <p class="big" data-step="rise">14% <span class="accent">→</span> 89%</p>
+</section>
+
+<!-- S5 · code panel -->
+<section>
+  <h2>Prune CLAUDE.md</h2>
+  <div class="split">
+    <div class="code" data-enter="rise"><div class="code-h">CLAUDE.md</div><pre><span data-step="line" data-as="del">Think hard and be thorough.</span><span data-step="line" data-as="del">Keep going until it's done.</span><span data-step="line" data-as="cur">IMPORTANT: always use the auth helper</span><span>We're on Node 18.</span><span>src/legacy still serves our mobile apps</span></pre></div>
+    <div class="code" data-enter="rise"><div class="code-h">.claude / settings.json</div><pre><span>{</span><span>  <span class="key">"permissions"</span>: {</span><span data-step="line" data-as="add">    <span class="key">"deny"</span>: [<span class="str">"Bash(git reset --hard *)"</span>]</span><span>  }</span><span>}</span></pre></div>
+  </div>
+</section>
+
+</div></div>
+<script src="../../vendor/gsap/gsap.min.js"></script>
+<script src="../../vendor/gsap/SplitText.min.js"></script>
+<script src="../../vendor/gsap/DrawSVGPlugin.min.js"></script>
+<script src="../../vendor/reveal/reveal.js"></script>
+<script src="../../vendor/reveal/notes.js"></script>
+<script src="../../lib/deck.js"></script>
+<script src="../../lib/talk.js"></script>
+<script>Deck.start({ keyboard: Talk.keys });</script>
+</body>
+</html>
