@@ -1,0 +1,47 @@
+<!doctype html>
+<!-- YouTube thumbnail, 1280x720. base.png is the DataEntropy agent-team thumbnail: its logo, photo and name card are
+     kept; the old title and chips are painted over by .patch. Render: see README line at the bottom. -->
+<html><head><meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Inter'; src: url('../../../vendor/fonts/InterVariable.woff2') format('woff2'); font-weight: 100 900; }
+  @font-face { font-family: 'Anek Bangla'; src: url('../../../vendor/fonts/AnekBangla-Bengali-Variable.woff2') format('woff2'); font-weight: 100 800;
+    unicode-range: U+0964-0965, U+0980-09FE, U+200C-200D, U+25CC; }
+  :root { --navy: #172554; --purple: #7c4dff; --purple2: #a77bff; }
+  html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; }
+  body { position: relative; background: url(base.png) 0 0 / 1280px 720px; font-family: 'Inter', 'Anek Bangla', sans-serif; color: var(--navy); }
+  .patch { position: absolute; left: 0; top: 92px; width: 776px; height: 456px;
+    -webkit-mask: linear-gradient(transparent, #000 28px, #000 calc(100% - 8px), transparent);
+    background: radial-gradient(circle, rgba(23,37,84,.07) 1.2px, transparent 1.6px) 0 0 / 24px 24px,
+      linear-gradient(90deg, #fcfcfe 0 600px, #f4f2fd 700px, #e0d9fd 740px, #d0c5fd 760px, #c7baFC 770px, #c2b3fd 776px); }
+  .txt { position: absolute; left: 56px; top: 112px; }
+  h1 { margin: 0; font-weight: 800; font-size: 104px; line-height: 1.12; letter-spacing: -1px; }
+  h1 .p { background: linear-gradient(90deg, var(--purple), var(--purple2)); -webkit-background-clip: text; color: transparent; }
+  .chain { display: flex; align-items: center; margin-top: 30px; }
+  .chip { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 14px; padding: 15px 18px;
+    font-size: 23px; font-weight: 700; box-shadow: 0 6px 20px rgba(80,60,180,.13); }
+  .chip svg { width: 22px; height: 22px; color: var(--purple); stroke-width: 2.4; }
+  .link { width: 24px; height: 3px; background: var(--purple2); }
+  .ok { margin-left: 14px; width: 40px; height: 40px; border-radius: 50%; background: #2bb673; display: grid; place-items: center; color: #fff; }
+  .ok svg { width: 22px; height: 22px; stroke-width: 3; }
+  .pills { display: flex; gap: 18px; margin-top: 30px; }
+  .pill { display: flex; align-items: center; line-height: 1; border-radius: 999px; padding: 18px 30px; font-size: 30px; font-weight: 700; border: 2.5px solid var(--purple); color: var(--purple); background: #fff; }
+  .pill.f { background: var(--purple); color: #fff; box-shadow: 0 10px 24px rgba(124,77,255,.35); }
+</style></head>
+<body>
+  <div class="patch"></div>
+  <div class="txt">
+    <h1>AI-এর কোড<br><span class="p">টিকবে</span> তো?</h1>
+    <div class="chain">
+      <div class="chip"><i data-lucide="notebook-pen"></i>Plan</div><span class="link"></span>
+      <div class="chip"><i data-lucide="flask-conical"></i>Test</div><span class="link"></span>
+      <div class="chip"><i data-lucide="git-branch"></i>Git</div><span class="link"></span>
+      <div class="chip"><i data-lucide="shield-check"></i>Restore</div>
+      <div class="ok"><i data-lucide="check"></i></div>
+    </div>
+    <div class="pills"><span class="pill f">১২টা নিয়ম</span><span class="pill">Developer + Vibe Coder</span></div>
+  </div>
+  <script src="../../../vendor/lucide/lucide.min.js"></script>
+  <script>lucide.createIcons();</script>
+</body></html>
+<!-- Render: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless --hide-scrollbars --window-size=1280,720
+     --virtual-time-budget=3000 --screenshot=renders/sustainable-ai-coding-thumbnail.png "file://$PWD/decks/sustainable-ai-coding/thumbnail/index.html" -->

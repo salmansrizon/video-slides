@@ -80,7 +80,7 @@ Fetched and read on 2026-11-12. No Experiment of our own: every number on screen
   - The default "Trusted" network access allows package registries (npm, PyPI, RubyGems…) and blocks general internet.
   - Network secrets are used by sessions "without seeing them".
   - Setup scripts run first and are cached.
-  - **(verify the exact wording on the page; this came from search snippets)**
+  - Checked 2026-11-13: the default is now called **Limited** ("package registries, GitHub, and cloud SDKs"); network secrets: "the key itself stays outside the VM". The Script says exactly this.
 
 ## Other tools (the same ideas, so the Talk works for any AI-coding user)
 - **Cursor**, "Agent sandboxing", Feb 18, 2026. https://cursor.com/blog/agent-sandboxing
@@ -92,7 +92,7 @@ Fetched and read on 2026-11-12. No Experiment of our own: every number on screen
   - The default `workspace-write` sandbox lets it work in the folder.
   - Cloud: "Secrets configured for cloud environments are available only during setup and are removed before the agent phase starts."
 - **GitHub Copilot coding agent**, "Customize the agent environment". https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-environment
-  - Runs in GitHub Actions with `copilot-setup-steps.yml`, and its firewall is on by default **(verify the firewall wording on the page)**.
+  - Runs in GitHub Actions with `copilot-setup-steps.yml`, and its firewall is on by default **(not confirmed on this page, 2026-11-13; not used in the Script)**.
 
 ## Evidence: agents game the tests
 - Zhong, Raghunathan, Carlini, "ImpossibleBench: Measuring LLMs' Propensity of Exploiting Test Cases", arXiv:2510.20270, 23 Oct 2025 (ICLR 2026 poster). https://arxiv.org/abs/2510.20270

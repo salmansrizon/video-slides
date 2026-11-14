@@ -118,9 +118,6 @@
   html.vertical .tally .eg { grid-column: 1 / -1; justify-self: start; }
 
   /* S2 */
-  .s2 .train { border-style: dashed; color: var(--muted-fg); }
-  .s2 .train .tile { filter: saturate(.3); }
-  .s2 .desk { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
 
   /* S3 · the reread staircase */
   .s3-grid { display: grid; grid-template-columns: 1fr 400px; gap: 32px; width: 100%; align-items: stretch; }
@@ -205,14 +202,11 @@
   html.vertical .demo { top: 750px; grid-template-columns: 1fr; }
 
   /* S6 · 20 pages; the answer page walks */
-  .s6-top { display: grid; grid-template-columns: auto 1fr; gap: 24px; width: 100%; align-items: stretch; }
-  .s6-top small { display: block; }
   .fan { position: relative; width: 1210px; height: 250px; }
   .fan > .pg { position: absolute; width: 100px; height: 140px; }
   .pg .lines { position: absolute; inset: 20px 12px 22px; }
   .fan > .pgn { position: absolute; width: 60px; margin-left: -30px; text-align: center; font: 600 22px/1 var(--mono); color: var(--muted-fg); }
   .pg.ans { z-index: 5; } .pg.ans span { position: absolute; left: 10px; top: 10px; font-size: 20px; font-weight: 600; }
-  html.vertical .s6-top { grid-template-columns: 1fr; gap: 14px; }
   html.vertical .fan { width: 832px; height: 700px; }
   html.vertical .fan > .pg { width: 130px; height: 140px; }
 
@@ -229,21 +223,7 @@
   html.vertical .s8-ex { grid-template-columns: 1fr; }
   html.vertical .s8-link { height: 70px; }
   /* S9 · blank pages pile on the found page */
-  .s9-grid { display: grid; grid-template-columns: 640px 1fr; gap: 32px; width: 100%; align-items: start; }
-  .s9-pile { position: relative; width: 568px; height: 560px; }
-  .s9-pile > * { position: absolute; }
-  .s9-found { left: 150px; top: 150px; width: 240px; height: 290px; padding: 16px; font-size: 26px; font-weight: 600; z-index: 1; }
-  .s9-found .lines { height: 170px; margin-top: 14px; }
-  .s9-ok { left: 290px; top: 110px; z-index: 30; }
   .blank9 { width: 220px; height: 280px; }
-  .s9-range .big { font-size: 72px; display: block; margin-bottom: 8px; }
-  .s9-range span, .s9-quote span { font-size: 26px; color: var(--muted-fg); }
-  .s9-quote q { display: block; font: 500 27px/1.42 var(--serif); margin-bottom: 8px; }
-  html.vertical .s9-grid { grid-template-columns: 1fr; gap: 18px; }
-  html.vertical .s9-pile { width: 832px; height: 300px; }
-  html.vertical .s9-found { left: 300px; top: 10px; height: 270px; }
-  html.vertical .s9-ok { left: 560px; top: 30px; }
-  html.vertical .s9-range .big { font-size: 60px; }
 
   /* S10 · time to first token (the light runs in real time), the daily bill */
   .ttft { display: flex; flex-direction: column; gap: 14px; width: 100%; }
@@ -309,8 +289,6 @@
   html.vertical .lane .arr { margin-left: auto; margin-right: auto; }
 
   /* S13 · the meaning map (positions are an Illustration) */
-  .s13-strip { font-size: 26px; } .s13-strip .vec { font: 500 22px var(--mono); color: var(--accent); }
-  .s13-grid { display: grid; grid-template-columns: 800px 1fr; gap: 32px; width: 100%; align-items: start; }
   .map { position: relative; width: 728px; height: 470px; margin-top: 12px; }
   .map > * { position: absolute; }
   .map .dot { width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 4px; background: rgba(125,211,252,.35); box-shadow: 0 0 10px rgba(125,211,252,.3); }
@@ -321,17 +299,10 @@
   .map svg ellipse { fill: rgba(125,211,252,.03); stroke: rgba(125,211,252,.35); stroke-width: 2; }
   .map svg line { stroke: var(--yellow); stroke-width: 3; stroke-dasharray: 6 7; }
   .map .qs { z-index: 4; font-weight: 600; }
-  .s13-weak { right: 0; top: -6px; z-index: 5; }
-  .s13-eg { margin-bottom: 4px; }
   .tray13 { display: flex; flex-direction: column; gap: 10px; }
   .tray13 .got { align-self: flex-start; font: 500 21px/1.3 var(--serif); padding: 8px 14px; border-radius: 12px; background: var(--card-2); border: 1px solid rgba(125,211,252,.5); white-space: nowrap; }
-  .s13-side { display: flex; flex-direction: column; gap: 18px; }
-  .s13 .hbar { grid-template-columns: 150px 1fr 80px; font-size: 22px; }
-  html.vertical .s13-grid { grid-template-columns: 1fr; gap: 18px; }
   html.vertical .map { width: 832px; height: 440px; }
-  html.vertical .s13-side { flex-direction: row; } html.vertical .s13-side > * { flex: 1; min-width: 0; }
   html.vertical .tray13 .got { font-size: 18px; white-space: normal; }
-  html.vertical .s13 .hbar { grid-template-columns: 1fr 70px; } html.vertical .s13 .hbar .track { grid-column: 1 / -1; grid-row: 2; }
 
   /* S14 · one 200K desk: 500 English pages vs ~290 Bangla pages (page size an Illustration) */
   .s14-grid { display: grid; grid-template-columns: 664px 1fr; gap: 32px; width: 100%; align-items: start; }
@@ -421,8 +392,6 @@
   html.vertical .s17-side { flex-direction: column; }
 
   /* S18 / S19 */
-  .s18 .item { font-size: 28px; align-items: flex-start; }
-  .s18 .item svg { color: var(--yellow); margin-top: 4px; }
   .r9 { font-size: 30px; padding: 12px 20px; }
   .r9 .rn { display: inline-grid; place-items: center; width: 48px; height: 48px; flex: none; border-radius: 14px; background: var(--accent); color: var(--accent-ink); font: 700 26px var(--mono); }
   .close19 { display: flex; flex-direction: column; gap: 12px; }
@@ -439,17 +408,20 @@
   .page20 .ink { position: absolute; left: 20px; top: 66px; font: 600 24px var(--serif); color: var(--red-fg); white-space: nowrap; }
   .page20 .beam { position: absolute; top: 0; bottom: 0; left: -60px; width: 60px; background: linear-gradient(90deg, rgba(125,211,252,0), rgba(224,246,255,.75), rgba(125,211,252,0)); }
   html.vertical .next20 { grid-template-columns: 1fr; }
+  html.play .demo { display: none; }
+  html.play.vertical .reveal .slides > section { zoom: 1; padding: 220px 130px 400px 88px; }   /* the typing demo is for the live talk only */
 </style>
 </head>
 <body>
 <div class="reveal"><div class="slides">
 
 <!-- S1 · মনে রাখে না, আবার পড়ে -->
-<section class="s1">
+<section class="s1" data-at="0.00" data-auto="19.17 21.64 24.52 30.63">
   <h2 data-enter="rise">AI মনে রাখে না, আবার পড়ে</h2>
   <div class="s1-grid">
     <div class="panel"><div class="pilebox"><div class="pile" id="pile1"></div>
       <div class="pgc key keypg">ঠিক উত্তর<i class="lines"></i></div><span class="qmark">?</span></div></div>
+<audio data-vo src="assets/vo.mp3" preload="none"></audio>
     <div class="col tally">
       <span class="eg">ধরা যাক · প্রতি দফা ৫০০ token</span>
       <span class="muted">এবার পড়ল</span>
@@ -464,41 +436,12 @@
   <i class="cue" data-step="run" data-run="s1-4"></i>
   <div class="src"><i data-lucide="link"></i><span>ধরা যাক: প্রতি দফা ৫০০ token · প্রতিবার সব আবার পড়া: OpenAI conversation-state guide ("stateless"), Anthropic docs, Context windows</span></div>
   <aside class="notes">
-    <p>[auto] আলো জ্বলে; প্রথম message আর উত্তর টেবিলে পড়ে, scan bar দুইবার শুরু থেকে পড়ে যায়।</p>
-    <p>একটা গোপন কথা বলি।</p>
-    <p>AI আপনার chat মনে রাখে না।</p>
-    <p>প্রতিটা message-এ সে পুরো কথোপকথন প্রথম লাইন থেকে আবার পড়ে।</p>
-    <p>▶1 ধরা যাক প্রতি দফায় ৫০০ token। প্রথমবার সে পড়ল ৫০০।</p>
-    <p>▶2 দ্বিতীয়বার আবার শুরু থেকে: ১,০০০।</p>
-    <p>▶3 বিশ নম্বর message-এ? একবারে দশ হাজার।</p>
-    <p>আর আজকের সবচেয়ে অদ্ভুত তথ্য: ▶4 ঠিক উত্তরটা হাতে ধরিয়ে দিলেও AI ভুল করতে পারে, শুধু সেটা মাঝখানে রাখলেই।</p>
+    <p>AI আপনার Chat মনে রাখে না। অন্তত মানুষের মতো করে নয়। প্রতিবার নতুন প্রশ্ন করলে, AI-কে আগের কথোপকথনের তথ্য আবার Input হিসেবে দেওয়া হতে পারে। ভাবুন, AI-এর সামনে একটা বড় টেবিল আছে। এই টেবিলের নাম Context Window। ধরুন, প্রতি দফায় আপনি ৫০০ Token লিখছেন। ▶1 প্রথমবার AI পড়ল ৫০০ Token। ▶2 দ্বিতীয়বার আবার শুরু থেকে পড়ল ১ হাজার। ▶3 বিশ নম্বর Message-এ একবারে পড়ছে ১০ হাজার Token। কিন্তু আজকের সবচেয়ে অদ্ভুত তথ্যটা হলো, ▶4 ঠিক উত্তরটা AI-এর সামনে রাখলেও সে ভুল করতে পারে। শুধু উত্তরটা মাঝখানে রাখার কারণে। কেন এমন হয়? চলুন, একে একে বুঝি।</p>
   </aside>
 </section>
 
-<!-- S2 · টেবিল, লাইব্রেরি নয় -->
-<section class="s2">
-  <h2 data-enter="rise">টেবিল, লাইব্রেরি নয়</h2>
-  <div class="split">
-    <div class="panel train" data-step="lit"><div class="panel-h"><span class="tile"><i data-lucide="lock"></i></span>Training</div>
-      <p>বহু আগে পড়ে শেখা · আলমারিতে তালাবন্ধ</p></div>
-    <div class="panel desk" data-step="read"><div class="panel-h"><span class="tile accent"><i data-lucide="panel-top"></i></span>context window</div>
-      <p>সামনের টেবিল: এই মুহূর্তে যা টেবিলে আছে, সে শুধু তা-ই পড়তে পারে</p></div>
-  </div>
-  <div class="item" data-step="lit"><i data-lucide="quote"></i><span><b class="accent">"working memory"</b> · Anthropic docs: context window হলো model-এর "working memory"</span></div>
-  <p class="say" data-step="words">লাইব্রেরি নয়, টেবিল।</p>
-  <div class="src"><i data-lucide="link"></i><span>"working memory": Anthropic docs, Context windows (platform.claude.com)</span></div>
-  <aside class="notes">
-    <p>[auto] অন্ধকার ঘর থেকে camera পিছিয়ে আসে: আলমারি আর নিভে থাকা টেবিল।</p>
-    <p>AI-এর মনে রাখা দুই রকম।</p>
-    <p>▶1 Training: বহু আগে পড়ে শেখা, আলমারিতে তালাবন্ধ।</p>
-    <p>আর ▶2 context window: সামনের টেবিল। এই মুহূর্তে সে শুধু টেবিলে যা আছে, তা-ই পড়তে পারে।</p>
-    <p>▶3 Anthropic-এর documentation-ও একে বলে model-এর "working memory"।</p>
-    <p>▶4 লাইব্রেরি নয়, টেবিল।</p>
-  </aside>
-</section>
-
-<!-- S3 · নিয়ম ১: লম্বা chat, বড় বিল -->
-<section class="s3">
+<!-- S2 · নিয়ম ১: লম্বা chat, বড় বিল -->
+<section class="s3" data-at="39.42" data-auto="5.66 10.56 14.46 24.66 27.00">
   <h2 data-enter="rise"><span class="num">১</span>লম্বা chat, বড় বিল</h2>
   <p class="lead" data-enter="rise">chat যত লম্বা, প্রতিটা নতুন প্রশ্নের বিল তত বড়</p>
   <div class="s3-grid">
@@ -519,18 +462,12 @@
   <i class="cue" data-step="run" data-run="s3-5"></i>
   <div class="src"><i data-lucide="link"></i><span>ধরা যাক ৫০০ token/দফা: ৫০০ + ১,০০০ + … + ১০,০০০ = ১,০৫,০০০ · ১.৭১×: আমাদের Talk 1 পরীক্ষা (o200k_base) · cache read: Anthropic pricing (০.১×; Opus/Sonnet 5.5-এ ০.০৫×)</span></div>
   <aside class="notes">
-    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
-    <p>নিয়ম এক: chat যত লম্বা, প্রতিটা নতুন প্রশ্নের বিল তত বড়।</p>
-    <p>▶1 ধরা যাক প্রতি দফায় ৫০০ token: প্রতিটা প্রশ্নে সিঁড়ি এক ধাপ উঁচু।</p>
-    <p>▶2 বিশ নম্বর প্রশ্নে AI পড়ছে দশ হাজার token, বিশ দফায় মোট এক লাখ পাঁচ হাজার।</p>
-    <p>▶3 বাংলায় token লাগে প্রায় ১.৭১ গুণ, সেটা একটু পরে খুলে বলছি। তাই মোট প্রায় ১.৮ লাখ।</p>
-    <p>সমাধান? ▶4 নতুন বিষয় হলে নতুন chat।</p>
-    <p>▶5 App বানালে prompt caching: Claude-এ বারবার পড়া অংশের দাম মূল input-এর ১০% বা তারও কম।</p>
+    <p>প্রথম নিয়ম। Chat যত লম্বা হবে, প্রতিটি প্রশ্নের Input Cost তত বাড়তে পারে। ▶1 প্রতি দফায় ৫০০ Token হলে, বিশ নম্বর প্রশ্নে AI পড়ছে ১০ হাজার Token। ▶2 আর বিশ দফায় সব মিলিয়ে পড়ছে ১ লাখ ৫ হাজার Token। ▶3 বাংলায় একই কথা লিখতে ইংরেজির তুলনায় প্রায় ১ দশমিক ৭১ গুণ Token লাগতে পারে। তাই মোট Token দাঁড়াতে পারে প্রায় ১ লাখ ৮০ হাজার। সমাধান কী? ▶4 নতুন বিষয় হলে নতুন Chat খুলুন। ▶5 আর App তৈরি করলে ব্যবহার করুন Prompt Caching। Claude-এ বারবার পড়া একই অংশ Cache করা থাকলে, সেই অংশের Input Cost মূল দামের ১০ শতাংশ বা তারও কম হতে পারে।</p>
   </aside>
 </section>
 
-<!-- S4 · টেবিল বড় হলো -->
-<section class="s4">
+<!-- S3 · টেবিল বড় হলো -->
+<section class="s4" data-at="77.23" data-auto="3.58 9.01 12.48 20.30 23.71">
   <h2 data-enter="rise">টেবিল বড় হলো</h2>
   <div class="s4-grid">
     <div class="panel"><div class="s4-view"><div class="world"><div class="desk r1m"></div><div class="desk r100k"></div><div class="desk r4k"></div><div class="pour"></div></div></div></div>
@@ -549,18 +486,12 @@
   <i class="cue" data-step="run" data-run="s4-5" data-fragment-index="5"></i>
   <div class="src"><i data-lucide="link"></i><span>ক্ষেত্রফল ∝ token · ৪K ও ১০০K: Liu et al. 2023 §2.2 · ১০ লাখ: Anthropic, Google, OpenAI model docs (৯ নভেম্বর ২০২৬) · ৫৫৫k শব্দ: Anthropic models overview</span></div>
   <aside class="notes">
-    <p>[auto] অন্ধকারে ছোট্ট একটা আলোর টেবিল।</p>
-    <p>টেবিলটা কত বড়?</p>
-    <p>▶1 ২০২৩-এ GPT-3.5-Turbo-র টেবিল ছিল ৪ হাজার token।</p>
-    <p>▶2 সে বছরই Claude 1.3-এর একটা version-এ ১ লাখ।</p>
-    <p>▶3 আজ, ২০২৬-এর নভেম্বরে, Claude, GPT আর Gemini-র নতুন model-এ প্রায় ১০ লাখ token, Anthropic-এর হিসাবে প্রায় সাড়ে পাঁচ লাখ ইংরেজি শব্দ।</p>
-    <p>▶4 তিন বছরে আড়াইশো গুণ।</p>
-    <p>▶5 তাহলে কি সব বই টেবিলে ঢেলে দিলেই হলো?</p>
+    <p>এবার প্রশ্ন হলো, AI-এর এই টেবিলটা আসলে কত বড়? ▶1 ২০২৩ সালে জিপিটি থ্রি পয়েন্ট ফাইভ টার্বোর Context Window ছিল ৪ হাজার Token। ▶2 সেই বছরই Claude-এর একটি Version-এ ছিল ১ লাখ Token। ▶3 আর আজকের বড় Model-গুলোতে প্রায় ১০ লাখ Token পর্যন্ত Context Window পাওয়া যায়। অর্থাৎ প্রায় সাড়ে ৫ লাখ ইংরেজি শব্দ। ▶4 মাত্র তিন বছরে প্রায় ২৫০ গুণ বৃদ্ধি। ▶5 তাহলে কি এখন পুরো লাইব্রেরি AI-এর টেবিলে ঢেলে দিলেই হবে? না।</p>
   </aside>
 </section>
 
-<!-- S5 · নিয়ম ২: বাংলায় টেবিল আগে ভরে -->
-<section class="s5">
+<!-- S4 · নিয়ম ২: বাংলায় টেবিল আগে ভরে -->
+<section class="s5" data-at="105.23" data-auto="7.28 13.31 20.35 26.46 36.71 40.42 43.46 48.22 53.96">
   <h2 data-enter="rise"><span class="num">২</span>বাংলায় টেবিল আগে ভরে</h2>
   <div class="panel s5-stage">
     <div class="exp">
@@ -598,43 +529,12 @@
   <i class="cue" data-step="run" data-run="s5-9"></i>
   <div class="src"><i data-lucide="link"></i><span>১.৭১×, ৫.৮৮×: আমাদের Talk 1 পরীক্ষা (FLORES-200 devtest, ১০১২ বাক্য) · গোনা: আসল o200k_base ও cl100k_base tokenizer · "first in, first out" ও compaction: Anthropic docs, Context windows</span></div>
   <aside class="notes">
-    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
-    <p>নিয়ম দুই: টেবিল যত বড়ই হোক, একদিন ভরবে, আর বাংলায় ভরবে আগে।</p>
-    <p>▶1 আমাদের প্রথম ভিডিওতে পেশাদার অনুবাদকের করা ১০১২টা বাক্যের ইংরেজি আর বাংলা আসল tokenizer দিয়ে গুনেছিলাম।</p>
-    <p>▶2 GPT-4o থেকে GPT-5-এর tokenizer-এ বাংলায় লেগেছে ১.৭১ গুণ token। ▶3 GPT-3.5 আর GPT-4-এর tokenizer-এ ৫.৮৮ গুণ।</p>
-    <p>▶4 এবার ধরা যাক ছোট একটা টেবিল, একই কথোপকথন দুই ভাষায়।</p>
-    <p>ভরে গেলে কিছু chat app সবচেয়ে পুরনো কথা সরিয়ে দেয়: আগে এলে আগে বাদ। ▶5 বাংলায় আপনার প্রথম নির্দেশটাই আগে পড়ে গেল।</p>
-    <p>▶6 ইংরেজিতেও পড়বে, তবে পরে।</p>
-    <p>▶7 তাই জরুরি নির্দেশ system prompt-এ রাখুন বা আবার বলুন।</p>
-    <p>▶8 কিছু system পুরনোটার সারাংশ রাখে, Anthropic বলে compaction।</p>
-    <p>▶9 (Demo চালান)</p>
-    <p>নিজেই দেখুন, কোন ভাষায় টেবিল আগে ভরে।</p>
-    <p>[Demo: বক্সে ক্লিক করে বাংলা বা ইংরেজি লিখুন বা paste করুন, তারপর Enter। ভাষা দেখে লেখাটা নিজে থেকে ঠিক টেবিলে যায়, মাপ আসল tokenizer-এর। উপরের বোতামে GPT-4o+ বা GPT-4 বদলান। Esc চাপলে আবার ↓ → কাজ করবে।]</p>
+    <p>কারণ Context Window যত বড়ই হোক, একসময় সেটা ভরবে। আর বাংলায় ভরবে আরও আগে। এটাই দ্বিতীয় নিয়ম। ▶1 আমরা পেশাদার অনুবাদের ১ হাজার ১২টি ইংরেজি ও বাংলা বাক্য আসল Tokenizer দিয়ে গুনেছি। ▶2 জিপিটি ফোর ও থেকে জিপিটি ফাইভে একই অর্থ প্রকাশ করতে বাংলায় লাগে প্রায় ১ দশমিক ৭১ গুণ Token। ▶3 আর জিপিটি থ্রি পয়েন্ট ফাইভ এবং জিপিটি ফোরের ক্ষেত্রে এই পার্থক্য ছিল ৫ দশমিক ৮৮ গুণ। ▶4 একই কথোপকথন যদি ইংরেজি ও বাংলায় লিখি, তাহলে বাংলার টেবিল আগে ভরে যেতে পারে। আর টেবিল ভরে গেলে কী হয়? কিছু App সবচেয়ে পুরোনো কথাগুলো সরিয়ে দেয়। ▶5 ফলে বাংলায় আপনার প্রথম নির্দেশটাই আগে হারিয়ে যেতে পারে। ▶6 ইংরেজিতেও হারাবে, তবে তুলনামূলকভাবে পরে। ▶7 তাই জরুরি নির্দেশ System Prompt-এ রাখুন। প্রয়োজনে আবার মনে করিয়ে দিন। ▶8 কিছু System পুরোনো কথোপকথনের সারাংশ তৈরি করে রাখে। এই পদ্ধতির নাম Compaction। ▶9 আপনার নিজের ভাষায় Context Window কত দ্রুত ভরে, সেটা মেপে দেখুন।</p>
   </aside>
 </section>
 
-<!-- S6 · টেবিলে থাকলেই কি পড়া হয়? -->
-<section class="s6">
-  <h2 data-enter="rise">টেবিলে থাকলেই কি পড়া হয়?</h2>
-  <div class="s6-top">
-    <div class="item" data-step="lit"><i data-lucide="book-open-check"></i><span><b>"Lost in the Middle"</b><br>Liu et al. · ২০২৩ (TACL 2024)</span></div>
-    <div class="item" data-step="lit"><i data-lucide="circle-help"></i><span><small>একটা প্রশ্ন (উদাহরণ)</small>পদার্থবিজ্ঞানে প্রথম নোবেল পুরস্কার কে পেয়েছিলেন?</span></div>
-  </div>
-  <div class="panel"><div class="fan" id="fan6"></div></div>
-  <i class="cue" data-step="run" data-run="s6-3"></i>
-  <i class="cue" data-step="run" data-run="s6-4"></i>
-  <div class="src"><i data-lucide="link"></i><span>Liu et al., "Lost in the Middle", TACL 2024 §2.1 · NaturalQuestions-Open · প্রতিটা পাতা ≤ ১০০ token, ঠিক একটায় উত্তর · প্রশ্নটা উদাহরণ</span></div>
-  <aside class="notes">
-    <p>[auto] প্রশ্নটা টেবিলে লেখা হয়।</p>
-    <p>কিন্তু টেবিলে থাকলেই কি পড়া হয়?</p>
-    <p>▶1 ২০২৩-এর গবেষণা "Lost in the Middle"। ▶2 AI-কে দেওয়া হলো একটা প্রশ্ন।</p>
-    <p>▶3 সাথে Wikipedia-র ২০টা ছোট পাতা। উত্তর আছে ঠিক একটা পাতায়, বাকি ১৯টায় নেই।</p>
-    <p>▶4 তারপর উত্তরের পাতাটা সরিয়ে সরিয়ে দেখা হলো: প্রথমে, পঞ্চমে, দশমে… বিশে।</p>
-  </aside>
-</section>
-
-<!-- S7 · নিয়ম ৩: মাঝখানে হারায় -->
-<section class="s7">
+<!-- S5 · নিয়ম ৩: মাঝখানে হারায় -->
+<section class="s7" data-at="163.53" data-auto="15.89 22.65 28.75 30.43 35.54 43.28 47.48">
   <h2 data-enter="rise"><span class="num">৩</span>মাঝখানে হারায়</h2>
   <div class="stack">
     <span class="chip s7-tag"><i data-lucide="book-open-check"></i>Lost in the Middle · GPT-3.5-Turbo · প্রতিবার ২০টা পাতা</span>
@@ -651,19 +551,12 @@
   <i class="cue" data-step="run" data-run="s7-7"></i>
   <div class="src"><i data-lucide="link"></i><span>Liu et al., TACL 2024 · Table 6 (২০টা পাতা, GPT-3.5-Turbo; উত্তর ১ / ৫ / ১০ / ১৫ / ২০ নম্বরে) · Table 1 (পাতা ছাড়া ৫৬.১%, শুধু ঠিক পাতা ৮৮.৩%) · আলো = এই মাপ</span></div>
   <aside class="notes">
-    <p>[auto] চার্টের খালি ঘর আঁকা হয়।</p>
-    <p>▶1 উত্তর প্রথম পাতায় থাকলে GPT-3.5-Turbo ঠিক বলেছে প্রায় ৭৬%। ▶2 শেষ পাতায় ৬৩%।</p>
-    <p>▶3 মাঝখানে, দশ নম্বরে? ৫৪%। একটা U।</p>
-    <p>(২ সেকেন্ড থামুন)</p>
-    <p>▶4 কোনো পাতাই না দিলে, শুধু training-এর শেখা থেকে: ৫৬%।</p>
-    <p>▶5 মানে ঠিক উত্তরটা হাতে দিলেন, মাঝখানে রাখলেন, আর ফল হলো না দেওয়ার চেয়েও খারাপ।</p>
-    <p>▶6 আর শুধু ঠিক পাতাটা একা দিলে? ৮৮%।</p>
-    <p>▶7 নিয়ম তিন: জরুরি কথা শুরুতে বা শেষে। প্রশ্নটা শেষে। আর কম পাতা, ঠিক পাতা।</p>
+    <p>এবার আসি সবচেয়ে অদ্ভুত পরীক্ষায়। ঠিক উত্তরটা AI-এর সামনে দিলেন, তবুও সে ভুল করল কেন? ২০২৩ সালের Lost in the Middle গবেষণায় AI-কে দেওয়া হয়েছিল ২০টি Wikipedia পাতা। উত্তর ছিল মাত্র একটি পাতায়। এবার দেখুন ফলাফল। ▶1 উত্তর প্রথম পাতায় থাকলে জিপিটি থ্রি পয়েন্ট ফাইভ টার্বো সঠিক উত্তর দিয়েছে প্রায় ৭৬ শতাংশ ক্ষেত্রে। ▶2 শেষ পাতায় থাকলে ৬৩ শতাংশ। কিন্তু উত্তর যদি মাঝখানে, অর্থাৎ দশ নম্বর পাতায় থাকে? ▶3 মাত্র ৫৪ শতাংশ। ▶4 আর কোনো পাতাতেই উত্তর না থাকলে সঠিক উত্তর দেওয়ার হার ছিল ৫৬ শতাংশ। ▶5 মানে, উত্তর মাঝখানে রাখলে ফলাফল এমন হয়েছে, যেন উত্তরটা দেওয়াই হয়নি। কিন্তু শুধু সঠিক পাতাটা আলাদা করে দিলে? ▶6 সঠিক উত্তর দেওয়ার হার বেড়ে ৮৮ শতাংশ। তাহলে কী শিখলাম? ▶7 জরুরি তথ্য শুরুতে বা শেষে রাখুন। প্রশ্নটা শেষে করুন। আর অপ্রয়োজনীয় পাতা কমিয়ে দিন। এটাই তৃতীয় নিয়ম।</p>
   </aside>
 </section>
 
-<!-- S8 · নিয়ম ৪: কাজের window -->
-<section class="s8">
+<!-- S6 · নিয়ম ৪: কাজের window -->
+<section class="s8" data-at="218.88" data-auto="15.53 28.32 36.35 40.76 45.30 50.84 57.25">
   <h2 data-enter="rise"><span class="num">৪</span>কাজের window</h2>
   <div class="stack">
     <span class="chip s8-tag"><i data-lucide="book-open-check"></i>NoLiMa · Modarressi et al. · ICML 2025 · প্রশ্ন আর উত্তরে একই শব্দ নেই</span>
@@ -688,49 +581,12 @@
   <i class="cue" data-step="run" data-run="s8-7"></i>
   <div class="src"><i data-lucide="link"></i><span>NoLiMa (Modarressi et al., ICML 2025), Table 3 · "ছোট" = base score · RULER (Hsieh et al., NVIDIA, COLM 2024), abstract ও Table 3</span></div>
   <aside class="notes">
-    <p>[auto] গবেষণার নাম-পাতা আর চার্টের খালি ঘর।</p>
-    <p>২০২৫-এ ICML-এ প্রকাশিত NoLiMa গবেষণায় প্রশ্ন আর উত্তরে একই শব্দ নেই।</p>
-    <p>▶1 পাতায় লেখা: "Yuki থাকে Semper Opera House-এর পাশে।" প্রশ্ন: "কে Dresden গিয়েছে?" AI-কে নিজে বুঝতে হবে, Opera House-টা Dresden-এ।</p>
-    <p>▶2 GPT-4o ছোট লেখায় পায় ৯৯%, ৩২ হাজার token-এ ৭০%।</p>
-    <p>▶3 Llama 3.3 70B ৯৭% থেকে ৪৩%। ▶4 Claude 3.5 Sonnet ৮৮% থেকে ৩০%।</p>
-    <p>▶5 অথচ গায়ে লেখা window ১ লাখ ২৮ হাজার, Claude-এর ২ লাখ।</p>
-    <p>▶6 NVIDIA-র RULER-এও তাই: ১৭টা model-এর সবার দাবি অন্তত ৩২ হাজার, অথচ ৩২ হাজারে সন্তোষজনক ফল রেখেছে মাত্র অর্ধেক।</p>
-    <p>▶7 নিয়ম চার: গায়ের লেখা নয়, কাজের window দেখুন, নিজের ডেটায় মেপে।</p>
+    <p>এবার একটা গুরুত্বপূর্ণ বিষয়। Model-এর গায়ে লেখা Context Window আর বাস্তবে কাজের Context Window এক জিনিস নয়। ২০২৫ সালের NoLiMa গবেষণায় এমন কিছু প্রশ্ন পরীক্ষা করা হয়েছিল, যেখানে প্রশ্ন আর উত্তরের মধ্যে একই শব্দ ছিল না। ▶1 ধরুন, একটি পাতায় লেখা আছে, Yuki থাকে Dresden-এর Semper Opera House-এর পাশে। আর আপনাকে প্রশ্ন করা হলো, কে Dresden গিয়েছে? এখানে AI-কে শুধু শব্দ মেলালে চলবে না। সম্পর্কটা বুঝতে হবে। ▶2 জিপিটি ফোর ও ছোট লেখায় প্রায় ৯৯ শতাংশ সঠিক উত্তর দিয়েছে। কিন্তু ৩২ হাজার Token-এ নেমে এসেছে ৭০ শতাংশে। ▶3 লামা থ্রি পয়েন্ট থ্রি ৯৭ শতাংশ থেকে নেমে ৪৩ শতাংশে। ▶4 Claude থ্রি পয়েন্ট ফাইভ Sonnet ৮৮ শতাংশ থেকে নেমে ৩০ শতাংশে। ▶5 অথচ এদের Context Window ছিল ১ লাখ ২৮ হাজার এবং ২ লাখ Token পর্যন্ত। ▶6 NVIDIA-র RULER Benchmark-এ ১৭টি Model-এর মাত্র অর্ধেক ৩২ হাজার Token-এ ভালো ফল করেছে। ▶7 তাই শুধু Model-এর বড় Context Window দেখে সিদ্ধান্ত নেবেন না। নিজের Data দিয়ে পরীক্ষা করুন। এটাই চতুর্থ নিয়ম।</p>
   </aside>
 </section>
 
-<!-- S9 · শুধু লম্বা হওয়াটাই ক্ষতি -->
-<section class="s9">
-  <h2 data-enter="rise">শুধু লম্বা হওয়াটাই ক্ষতি</h2>
-  <div class="s9-grid">
-    <div class="panel"><div class="s9-pile"><div class="pgc key s9-found">দরকারি তথ্য<i class="lines"></i></div>
-      <span class="chip green s9-ok"><i data-lucide="check"></i>খুঁজে পেয়েছে</span></div></div>
-    <div class="col">
-      <div class="item s9-tag"><i data-lucide="book-open-check"></i><span><b>Du et al.</b> · Findings of EMNLP 2025</span></div>
-      <div class="panel s9-range"><b class="big">১৩.৯% – ৮৫%</b><span>লম্বা হতেই ফল খারাপ, ফাঁকা space দিয়ে লম্বা করলেও</span></div>
-      <div class="item s9-chroma"><i data-lucide="flask-conical"></i><span><b>Chroma, ২০২৫ · ১৮টা model</b><br>Claude Opus 4, GPT-4.1, Gemini 2.5 Pro…: input লম্বা হলে ফল খারাপ, প্রায়ই অসমানভাবে</span></div>
-      <div class="panel s9-quote"><q>more context isn't automatically better. As token count grows, accuracy and recall degrade</q><span><b class="accent">context rot</b> · Anthropic docs</span></div>
-    </div>
-  </div>
-  <i class="cue" data-enter="run" data-run="s9-in" data-delay="0"></i>
-  <i class="cue" data-step="run" data-run="s9-1"></i>
-  <i class="cue" data-step="run" data-run="s9-2"></i>
-  <i class="cue" data-step="run" data-run="s9-3"></i>
-  <i class="cue" data-step="run" data-run="s9-4"></i>
-  <i class="cue" data-step="run" data-run="s9-5"></i>
-  <div class="src"><i data-lucide="link"></i><span>Du et al., "Context Length Alone Hurts LLM Performance Despite Perfect Retrieval", Findings of EMNLP 2025 · Chroma, "Context Rot" (১৪ জুলাই ২০২৫) · Anthropic docs, Context windows</span></div>
-  <aside class="notes">
-    <p>[auto] দরকারি পাতাটা টেবিলে, তারপর কথাটা লেখা হয়।</p>
-    <p>দ্বিতীয় চমক: শুধু লম্বা হওয়াটাই ক্ষতি করে।</p>
-    <p>▶1 ২০২৫-এ EMNLP-তে প্রকাশিত এক গবেষণায় AI দরকারি তথ্য ঠিকই খুঁজে পায়। ▶2 তারপর লেখা লম্বা করা হলো, একবার শুধু ফাঁকা space দিয়ে।</p>
-    <p>▶3 লম্বা হতেই ফল খারাপ হলো ১৩.৯% থেকে ৮৫% পর্যন্ত, ফাঁকা space-এও পতন থামেনি।</p>
-    <p>▶4 Chroma ২০২৫-এ Claude Opus 4, GPT-4.1 সহ ১৮টা model মেপেছে: input লম্বা হলে ফল খারাপ, প্রায়ই অসমানভাবে।</p>
-    <p>▶5 Anthropic-এর documentation-ও আজ বলে: বেশি context মানেই ভালো নয়, token বাড়লে নির্ভুলতা কমে। এর নাম context rot।</p>
-  </aside>
-</section>
-
-<!-- S10 · নিয়ম ৫: বড় টেবিল, বড় বিল -->
-<section class="s10">
+<!-- S7 · নিয়ম ৫: বড় টেবিল, বড় বিল -->
+<section class="s10" data-at="282.95" data-auto="5.08 11.88 15.17 20.37 26.84 33.47 44.87">
   <h2 data-enter="rise"><span class="num">৫</span>বড় টেবিল, বড় বিল</h2>
   <div class="panel ttft">
     <span class="bt">উত্তরের প্রথম token আসতে কত সময় (Anthropic-এর মাপ, ২০২৪-এর model; আলো চলে আসল সময় ধরে)</span>
@@ -758,21 +614,12 @@
   <i class="cue" data-step="run" data-run="s10-7"></i>
   <div class="src"><i data-lucide="link"></i><span>সময়: Anthropic prompt caching post (২০২৪-এর model) · Anthropic pricing (long context) · OpenAI GPT-6.1 Sol model page · বিল ধরা যাক: input $২/MTok, cache read $০.১০/MTok (cache write বাদ); ১৬,০০০ token × ১,০০০ = $৩২</span></div>
   <aside class="notes">
-    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
-    <p>নিয়ম পাঁচ: বড় টেবিল মানে বড় বিল আর লম্বা অপেক্ষা।</p>
-    <p>▶1 Anthropic-এর ২০২৪-এর মাপে, ১০ হাজার token-এর prompt-এ প্রথম token আসতে ১.৬ সেকেন্ড।</p>
-    <p>▶2 ১ লাখ token-এ ১১.৫ সেকেন্ড।</p>
-    <p>[এই আলো আসল সময় ধরে চলে: পুরো ১১.৫ সেকেন্ড। শেষ হওয়া পর্যন্ত অপেক্ষা করুন।]</p>
-    <p>▶3 দাম? Anthropic লিখেছে, ৯ লাখ আর ৯ হাজার token-এর request একই rate-এ বিল হয়। মানে token একশো গুণ, বিলও একশো গুণ।</p>
-    <p>▶4 OpenAI-এর GPT-6.1 Sol-এ ২ লাখ ৭২ হাজার token পেরোলে পুরো request-এর input-এর দাম দ্বিগুণ।</p>
-    <p>▶5 ধরা যাক Claude Sonnet 5.5-এ প্রতি প্রশ্নে ১০ লাখ token। দিনে ১,০০০ প্রশ্নে শুধু input ২,০০০ ডলার।</p>
-    <p>▶6 একই document বারবার পাঠালে caching বিল নামায় প্রায় ১০০ ডলারে, কিন্তু টেবিলের ভিড় কমায় না।</p>
-    <p>▶7 আর ৮০০ token-এর ঠিক ২০টা টুকরো? প্রায় ৩২ ডলার।</p>
+    <p>পঞ্চম নিয়ম। বড় Context Window মানে বড় বিল, আর লম্বা অপেক্ষা। ▶1 Anthropic-এর একটি মাপে, ১০ হাজার Token-এর Input-এ প্রথম Token আসতে সময় লেগেছে ১ দশমিক ৬ সেকেন্ড। ▶2 ১ লাখ Token-এ লেগেছে ১১ দশমিক ৫ সেকেন্ড। ▶3 আর ৯ লাখ Token-এর Input-এর খরচ ৯ হাজার Token-এর তুলনায় ১০০ গুণ হতে পারে। ▶4 OpenAI-এর জিপিটি সিক্স পয়েন্ট ওয়ান সল-এ ২ লাখ ৭২ হাজার Token পেরোলে Input-এর দাম দ্বিগুণ হয়। ▶5 প্রতি প্রশ্নে ১০ লাখ Token দিলে, দিনে ১ হাজার প্রশ্নে শুধু Input-এর খরচ দাঁড়াতে পারে ২ হাজার ডলার। ▶6 Caching ব্যবহার করলে সেই খরচ নেমে আসতে পারে প্রায় ১০০ ডলারে। কিন্তু মনে রাখবেন, এতে প্রসেসিংয়ের ভিড় বা অপেক্ষা কমে না। আর যদি পুরো লাইব্রেরি না দিয়ে শুধু দরকারি ২০টি টুকরো দেন? ▶7 তাহলে খরচ নেমে আসতে পারে প্রায় ৩২ ডলারে।</p>
   </aside>
 </section>
 
-<!-- S11 · RAG: চার পাতা ফটোকপি -->
-<section class="s11">
+<!-- S8 · RAG: চার পাতা ফটোকপি -->
+<section class="s11" data-at="331.06" data-auto="6.18 10.00 14.52 19.08 27.92 31.80">
   <h2 data-enter="rise">RAG: চার পাতা ফটোকপি</h2>
   <p class="say" data-step="words">পুরো লাইব্রেরি নয়, দরকারি চার পাতা।</p>
   <div class="grid2">
@@ -795,17 +642,12 @@
   <i class="cue" data-step="run" data-run="s11-6"></i>
   <div class="src"><i data-lucide="link"></i><span>Lewis et al., "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks", NeurIPS 2020 (Facebook AI Research, UCL, NYU) · Wikipedia Dec 2018 dump · প্রতি প্রশ্নে k = ৫ বা ১০</span></div>
   <aside class="notes">
-    <p>[auto] বন্ধ ড্রয়ার আর ফাঁকা টেবিল।</p>
-    <p>তাহলে উপায়? নীলক্ষেতে কেউ পুরো লাইব্রেরি ফটোকপি করে না, ▶1 দরকারি চার পাতা করে।</p>
-    <p>▶2 RAG ঠিক এটাই: Retrieval-Augmented Generation। ▶3 নামটা ২০২০ সালে Facebook AI-এর Patrick Lewis আর সহকর্মীদের গবেষণার।</p>
-    <p>▶4 তাঁরা পুরো Wikipedia ভেঙেছিলেন ১০০ শব্দের টুকরোয়, মোট ২ কোটি ১০ লাখ।</p>
-    <p>▶5 প্রশ্ন এলে টেবিলে আনতেন মাত্র ৫ বা ১০টা।</p>
-    <p>▶6 তারপর প্রশ্ন আর ওই কয়েকটা পাতা পড়ে উত্তর।</p>
+    <p>এবার ভাবুন। নীলক্ষেতে কেউ একটা বইয়ের চার পাতা দরকার হলে পুরো লাইব্রেরি ফটোকপি করে না। ▶1 AI-কে তথ্য দেওয়ার ক্ষেত্রেও একই বুদ্ধি কাজে লাগে। ▶2 এর নাম RAG। এর পূর্ণরূপ Retrieval-Augmented Generation। ▶3 ২০২০ সালে Facebook AI-এর একটি গবেষণায় এই পদ্ধতি তুলে ধরা হয়। ▶4 তাঁরা পুরো Wikipedia-কে প্রায় ১০০ শব্দের ২ কোটি ১০ লাখ টুকরোয় ভাগ করেছিলেন। প্রশ্ন এলে AI-এর সামনে সব টুকরো আনা হতো না। ▶5 শুধু সবচেয়ে প্রাসঙ্গিক ৫ বা ১০টি টুকরো খুঁজে আনা হতো। ▶6 তারপর সেই কয়েকটি তথ্য পড়ে AI উত্তর তৈরি করত।</p>
   </aside>
 </section>
 
-<!-- S12 · RAG চার ধাপে -->
-<section class="s12">
+<!-- S9 · RAG চার ধাপে -->
+<section class="s12" data-at="366.30" data-auto="2.36 5.62 10.20 14.68 17.65">
   <h2 data-enter="rise">RAG চার ধাপে</h2>
   <div class="lanes">
     <div class="panel lane l12-0"><div class="lane-h">আগে, একবারই</div><div class="flow">
@@ -830,51 +672,12 @@
   <i class="cue" data-step="run" data-run="s12-5"></i>
   <div class="src"><i data-lucide="link"></i><span>সংজ্ঞা: Anthropic, Introducing Contextual Retrieval (২০২৪) · OpenAI embeddings guide · সংখ্যাগুলো উদাহরণ</span></div>
   <aside class="notes">
-    <p>[auto] দুই সারি আঁকা হয়: "আগে, একবারই" আর "প্রতিটা প্রশ্নে"; document-এর পাতা।</p>
-    <p>RAG চলে চার ধাপে। প্রথম দুটো আগে একবারই।</p>
-    <p>▶1 এক: document-কে টুকরো করা, এর নাম chunk।</p>
-    <p>▶2 দুই: প্রতিটা টুকরোকে সংখ্যার তালিকায় বদলানো, এর নাম embedding।</p>
-    <p>বাকি দুটো প্রতিটা প্রশ্নে। ▶3 তিন: প্রশ্নের কাছাকাছি টুকরো খোঁজা, search।</p>
-    <p>▶4 চার: সেগুলো prompt-এ বসানো।</p>
-    <p>▶5 তারপর AI উত্তর লেখে।</p>
+    <p>RAG কাজ করে চারটি ধাপে। ▶1 এক। Document-কে ছোট ছোট Chunk-এ ভাগ করা। ▶2 দুই। প্রতিটি Chunk-কে সংখ্যায় রূপান্তর করা। একে বলে Embedding। ▶3 তিন। প্রশ্নের সঙ্গে সবচেয়ে বেশি মেলে এমন Chunk খুঁজে বের করা। ▶4 চার। সেই Chunk-গুলো Prompt-এর মধ্যে বসানো। ▶5 তারপর AI উত্তর তৈরি করে।</p>
   </aside>
 </section>
 
-<!-- S13 · অর্থের মানচিত্র -->
-<section class="s13">
-  <h2 data-enter="rise">অর্থের মানচিত্র</h2>
-  <div class="item s13-strip" data-enter="lit"><i data-lucide="binary"></i><span>একটা লেখা → <span class="vec">[০.০২১, −০.১১৩, ০.০৮৭, ০.৩০২, −০.০৪৫, … মোট ১৫৩৬টা সংখ্যা]</span> · OpenAI text-embedding-3-small</span></div>
-  <div class="s13-grid">
-    <div class="panel"><span class="eg s13-eg">ধরা যাক · দুই মাত্রার মানচিত্র</span><div class="map"></div></div>
-    <div class="s13-side">
-      <div class="panel tray13"><span class="bt">টেবিলে উঠল</span></div>
-      <div class="panel hbars s13-bars">
-        <span class="bt">MIRACL · বাংলা প্রশ্ন · nDCG@10 (১০০-তে)</span>
-        <div class="hbar h1"><span>পুরনো mDPR</span><span class="track"><i class="bb lo" style="width:44.3%"></i></span><b>৪৪.৩</b></div>
-        <div class="hbar h2"><span>BGE-M3</span><span class="track"><i class="bb" style="width:80%"></i></span><b>৮০.০</b></div>
-      </div>
-    </div>
-  </div>
-  <i class="cue" data-step="run" data-run="s13-1"></i>
-  <i class="cue" data-step="run" data-run="s13-2"></i>
-  <i class="cue" data-step="run" data-run="s13-3"></i>
-  <i class="cue" data-step="run" data-run="s13-4"></i>
-  <i class="cue" data-step="run" data-run="s13-5"></i>
-  <i class="cue" data-step="run" data-run="s13-6"></i>
-  <div class="src"><i data-lucide="link"></i><span>১৫৩৬ মাত্রা ও "দূরত্ব = সম্পর্ক": OpenAI embeddings guide · সংখ্যাগুলো আর মানচিত্রের জায়গা উদাহরণ · MIRACL বাংলা (dev) nDCG@10: Chen et al., BGE M3-Embedding, Table 1</span></div>
-  <aside class="notes">
-    <p>[auto] একটা লেখা থেকে সংখ্যার লম্বা তালিকা।</p>
-    <p>OpenAI-এর ছোট embedding model-এ প্রতিটা লেখা হয়ে যায় ১৫৩৬টা সংখ্যার তালিকা। অর্থ কাছাকাছি হলে সংখ্যাও কাছাকাছি।</p>
-    <p>এত মাত্রা আঁকা যায় না, তাই ▶1 ধরা যাক দুই মাত্রার মানচিত্র: ক্রিকেট, ধান চাষ আর মোবাইল বিল, তিনটা আলাদা পাড়ায়।</p>
-    <p>▶2 প্রশ্ন এল: "ধানের পাতা হলুদ হচ্ছে কেন?" সে নামল ধান চাষের পাড়ায়।</p>
-    <p>▶3 সবচেয়ে কাছের তিনটা টুকরো উঠে গেল টেবিলে।</p>
-    <p>▶4 পাশেই ইংরেজি "rice leaves turning yellow"। ভালো multilingual model ভাষা পেরিয়েও অর্থ মেলায়।</p>
-    <p>▶5 ধরা যাক দুর্বল model: পাড়াগুলো ঢিলে। ▶6 আসল মাপে, MIRACL পরীক্ষার বাংলা অংশে পুরনো mDPR পেয়েছে ১০০-তে ৪৪, BGE-M3 ৮০।</p>
-  </aside>
-</section>
-
-<!-- S14 · নিয়ম ৬: ছোট হলে পুরোটা, বড় হলে RAG -->
-<section class="s14">
+<!-- S10 · নিয়ম ৬: ছোট হলে পুরোটা, বড় হলে RAG -->
+<section class="s14" data-at="385.91" data-auto="10.75 19.20 25.94 28.34 42.12">
   <h2 data-enter="rise"><span class="num">৬</span>ছোট হলে পুরোটা, বড় হলে RAG</h2>
   <span class="eg s14-cap">ধরা যাক · একই টেবিল: ২,০০,০০০ token (Anthropic: ≈ ৫০০ পাতা) · বাংলা: ১.৭১×</span>
   <div class="s14-grid">
@@ -902,18 +705,12 @@
   <i class="cue" data-step="run" data-run="s14-5"></i>
   <div class="src"><i data-lucide="link"></i><span>Anthropic, Introducing Contextual Retrieval (২০২৪): "smaller than 200,000 tokens (about 500 pages)" · ২৯০ ≈ ৫০০ ÷ ১.৭১ (ধরা যাক; আমাদের Talk 1 পরীক্ষা) · Li et al., Google DeepMind, EMNLP 2024 (Self-Route)</span></div>
   <aside class="notes">
-    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
-    <p>নিয়ম ছয়: ছোট হলে পুরোটা দিন, বড় হলে RAG।</p>
-    <p>▶1 Anthropic-এর পরামর্শ: পুরো জ্ঞানভাণ্ডার ২ লাখ token-এর কম হলে, মোটামুটি ৫০০ পাতা, পুরোটাই prompt-এ দিন।</p>
-    <p>▶2 বাংলায়? ধরা যাক অনুপাত ১.৭১: তাহলে আঁটবে প্রায় ২৯০ পাতার সমান।</p>
-    <p>▶3 এর চেয়ে বড় হলে টেবিল উপচে পড়ে, তখন RAG।</p>
-    <p>▶4 Google DeepMind ২০২৪: খরচ যথেষ্ট করলে long context গড়ে RAG-কে হারায়। কিন্তু RAG অনেক সস্তা, আর ৬০%-এর বেশি প্রশ্নে দুটোর উত্তর হুবহু এক।</p>
-    <p>▶5 তাঁদের উপায়: আগে RAG; model নিজে বুঝলে যে পারছে না, তখন পুরোটা। খরচ কমেছে Gemini-1.5-Pro-তে ৬৫%, GPT-4o-তে ৩৯%।</p>
+    <p>তাহলে AI-কে Document দেবেন কীভাবে? পুরোটা, নাকি RAG? এটাই ষষ্ঠ নিয়ম। Document ছোট হলে পুরোটা Prompt-এ দিতে পারেন। আর বড় হলে RAG ব্যবহার করুন। ▶1 Anthropic-এর নির্দেশনা অনুযায়ী, ২ লাখ Token-এর কম হলে অনেক ক্ষেত্রে পুরো Document Prompt-এ দেওয়া যায়। এটা প্রায় ৫০০ পৃষ্ঠার সমান হতে পারে। ▶2 কিন্তু বাংলায় Token বেশি লাগার কারণে একই পরিমাণ Token-এ পৃষ্ঠার সংখ্যা নেমে আসতে পারে প্রায় ২৯০-এ। ▶3 এর বেশি হলে RAG বিবেচনা করুন। ▶4 Google DeepMind-এর গবেষণায় দেখা গেছে, Long Context কিছু ক্ষেত্রে সামান্য ভালো ফল দিতে পারে। কিন্তু RAG অনেক কম খরচে কাছাকাছি ফল দিতে পারে। ৬০ শতাংশেরও বেশি প্রশ্নে দুই পদ্ধতির উত্তর হুবহু এক ছিল। ▶5 তাই আগে RAG চেষ্টা করুন। দরকার হলে পুরো Document দিন। এতে খরচ ৩৯ থেকে ৬৫ শতাংশ পর্যন্ত কমতে পারে।</p>
   </aside>
 </section>
 
-<!-- S15 · নিয়ম ৭: ছোট টুকরো, সাথে প্রসঙ্গ -->
-<section class="s15">
+<!-- S11 · নিয়ম ৭: ছোট টুকরো, সাথে প্রসঙ্গ -->
+<section class="s15" data-at="435.93" data-auto="7.90 15.09 21.53 24.96 33.10">
   <h2 data-enter="rise"><span class="num">৭</span>ছোট টুকরো, সাথে প্রসঙ্গ</h2>
   <div class="panel w"><div class="cut15"></div></div>
   <div class="s15-grid">
@@ -939,18 +736,12 @@
   <i class="cue" data-step="run" data-run="s15-5"></i>
   <div class="src"><i data-lucide="link"></i><span>OpenAI retrieval guide (max_chunk_size_tokens ৮০০, chunk_overlap_tokens ৪০০) · Anthropic, Contextual Retrieval (ACME উদাহরণ, অনুবাদ) · শব্দ = ৮০০ ÷ শব্দপ্রতি token (Talk 1: ১.২৩ / ২.৩৬ / ৮.২০)</span></div>
   <aside class="notes">
-    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
-    <p>নিয়ম সাত: ছোট টুকরো, সাথে তার প্রসঙ্গ।</p>
-    <p>▶1 OpenAI নিজে থেকে কাটে ৮০০ token-এ, ৪০০ token পাশেরটার সাথে মিলিয়ে। Anthropic বলে, সাধারণত কয়েকশো token।</p>
-    <p>▶2 ধরা যাক আমাদের পরীক্ষার গড়ে: ৮০০ token-এ ইংরেজির প্রায় ৬৫০ শব্দ, বাংলার প্রায় ৩৪০, আর GPT-4-এর tokenizer-এ মাত্র ১০০-র মতো।</p>
-    <p>▶3 তাই মাপ শব্দে নয়, model-এর token-এ গুনুন।</p>
-    <p>▶4 আরেক ফাঁদ, Anthropic-এর উদাহরণ: টুকরোয় শুধু লেখা "আয় ৩% বেড়েছে"। কার আয়? কবে?</p>
-    <p>▶5 প্রতিটা টুকরোর মাথায় এক লাইনের প্রসঙ্গ জুড়ুন: কোন কোম্পানির, কোন quarter-এর।</p>
+    <p>এবার RAG-এর ভেতরের কিছু গুরুত্বপূর্ণ বিষয় বুঝি। সপ্তম নিয়ম। Chunk ছোট রাখুন, কিন্তু সঙ্গে Context দিন। ▶1 OpenAI-এর একটি প্রচলিত Chunking Setting হলো ৮০০ Token। Anthropic কয়েকশো Token-এর Chunk ব্যবহারের পরামর্শ দেয়। ▶2 কিন্তু ৮০০ Token মানে ইংরেজিতে প্রায় ৬৫০ শব্দ। বাংলায় সেটা প্রায় ৩৪০ শব্দ। ▶3 তাই Word Count দিয়ে নয়, Token Count দিয়ে Chunk মাপুন। ▶4 আর Chunk-এর ভেতরে যদি শুধু লেখা থাকে, আয় ৩ শতাংশ বেড়েছে, তাহলে AI কীভাবে বুঝবে কার আয় বেড়েছে? কোন সময়ে বেড়েছে? ▶5 তাই প্রতিটি Chunk-এর শুরুতে এক লাইনের Context যোগ করুন। যেমন, ২০২৫ সালের দ্বিতীয় প্রান্তিকে কোম্পানির মোট আয় ৩ শতাংশ বেড়েছে। এতে AI তথ্যটার প্রসঙ্গ বুঝতে পারবে।</p>
   </aside>
 </section>
 
-<!-- S16 · নিয়ম ৮: অর্থ আর শব্দ -->
-<section class="s16">
+<!-- S12 · নিয়ম ৮: অর্থ আর শব্দ -->
+<section class="s16" data-at="481.64" data-auto="23.05 30.38 34.04 37.41 42.63">
   <h2 data-enter="rise"><span class="num">৮</span>অর্থ আর শব্দ</h2>
   <div class="split">
     <div class="panel s16-bars">
@@ -971,18 +762,12 @@
   <i class="cue" data-step="run" data-run="s16-5"></i>
   <div class="src"><i data-lucide="link"></i><span>Anthropic, Introducing Contextual Retrieval (১৯ সেপ্টেম্বর ২০২৪) · top-20 retrieval failure rate: ৫.৭ → ৩.৭ (−৩৫%) → ২.৯ (−৪৯%) → ১.৯% (−৬৭%)</span></div>
   <aside class="notes">
-    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
-    <p>নিয়ম আট: খুঁজুন অর্থ দিয়েও, শব্দ দিয়েও।</p>
-    <p>▶1 Anthropic মেপেছে, ঠিক টুকরোটা প্রথম ২০টায় না আসার হার। সাধারণ embedding-এ ৫.৭%।</p>
-    <p>▶2 প্রসঙ্গ জুড়লে ৩.৭%।</p>
-    <p>▶3 সাথে শব্দ মিলিয়ে খোঁজা, BM25, যোগ করলে ২.৯%।</p>
-    <p>▶4 শেষে আরেকবার বাছাই, reranking: ১.৯%।</p>
-    <p>▶5 কারণ embedding অর্থ খোঁজে, কিন্তু "TS-999"-এর মতো error code হুবহু মেলাতে শব্দ-খোঁজাই ভরসা।</p>
+    <p>অষ্টম নিয়ম। খুঁজুন অর্থ দিয়েও, শব্দ দিয়েও। ধরুন, আপনি একটি নির্দিষ্ট Error Code খুঁজছেন। Embedding Search হয়তো কাছাকাছি অর্থের তথ্য খুঁজে পাবে। কিন্তু হুবহু Error Code-টা পাবে না। এখানেই কাজে আসে BM25। এটি শব্দের মিল খোঁজে। আর Reranking প্রথমে পাওয়া ফলাফলগুলোর মধ্যে সবচেয়ে প্রাসঙ্গিক তথ্যগুলোকে সামনে নিয়ে আসে। ▶1 Anthropic-এর একটি পরীক্ষায় সঠিক Chunk খুঁজে না পাওয়ার হার ছিল সাধারণ Embedding Search-এ ৫ দশমিক ৭ শতাংশ। ▶2 Context যোগ করলে তা নেমে আসে ৩ দশমিক ৭ শতাংশে। ▶3 BM25 যোগ করলে ২ দশমিক ৯ শতাংশ। ▶4 আর শেষে Reranking যোগ করার পর নেমে আসে মাত্র ১ দশমিক ৯ শতাংশে। ▶5 কারণ Error Code, Product ID বা নির্দিষ্ট Technical Term খুঁজতে হুবহু শব্দের মিল খুব গুরুত্বপূর্ণ।</p>
   </aside>
 </section>
 
-<!-- S17 · নিয়ম ৯: user-এর ভাষায় test -->
-<section class="s17">
+<!-- S13 · নিয়ম ৯: user-এর ভাষায় test -->
+<section class="s17" data-at="531.32" data-auto="9.95 22.85 28.06 32.86 43.98 53.02">
   <h2 data-enter="rise"><span class="num">৯</span>user-এর ভাষায় test</h2>
   <div class="item s17-tag"><i data-lucide="graduation-cap"></i><span><b>North South University</b> · Reza, Maria, Nimi · arXiv 2608.14886 (আগস্ট ২০২৬) · ২৮৪টা সরকারি কৃষি প্রকাশনা <span class="stamp sm y">preprint · peer review হয়নি</span></span></div>
   <div class="s17-grid">
@@ -1011,41 +796,12 @@
   <i class="cue" data-step="run" data-run="s17-6"></i>
   <div class="src"><i data-lucide="link"></i><span>Reza, Maria, Nimi (NSU), "Where Does Retrieval Fail?", arXiv 2608.14886, preprint · R@10 = ঠিক পাতা প্রথম ১০টায় · বাংলা প্রশ্ন → বাংলা document; ইংরেজি প্রশ্ন → বাংলা document · প্রশ্ন আর বইয়ের লাইন উদাহরণ</span></div>
   <aside class="notes">
-    <p>[auto] নিয়মের পাতা টেবিলে নামে।</p>
-    <p>নয় নম্বর নিয়ম: user যেভাবে প্রশ্ন করেন, সেভাবেই test করুন।</p>
-    <p>▶1 একদম আমাদের দেশের গবেষণা। ২০২৬-এর আগস্টে North South University-র গবেষকেরা সরকারি কৃষি প্রকাশনার ২৮৪টা document দিয়ে RAG মেপেছেন। এখনো preprint, peer review হয়নি।</p>
-    <p>▶2 বইয়ের ভাষায় formal প্রশ্নে embedding-খোঁজা ঠিক পাতাটা প্রথম ১০টায় এনেছে ৯৭% ক্ষেত্রে।</p>
-    <p>▶3 কৃষক যেভাবে বলেন, লক্ষণ দিয়ে, নিজের ভাষায়, সেই প্রশ্নে মাত্র ৯%।</p>
-    <p>▶4 ধরা যাক কৃষক লিখলেন "ধানের পাতায় বাদামি দাগ", আর বইয়ে আছে রোগের বৈজ্ঞানিক নাম। Document-এর এমন নামের মাত্র ৩.৫% কৃষকের প্রশ্নে হুবহু আসে।</p>
-    <p>▶5 সেখানে শব্দ-খোঁজা BM25 পেয়েছে ৫২%; সব মিলিয়ে সেরা দুটো একসাথে।</p>
-    <p>▶6 আর ইংরেজি প্রশ্নে বাংলা document খুঁজলে শব্দ-খোঁজা নামে প্রায় শূন্যে, embedding প্রায় টিকে থাকে।</p>
+    <p>এবার আসি বাংলায় RAG তৈরি করার সবচেয়ে গুরুত্বপূর্ণ সমস্যায়। আপনি হয়তো ভাবছেন, ইংরেজিতে RAG ভালো কাজ করলে বাংলাতেও করবে। সব সময় না। ▶1 ২০২৬ সালে North South University-র গবেষকেরা বাংলাদেশের সরকারি কৃষি প্রকাশনার ২৮৪টি Document দিয়ে RAG পরীক্ষা করেছেন। গবেষণাটি এখনো Preprint। ফলাফলটা খুবই গুরুত্বপূর্ণ। ▶2 বইয়ের ভাষায় প্রশ্ন করলে সঠিক তথ্য খুঁজে পাওয়ার হার ছিল প্রায় ৯৭ শতাংশ। ▶3 কিন্তু কৃষকের নিজের ভাষায় প্রশ্ন করলে তা নেমে আসে মাত্র ৯ শতাংশে। কেন? ▶4 কারণ কৃষক হয়তো প্রশ্ন করছেন, ধানের পাতায় বাদামি দাগ পড়েছে, কী করব? কিন্তু Document-এ রোগের বৈজ্ঞানিক নাম লেখা। দুটোর অর্থ কাছাকাছি, কিন্তু শব্দ আলাদা। ▶5 এই পরীক্ষায় BM25 প্রায় ৫২ শতাংশ ফল দিয়েছে। আর Semantic Search ও Keyword Search একসঙ্গে ব্যবহার করলে আরও ভালো ফল পাওয়া গেছে। ▶6 অন্যদিকে, ইংরেজি প্রশ্ন দিয়ে বাংলা Document খুঁজলে Keyword Search প্রায় শূন্য ফল দিয়েছে। এটাই নবম নিয়ম। আপনার User যেভাবে প্রশ্ন করে, ঠিক সেভাবে RAG পরীক্ষা করুন। শুধু বইয়ের ভাষায় নয়, মানুষের বাস্তব ভাষায়।</p>
   </aside>
 </section>
 
-<!-- S18 · সীমাবদ্ধতা -->
-<section class="s18">
-  <h2 data-enter="rise">সীমাবদ্ধতা</h2>
-  <div class="items w">
-    <div class="item" data-step="lit"><i data-lucide="triangle-alert"></i><span>বেশিরভাগ গবেষণা ইংরেজিতে, ২০২৩–২০২৫-এর model-এ। Model দ্রুত ভালো হচ্ছে: ১০ লাখ token-এর এক পরীক্ষায় Opus 4.6 <b class="accent n">৭৬%</b>, Sonnet 4.5 <b class="accent n">১৮.৫%</b> (Anthropic-এর নিজের দাবি)</span></div>
-    <div class="item" data-step="lit"><i data-lucide="triangle-alert"></i><span>RAG কাছাকাছি কিন্তু ভুল পাতাও আনে; Chroma: এমন একটা পাতাই ফল খারাপ করে। ঠিক পাতা না এলে AI পড়বে কোথা থেকে?</span></div>
-    <div class="item" data-step="lit"><i data-lucide="triangle-alert"></i><span>NSU-র গবেষণা preprint, একটাই বিষয়ে; একটা ভুল setting-এ score <b class="accent n">৪৬.৪% → ৬.৩%</b></span></div>
-    <div class="item" data-step="lit"><i data-lucide="triangle-alert"></i><span>আমাদের token-অনুপাত শুধু OpenAI-এর tokenizer-এর; embedding model-এর tokenizer আলাদা</span></div>
-    <div class="item" data-step="lit"><i data-lucide="triangle-alert"></i><span>দাম বদলায়; এখানের সব দাম ৯ নভেম্বর ২০২৬-এর</span></div>
-  </div>
-  <div class="src"><i data-lucide="link"></i><span>Anthropic, Introducing Claude Opus 4.6 (৫ ফেব্রুয়ারি ২০২৬; MRCR v2, 8-needle, 1M; কোম্পানির দাবি) · Chroma, Context Rot (distractors) · NSU arXiv 2608.14886 (Gemini Dense R@10 ০.৪৬৪ → ০.০৬৩)</span></div>
-  <aside class="notes">
-    <p>[auto] কাচের কিনারে "সীমাবদ্ধতা" লেখা হয়।</p>
-    <p>এবার সীমাবদ্ধতা।</p>
-    <p>▶1 বেশিরভাগ গবেষণা ইংরেজিতে, ২০২৩ থেকে ২০২৫-এর model-এ। Model দ্রুত ভালো হচ্ছে: Anthropic-এর নিজের দাবি, ১০ লাখ token-এর এক পরীক্ষায় Opus 4.6 পেয়েছে ৭৬%, Sonnet 4.5 মাত্র ১৮.৫%।</p>
-    <p>▶2 RAG কাছাকাছি কিন্তু ভুল পাতাও আনে; Chroma দেখেছে, এমন একটা পাতাই ফল খারাপ করে। ঠিক পাতা না এলে AI সেটা পড়বে কোথা থেকে?</p>
-    <p>▶3 NSU-র গবেষণাটা preprint, একটাই বিষয়ে; একটা ভুল setting-এ তাদের score ৪৬% থেকে ৬%-এ নেমেছিল।</p>
-    <p>▶4 আমাদের token-এর অনুপাত শুধু OpenAI-এর tokenizer-এর; embedding model-এর tokenizer আলাদা।</p>
-    <p>▶5 দাম বদলায়; এগুলো ৯ নভেম্বর ২০২৬-এর।</p>
-  </aside>
-</section>
-
-<!-- S19 · নয়টা নিয়ম, এক টেবিলে -->
-<section class="s19">
+<!-- S14 · নয়টা নিয়ম, এক টেবিলে -->
+<section class="s19" data-at="599.09" data-auto="2.87 5.71 8.77 12.01 15.51 19.37 23.20 26.44 30.46 34.00">
   <h2 data-enter="rise">নয়টা নিয়ম, এক টেবিলে</h2>
   <div class="grid2 rules9">
     <div class="item r9" data-step="lit"><span class="rn">১</span>নতুন বিষয়, নতুন chat</div>
@@ -1064,40 +820,7 @@
   </div>
   <i class="cue" data-step="run" data-run="s19-10"></i>
   <aside class="notes">
-    <p>নয়টা নিয়ম, এক টেবিলে।</p>
-    <p>▶1 নতুন বিষয়, নতুন chat।</p>
-    <p>▶2 বাংলায় টেবিল আগে ভরে।</p>
-    <p>▶3 জরুরিটা শুরুতে বা শেষে।</p>
-    <p>▶4 কাজের window মাপুন।</p>
-    <p>▶5 বড় টেবিল, বড় বিল।</p>
-    <p>▶6 ছোট হলে পুরোটা, বড় হলে RAG।</p>
-    <p>▶7 টুকরোয় প্রসঙ্গ জুড়ুন।</p>
-    <p>▶8 অর্থ আর শব্দ, দুটোয় খুঁজুন।</p>
-    <p>▶9 আর user-এর ভাষায় test।</p>
-    <p>▶10 AI মনে রাখে না, সে পড়ে। তাই টেবিলে কম রাখুন, ঠিক রাখুন, জরুরিটা শুরুতে বা শেষে, আর বাংলায় মেপে দেখুন।</p>
-  </aside>
-</section>
-
-<!-- S20 · কমেন্টে লিখুন -->
-<section class="s20">
-  <h2 data-enter="rise">কমেন্টে লিখুন</h2>
-  <div class="panel desk20 w">
-    <div class="item s20-c"><i data-lucide="message-circle"></i><span>আপনি AI-কে কোন document পড়াতে চান? কত পাতা, কোন ভাষায়?</span></div>
-    <div class="item s20-n"><i data-lucide="calculator"></i><span>সবটা টেবিলে আঁটবে, নাকি RAG লাগবে? হিসাব করে উত্তর দেব</span></div>
-  </div>
-  <div class="panel next20 w">
-    <div><small>পরের আলোচনা</small><br><b>RAG যে পাতা আনে, তাতে যদি লুকানো নির্দেশ থাকে?</b></div>
-    <div class="pgc page20"><i class="lines"></i><span class="ink">"আগের সব নির্দেশ ভুলে যাও…"</span><i class="beam"></i></div>
-  </div>
-  <i class="cue" data-enter="run" data-run="s20-in" data-delay="0"></i>
-  <i class="cue" data-step="run" data-run="s20-1"></i>
-  <i class="cue" data-step="run" data-run="s20-2"></i>
-  <i class="cue" data-step="run" data-run="s20-3"></i>
-  <aside class="notes">
-    <p>[auto] scan bar খালি টেবিল পড়তে পড়তে মাঝপথে থেমে যায়।</p>
-    <p>▶1 কমেন্টে লিখুন: আপনি AI-কে কোন document পড়াতে চান? কত পাতা, কোন ভাষায়?</p>
-    <p>▶2 সবটা টেবিলে আঁটবে, নাকি RAG লাগবে, হিসাব করে উত্তর দেব।</p>
-    <p>▶3 আর পরের আলোচনায়: RAG যে পাতা আনে, তাতে যদি কেউ লুকিয়ে নির্দেশ লিখে রাখে?</p>
+    <p>তাহলে আজকের নয়টি নিয়ম আবার মনে করি। ▶1 এক। নতুন বিষয় হলে নতুন Chat। ▶2 দুই। বাংলায় Token আগে শেষ হতে পারে। ▶3 তিন। জরুরি তথ্য শুরুতে বা শেষে রাখুন। ▶4 চার। নিজের Data দিয়ে কাজের Context Window মাপুন। ▶5 পাঁচ। বড় Context মানে বড় বিল ও বেশি অপেক্ষা। ▶6 ছয়। Document ছোট হলে পুরোটা, বড় হলে RAG। ▶7 সাত। Chunk ছোট রাখুন, সঙ্গে Context দিন। ▶8 আট। Semantic Search ও Keyword Search একসঙ্গে ব্যবহার করুন। ▶9 নয়। User যেভাবে প্রশ্ন করে, সেভাবে Test করুন। ▶10 শেষে একটা কথা মনে রাখবেন। AI-এর সামনে যত বেশি তথ্য রাখবেন, তত বেশি খরচ, তত বেশি অপেক্ষা, আর ভুলের সুযোগও তত বেশি। তাই কম রাখুন, ঠিক রাখুন, আর জরুরিটা রাখুন শুরুতে বা শেষে।</p>
   </aside>
 </section>
 
@@ -1339,6 +1062,7 @@ function s5mode(sec, live) {
   }
 }
 RUN['s5-9'] = (el, sec) => {
+  if (document.documentElement.classList.contains('play')) return gsap.timeline();   // voiced video: no typing demo, the simulated desks stay
   let shown = null;
   return gsap.timeline()
     .add(fall($$('.sim-l', sec), { y: 30 }), 0)
@@ -1381,29 +1105,6 @@ BUILD.push(() => {
   $('#s5clear').addEventListener('click', e => { e.currentTarget.blur(); for (const l of ['en', 'bn']) { LIVE[l].forEach(m => m.el.remove()); LIVE[l] = []; s5layout(sec, l); } });
 });
 
-// ---------- S6 · 20 Wikipedia pages; the answer page walks 1 → 5 → 10 → 15 → 20 ----------
-const s6slot = i => (V ? { x: (i % 5) * 172 + 4, y: Math.floor(i / 5) * 172 + 6 } : { x: i * 58 + 4, y: 30 });
-BUILD.push(() => {
-  const r = Deck.seeded(66);
-  $('#fan6').innerHTML = Array.from({ length: 20 }, (_, i) => { const p = s6slot(i);
-    return `<div class="pgc pg" style="left:${p.x}px;top:${p.y + r() * 20}px;rotate:${(r() * 7).toFixed(1)}deg"><i class="lines"></i></div>`
-      + `<b class="pgn" style="left:${p.x + (V ? 65 : 50)}px;top:${p.y + (V ? 150 : 180)}px">${bn(i + 1)}</b>`; }).join('')
-    + `<div class="pgc pg key ans" style="left:${s6slot(0).x}px;top:${s6slot(0).y}px"><span>উত্তর</span><i class="lines"></i></div>`;
-});
-RUN['s6-3'] = (el, sec) => gsap.timeline()
-  .fromTo($$('.pg:not(.ans), .pgn', sec), { y: -30, autoAlpha: 0, filter: 'brightness(0.3)' }, { y: 0, autoAlpha: 1, filter: 'brightness(1)', duration: 0.35, ease: 'softLand', stagger: 0.035 }, 0)
-  .add(lit($('.pg.ans', sec), { y: -40 }), 0.75);
-RUN['s6-4'] = (el, sec) => {
-  const a = $('.pg.ans', sec), o = s6slot(0), tl = gsap.timeline();
-  let prev = { x: 0, y: 0 };
-  [4, 9, 14, 19].forEach((i, k) => {
-    const p = s6slot(i), to = { x: p.x - o.x, y: p.y - o.y }, t = k * 0.9;
-    tl.fromTo(a, { x: prev.x, y: prev.y }, { x: to.x, y: to.y, duration: 0.5, ease: 'softInOut', immediateRender: false }, t)
-      .fromTo(a, { scale: 1 }, { scale: 1.12, duration: 0.25, ease: 'glide', yoyo: true, repeat: 1, immediateRender: false }, t);
-    prev = to;
-  });
-  return tl;
-};
 // ---------- S7 · Lost in the Middle U-curve (Liu et al. Table 6 / Table 1) ----------
 const U7 = [[1, 75.8], [5, 57.2], [10, 53.8], [15, 55.4], [20, 63.2]], CLOSED7 = 56.1, ORACLE7 = 88.3;
 const C7 = V ? { W: 832, H: 700, x0: 96, top: 40, bot: 610 } : { W: 1228, H: 560, x0: 100, top: 40, bot: 470 };
@@ -1438,7 +1139,8 @@ const fadeIn = (els, st = 0.02) => gsap.fromTo(els, { autoAlpha: 0 }, { autoAlph
 const labelIn = el => gsap.fromTo(el, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'softLand' });
 // The tag on top gives way to the rule card: the rule lights up in its place.
 const ontoTag = (sec, rule, tag) => gsap.timeline().add(lit($(rule, sec)), 0.1).add(fall($(tag, sec), { y: -20 }), 0);
-RUN['s7-in'] = (el, sec) => gsap.timeline().add(lit($('.s7-tag', sec)), 0)
+// The tag shows from the start: only its Step moves it, so seeking (voiced video) can't fight over it.
+RUN['s7-in'] = (el, sec) => gsap.timeline()
   .add(drawIn($$('#u7 .frame line', sec)), 0.1).add(fadeIn($$('#u7 .frame text', sec)), 0.3);
 RUN['s7-1'] = (el, sec) => pop($('.p1', sec));
 RUN['s7-2'] = (el, sec) => pop($('.p20', sec));
@@ -1491,7 +1193,8 @@ BUILD.push(() => {
     leg.insertAdjacentHTML('beforeend', `<span class="li8"><svg viewBox="0 0 46 12"><line x1="2" y1="6" x2="44" y2="6" stroke="${col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${dash === 'none' ? '' : dash.replace(/\d+/g, n => n / 2)}"/></svg>${name} <b>${bn(vals[0], 1)}% → ${bn(vals[6], 1)}%</b></span>`);
   });
 });
-RUN['s8-in'] = (el, sec) => gsap.timeline().add(lit($('.s8-tag', sec)), 0)
+// The tag shows from the start: only its Step moves it, so seeking (voiced video) can't fight over it.
+RUN['s8-in'] = (el, sec) => gsap.timeline()
   .add(drawIn($$('#c8 .frame line', sec)), 0.1).add(fadeIn($$('#c8 .frame text', sec)), 0.3);
 RUN['s8-1'] = (el, sec) => gsap.timeline().add(lit($('.s8-needle', sec)), 0).add(lit($('.s8-qq', sec)), 0.25)
   .add(drawIn($$('.s8-link path', sec), 0.5, 0.3), 0.5).add(fadeIn($('.s8-link text', sec)), 0.8);
@@ -1504,21 +1207,6 @@ RUN['s8-2'] = s8line(0); RUN['s8-3'] = s8line(1); RUN['s8-4'] = s8line(2);
 RUN['s8-5'] = (el, sec) => lit($('#c8 .claim', sec), { y: 0 });
 RUN['s8-6'] = (el, sec) => gsap.timeline().add(fall($('.s8-ex', sec), { y: 30 }), 0).add(lit($('.s8-ruler', sec)), 0.2);
 RUN['s8-7'] = (el, sec) => ontoTag(sec, '.s8-rule', '.s8-tag');
-
-// ---------- S9 · blank pages pile on; the found page dims ----------
-BUILD.push(() => {
-  const r = Deck.seeded(9), box = $('.s9-pile'), W = V ? 832 : 568, H = V ? 300 : 560;
-  box.insertAdjacentHTML('beforeend', Array.from({ length: 16 }, (_, i) =>
-    `<div class="pgc blank9" style="left:${((0.5 + r()) * (W - 220)).toFixed(0)}px;top:${((0.5 + r()) * (H - 280)).toFixed(0)}px;rotate:${(r() * 18).toFixed(1)}deg;z-index:${2 + i}"></div>`).join(''));
-});
-RUN['s9-in'] = (el, sec) => lit($('.s9-found', sec));
-RUN['s9-1'] = (el, sec) => gsap.timeline().add(lit($('.s9-tag', sec)), 0).add(pop($('.s9-ok', sec)), 0.3);
-RUN['s9-2'] = (el, sec) => gsap.timeline()
-  .fromTo($$('.blank9', sec), { y: -60, autoAlpha: 0, filter: 'brightness(0.3)' }, { y: 0, autoAlpha: 1, filter: 'brightness(1)', duration: 0.35, ease: 'softLand', stagger: 0.09 }, 0)
-  .fromTo($$('.s9-found, .s9-ok', sec), { opacity: 1 }, { opacity: 0.3, duration: 1.4, ease: 'none', immediateRender: false }, 0.2);
-RUN['s9-3'] = (el, sec) => lit($('.s9-range', sec));
-RUN['s9-4'] = (el, sec) => lit($('.s9-chroma', sec));
-RUN['s9-5'] = (el, sec) => lit($('.s9-quote', sec));
 
 // ---------- S10 · time to first token, played in real time; the daily bill (an Illustration on official prices) ----------
 const ttft = (sec, row, dur) => { const r = $(row, sec), ts = $('.ts', r), i = $('.ts i', r);
@@ -1571,49 +1259,6 @@ RUN['s12-3'] = (el, sec) => gsap.timeline().add(node12(sec, 'q'), 0).add(edge12(
   .add(drawIn($$('.edge12 path', sec), 0.45, 0.4), 0.9);
 RUN['s12-4'] = (el, sec) => gsap.timeline().add(edge12(sec, 'prompt'), 0).add(node12(sec, 'prompt'), 0.2);
 RUN['s12-5'] = (el, sec) => gsap.timeline().add(edge12(sec, 'ans'), 0).add(node12(sec, 'ans'), 0.2);
-
-// ---------- S13 · meaning map: three neighbourhoods, a question, its nearest pieces ----------
-const M13 = V ? { W: 832, H: 440 } : { W: 728, H: 470 };
-const CL13 = [['ক্রিকেট', 0.22, 0.27, 0.19, 0.2, 0.22, 0.02, [['সাকিবের ব্যাটিং', 0.2, 0.17], ['টেস্টে ফলো-অন', 0.3, 0.3], ['বিপিএল ফাইনাল', 0.16, 0.4]]],
-  ['মোবাইল বিল', 0.24, 0.76, 0.19, 0.17, 0.26, 0.545, [['প্রিপেইড রিচার্জ', 0.19, 0.66], ['ইন্টারনেট প্যাক', 0.32, 0.77], ['বিল বেশি কাটছে', 0.17, 0.87]]],
-  ['ধান চাষ', 0.68, 0.54, 0.25, 0.3, 0.68, 0.17, [['পাতা হলদে: নাইট্রোজেন', 0.56, 0.36, 'near'], ['পাতা পোড়া রোগ', 0.84, 0.42, 'near'], ['ইউরিয়া কখন দেবেন', 0.56, 0.68, 'near'], ['rice leaves turning yellow', 0.8, 0.79, 'en']]]];
-const Q13 = [0.7, 0.53];
-BUILD.push(() => {
-  const map = $('.s13 .map'), { W, H } = M13, r = Deck.seeded(13), px = (fx, fy) => `left:${(fx * W).toFixed(0)}px;top:${(fy * H).toFixed(0)}px`;
-  const s = svgEl('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}` }, map);
-  let html = '';
-  CL13.forEach(([name, cx, cy, rx, ry, lx, ly, snips]) => {
-    svgEl('ellipse', { class: 'ring13', cx: cx * W, cy: cy * H, rx: rx * W, ry: ry * H }, s);
-    html += `<span class="clab" style="${px(lx, ly)}">${name}</span>`;
-    for (let k = 0; k < 12; k++) html += `<i class="dot" style="${px(cx + r() * rx * 1.3, cy + r() * ry * 1.3)}"></i>`;
-    snips.forEach(([t, fx, fy, kind]) => { html += `<span class="snip${kind ? ` ${kind}` : ''}" style="${px(fx, fy)}">${t}</span>`; });
-  });
-  html += `<span class="snip key qs" style="${px(...Q13)}">ধানের পাতা হলুদ হচ্ছে কেন?</span>`;
-  html += `<span class="eg s13-weak">ধরা যাক · দুর্বল model: পাড়াগুলো ঢিলে</span>`;
-  map.insertAdjacentHTML('beforeend', html);
-  CL13[2][7].filter(sn => sn[3] === 'near').forEach(([t, fx, fy]) => svgEl('line', { class: 'nn', x1: Q13[0] * W, y1: Q13[1] * H, x2: fx * W, y2: fy * H }, s));
-  const tray = $('.s13 .tray13');
-  CL13[2][7].filter(sn => sn[3] === 'near').forEach(([t]) => tray.insertAdjacentHTML('beforeend', `<span class="got">${t}</span>`));
-});
-RUN['s13-1'] = (el, sec) => { const r = Deck.seeded(31), { W, H } = M13, items = $$('.map .dot, .map .snip:not(.qs)', sec);
-  return gsap.timeline().add(lit($('.s13-eg', sec)), 0)
-    .fromTo(items, { x: () => r() * W * 0.8, y: () => r() * H * 0.8, autoAlpha: 0 }, { x: 0, y: 0, autoAlpha: 1, duration: 0.9, ease: 'softInOut', stagger: { each: 0.012, from: 'random' } }, 0.1)
-    .add(drawIn($$('.ring13', sec), 0.6, 0.12), 1.0)
-    .fromTo($$('.map .clab', sec), { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'softLand', stagger: 0.12 }, 1.2); };
-RUN['s13-2'] = (el, sec) => lit($('.map .qs', sec), { y: -50 });
-RUN['s13-3'] = (el, sec) => { const gots = $$('.got', sec), near = $$('.map .snip.near', sec);
-  const tl = gsap.timeline().add(drawIn($$('.map line.nn', sec), 0.4, 0.1), 0);
-  gots.forEach((g, i) => { const a = pos(near[i], sec), b = pos(g, sec);
-    tl.fromTo(g, { x: a.x - b.x - b.w / 2, y: a.y - b.y - b.h / 2, autoAlpha: 0, filter: 'brightness(0.3)' }, { x: 0, y: 0, autoAlpha: 1, filter: 'brightness(1)', duration: 0.6, ease: 'softLand' }, 0.55 + i * 0.12); });
-  return tl; };
-RUN['s13-4'] = (el, sec) => gsap.fromTo($('.map .snip.en', sec), { borderColor: '#2a3a5c', color: '#e6edf7', boxShadow: '0 0 0 rgba(125,211,252,0)' },
-  { borderColor: '#7dd3fc', color: '#7dd3fc', boxShadow: '0 0 24px rgba(125,211,252,.55)', duration: 0.45, ease: 'softInOut' });
-RUN['s13-5'] = (el, sec) => { const r = Deck.seeded(55), { W, H } = M13;
-  return gsap.timeline().add(lit($('.s13-weak', sec)), 0)
-    .fromTo($$('.map .dot', sec), { x: 0, y: 0 }, { x: () => r() * W * 0.34, y: () => r() * H * 0.34, duration: 0.9, ease: 'softInOut', immediateRender: false }, 0.15)
-    .fromTo($$('.map .snip:not(.qs)', sec), { x: 0, y: 0 }, { x: () => r() * W * 0.05, y: () => r() * H * 0.05, duration: 0.9, ease: 'softInOut', immediateRender: false }, 0.15)
-    .fromTo($$('.ring13, .map line.nn', sec), { opacity: 1 }, { opacity: 0.2, duration: 0.6, ease: 'softInOut', immediateRender: false }, 0.15); };
-RUN['s13-6'] = (el, sec) => gsap.timeline().add(lit($('.s13-bars', sec)), 0).add(growX($$('.s13-bars .bb', sec)), 0.2);
 
 // ---------- S14 · 200K-token desk: 500 English pages vs ~290 Bangla pages (page size an Illustration) ----------
 BUILD.push(() => {
@@ -1701,18 +1346,6 @@ RUN['s19-10'] = (el, sec) => gsap.timeline()
   .fromTo($$('.r9', sec), { opacity: 1 }, { opacity: 0.4, duration: 0.5, ease: 'softInOut', stagger: 0.03, immediateRender: false }, 0)
   .add(lit($('.close19', sec)), 0.3)
   .fromTo($$('.close19 .chip', sec), { autoAlpha: 0, x: -14 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'softLand', stagger: 0.12 }, 0.7);
-
-// ---------- S20 · the light reads the empty desk and stops mid-way; later it finds hidden ink ----------
-RUN['s20-in'] = (el, sec) => { const d = $('.desk20', sec); return sweep(d, -80, d.offsetWidth * 0.62, 1.8, { hold: true }); };
-RUN['s20-1'] = (el, sec) => lit($('.s20-c', sec));
-RUN['s20-2'] = (el, sec) => lit($('.s20-n', sec));
-RUN['s20-3'] = (el, sec) => { const pg = $('.page20', sec), w = pg.offsetWidth, o = { t: 0 }, ink = $('.ink', pg), beam = $('.beam', pg);
-  gsap.set(ink, { clipPath: 'inset(-10% 100% -10% 0)' }); gsap.set(beam, { autoAlpha: 0 });
-  return gsap.timeline().add(lit($('.next20', sec)), 0)
-    // The beam passes over the page; ink invisible in plain light shows up behind it.
-    .fromTo(o, { t: 0 }, { t: 1, duration: 1.8, ease: 'none', immediateRender: false, onUpdate: () => {
-      gsap.set(beam, { x: o.t * (w + 120), autoAlpha: o.t > 0 && o.t < 1 ? 1 : 0 });
-      gsap.set(ink, { clipPath: `inset(-10% ${Math.min(100, Math.max(0, 100 - ((o.t * (w + 60) - ink.offsetLeft) / ink.offsetWidth) * 100)).toFixed(1)}% -10% 0)` }); } }, 0.5); };
 
 // ---------- start: serif first, then build the generated parts, then the Deck ----------
 Promise.all(['400', '600'].map(w => document.fonts.load(`${w} 1em "Noto Serif Bengali"`, 'কখগ Ab')))

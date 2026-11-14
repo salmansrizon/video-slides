@@ -4,22 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Data Analytics Career 2027</title>
-<!-- Webinar Deck (Talk format, Clay Look). Host: Salman Sakib. Script: scripts/analytics-career-2027.txt; Cues: research/script.synced.txt (Notes, key S).
-     Keys: → next Step/Slide, ← back (no ↓/↑), C face-cam guide. Path finder (S25): click A/B with the mouse after its question appears.
-     Voiced video later: index.html?play (S19 is removed; .live-only / .play-only text swaps). Evidence: research/SOURCES.md, research/jobposts/. -->
+<!-- Voiced-video Deck (Talk format, Clay Look), cut from the webinar (git history; webinar Cues: research/script.webinar.txt).
+     Script: scripts/analytics-career-2027.txt; Cues: research/script.synced.txt (Notes, key S). Preview: index.html?play.
+     Keys: → next Step/Slide, ← back, C face-cam guide. Path finder (S22): ?play uses each question's data-default answer.
+     Voiced video: index.html?play follows assets/vo.mp3 (Space plays, ← → jump a Slide); node tools/render-deck.mjs makes the MP4. Evidence: research/SOURCES.md, research/jobposts/. -->
 <link rel="stylesheet" href="../../vendor/reveal/reveal.css">
 <link rel="stylesheet" href="../../lib/deck.css">
 <link rel="stylesheet" href="../../lib/talk.css">
 <link rel="stylesheet" href="../../lib/looks/clay.css">
 <style>
+  .todo { border: 2px dashed var(--dim); border-radius: var(--radius); padding: 22px 28px; font-size: 28px; color: var(--muted-fg); background: transparent; }
   html.play .live-only, html:not(.play) .play-only { display: none !important; }
   /* Every title at the same place (top-left); content flows down from it and never pushes the title off-screen. */
   .reveal .slides > section:not(.center) { justify-content: flex-start; }
   .panel .big { font-size: 84px; white-space: nowrap; }
   .cap { font-size: 24px; color: var(--muted-fg); line-height: 1.4; }
   .lab-s { font-size: 22px; color: var(--muted-fg); }
-  .todo { border: 2px dashed var(--dim); border-radius: var(--radius); padding: 22px 28px; font-size: 28px; color: var(--muted-fg); background: transparent; }
-  .todo b { color: var(--accent); font-weight: 600; }
 
   /* S2 intro card */
   .intro { display: grid; grid-template-columns: 440px 1fr; gap: 32px; width: 100%; align-items: start; }
@@ -130,7 +130,7 @@
 
 <!-- S1 · শিরোনাম -->
 <section class="mid">
-  <p class="lead" data-enter="rise">Webinar · Salman Sakib</p>
+  <p class="lead" data-enter="rise">৩৩টা job post · আসল গবেষণা</p>
   <h1 data-enter="rise">Data Analytics Career 2027</h1>
   <p class="say" data-enter="rise">Bangladesh-এ চাকরি পেতে যা লাগবে</p>
   <div class="traj" data-enter="traj" data-delay="0.4" data-waves="3">
@@ -139,65 +139,14 @@
     <i data-enter="node" data-delay="1.2" data-at=".78" class="check"></i>
   </div>
   <aside class="notes">
-    <p>আসসালামু আলাইকুম, সবাইকে স্বাগতম।</p>
-    <p>আজকের বিষয়: Data Analytics Career 2027, Bangladesh-এ চাকরি পেতে আসলে কী লাগে।</p>
-    <p>আগামী এক ঘণ্টায় আমরা অনুমান না, আসল job post আর আসল গবেষণা দেখে কথা বলব।</p>
+    <p>Data analytics-এ career গড়তে চাইলে internet বলবে, আগে Python শিখুন, তারপর machine learning।</p>
+    <p>কিন্তু Bangladesh-এর employer আসলে কী চায়? সেটা জানতে গত তিন মাসের আসল job post একটা একটা করে খোলা হলো, পাশে রাখা হলো বিশ্বের বড় গবেষণা। ফলাফল অনেকের ধারণার সাথে মেলে না।</p>
+    <p>আজ দেখব, ২০২৭-এ এই দেশে data-র চাকরি পেতে আসলে কী লাগে।</p>
+    <p>সাতটা প্রশ্নের উত্তর খুঁজব: skill, employer, AI, portfolio, path, interview, আর ৯০ দিনের পরিকল্পনা।</p>
   </aside>
 </section>
 
-<!-- S2 · আমার পরিচয় -->
-<section class="mid">
-  <div class="intro">
-    <div class="me" data-enter="rise">
-      <img src="assets/speaker.jpg" alt="Salman Sakib">
-      <div class="nameblock"><div class="n">Salman Sakib</div><div class="r">Manager, Data &amp; BI</div><div class="o">US-Bangla Group</div></div>
-      <div class="chip"><i data-lucide="badge-check"></i>7+ years of experience</div>
-    </div>
-    <div class="side">
-      <div class="panel" data-step="rise" data-fragment-index="0"><div class="panel-h"><span class="tile"><i data-lucide="target"></i></span>Webinar Focus</div>
-        <p>Analytics career roadmap 2027: the skills Bangladesh employers ask for, AI for productivity, portfolio, career paths, interviews and a 90-day learning plan.</p></div>
-      <div class="panel" data-step="rise" data-fragment-index="0"><div class="panel-h"><span class="tile"><i data-lucide="quote"></i></span>Speaker Profile</div>
-        <p>Transforms complex data into actionable insights, specializing in data-driven business growth through data analysis and data engineering solutions.</p></div>
-      <div class="col" data-step="stream" data-fragment-index="1">
-        <div class="lab-s"><i data-lucide="trending-up" style="width:22px;height:22px;vertical-align:-4px"></i> HELPED TO GROW</div>
-        <div class="logos">
-          <span class="logo daraz"><img src="assets/logos/daraz/logo.png" alt="Daraz"></span>
-          <span class="logo cartup"><img src="assets/logos/cartup/logo.svg" alt="Cartup"></span>
-          <span class="logo upay"><img src="assets/logos/upay/logo.png" alt="Upay"></span>
-          <span class="logo"><img src="assets/logos/foodi/logo.svg" alt="foodi"></span>
-          <span class="logo"><img src="assets/logos/wagely/logo-dark.svg" alt="wagely"></span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <aside class="notes">
-    <p>আমি সালমান সাকিব। US-Bangla Group-এ Data আর BI টিমের Manager, সাত বছরের বেশি এই কাজে আছি।</p>
-    <p>▶1 আমার কাজ হলো জটিল data থেকে এমন insight বের করা, যেটা দিয়ে ব্যবসা সিদ্ধান্ত নিতে পারে। আজকের webinar-ও সেই ভাবনা থেকে।</p>
-    <p>▶2 Daraz, Cartup, Upay, foodi, wagely: এই প্রতিষ্ঠানগুলোর data-র কাজে যুক্ত থেকে বড় হতে দেখেছি।</p>
-    <p>আর আমি নিয়মিত analyst নিয়োগও করি। তাই আজ নিয়োগকারীর চোখ দিয়েও কথা বলব।</p>
-  </aside>
-</section>
-
-<!-- S3 · আজ যা শিখবেন -->
-<section>
-  <h2 data-enter="rise">আজ যা শিখবেন</h2>
-  <div class="agenda" data-enter="stream" data-delay="0.2">
-    <div class="item"><span class="num">১</span>২০২৭-এ কোন skill আগে</div>
-    <div class="item"><span class="num">২</span>Bangladesh-এর employer কী চায়</div>
-    <div class="item"><span class="num">৩</span>AI দিয়ে দ্রুত কাজ</div>
-    <div class="item"><span class="num">৪</span>অভিজ্ঞতা ছাড়া portfolio</div>
-    <div class="item"><span class="num">৫</span>আপনার career path</div>
-    <div class="item"><span class="num">৬</span>Interview-এর প্রস্তুতি</div>
-    <div class="item"><span class="num">৭</span>৯০ দিনের পরিকল্পনা</div>
-  </div>
-  <aside class="notes">
-    <p>আজ সাতটা জিনিস নিয়ে কথা বলব।</p>
-    <p>২০২৭-এ কোন skill আগে শিখবেন। Bangladesh-এর employer আসলে কী চায়। AI দিয়ে কীভাবে কাজ দ্রুত করবেন। অভিজ্ঞতা ছাড়া portfolio কীভাবে বানাবেন। আপনার জন্য কোন career path। Interview-এর প্রস্তুতি। আর শেষে ৯০ দিনের একটা পরিকল্পনা।</p>
-    <p>প্রশ্ন জমা রাখুন, মাঝখানে একবার আর শেষে পুরো সময় থাকবে।</p>
-  </aside>
-</section>
-
-<!-- S4 · ৩৩টা job post -->
+<!-- S2 · ৩৩টা job post -->
 <section>
   <h2 data-enter="rise">গত ৯০ দিন, <span data-enter="count" data-to="33" data-locale="bn-BD" data-duration="0.9">0</span>টা job post</h2>
   <p class="lead" data-enter="rise">Bangladesh-এর analytics চাকরির বিজ্ঞাপন, bdjobs আর LinkedIn থেকে, একটা একটা করে পড়া</p>
@@ -210,14 +159,14 @@
   </div>
   <div class="src"><i data-lucide="database"></i>নিজস্ব গণনা: ৩৩টা post, ৩ সেপ্টেম্বর – ১২ নভেম্বর ২০২৬ · research/jobposts</div>
   <aside class="notes">
-    <p>এই webinar-এর জন্য আমি একটা কাজ করেছি। গত তিন মাসে Bangladesh-এ যত analytics job post পেয়েছি, bdjobs আর LinkedIn থেকে, একটা একটা করে পড়েছি। বাছাইয়ের পর রইল ৩৩টা।</p>
+    <p>শুরুটা একটা গোনা দিয়ে। গত তিন মাসে bdjobs আর LinkedIn-এ Bangladesh-এর যত analytics job post পাওয়া গেছে, একটা একটা করে পড়া হয়েছে। বাছাইয়ের পর রইল ৩৩টা।</p>
     <p>▶1 এর মধ্যে ১০টার ৬টায় Excel চেয়েছে, অর্ধেকের বেশিতে Power BI, আর SQL চেয়েছে মাত্র তিনটায় একটা।</p>
     <p>অনেকে ভাবেন আগে Python। Bangladesh-এর বাজার অন্য কথা বলছে।</p>
     <p>▶2 আজকের প্রায় সব কথা এই post-গুলো থেকে। Screen-এ যেগুলো দেখছেন, সব আসল।</p>
   </aside>
 </section>
 
-<!-- S5 · বিশ্বে কোন skill বাড়ছে -->
+<!-- S3 · বিশ্বে কোন skill বাড়ছে -->
 <section>
   <h2 data-enter="rise"><span class="num">১</span>বিশ্বে কোন skill বাড়ছে</h2>
   <p class="lead" data-enter="rise">২০২৫–২০৩০: কত শতাংশ কোম্পানি বলছে চাহিদা বাড়বে (net)</p>
@@ -239,7 +188,7 @@
   </aside>
 </section>
 
-<!-- S6 · মূল skill এখনো চিন্তা -->
+<!-- S4 · মূল skill এখনো চিন্তা -->
 <section>
   <h2 data-enter="rise">মূল skill এখনো চিন্তা</h2>
   <div class="row" data-enter="rise" style="gap:36px">
@@ -258,7 +207,7 @@
   </aside>
 </section>
 
-<!-- S7 · ২০২৭-এর analyst: T-shaped -->
+<!-- S5 · ২০২৭-এর analyst: T-shaped -->
 <section>
   <h2 data-enter="rise">২০২৭-এর analyst: T-shaped</h2>
   <div class="tshape" data-step="stream">
@@ -269,14 +218,14 @@
     <div class="cell">একটা domain: finance, supply chain…</div>
   </div>
   <aside class="notes">
-    <p>তাহলে ২০২৭-এর analyst দেখতে কেমন? আমি বলি T-shaped।</p>
+    <p>তাহলে ২০২৭-এর analyst দেখতে কেমন? এক কথায়: T-shaped।</p>
     <p>▶1 ওপরের লম্বা দাগটা হলো ভিত্তি, যেটা সব role-এ লাগে: SQL, Excel, basic statistics, আর কথা বলে বোঝানোর ক্ষমতা।</p>
     <p>▶2 আর নিচের খাড়া দাগটা হলো গভীরতা: একটা tool-এ দক্ষতা, যেমন Power BI বা Python, আর একটা domain, যেমন finance বা supply chain।</p>
     <p>একটু পরে job post-এর হিসাবও ঠিক এটাই দেখাবে।</p>
   </aside>
 </section>
 
-<!-- S8 · কোনটা কমছে -->
+<!-- S6 · কোনটা কমছে -->
 <section>
   <h2 data-enter="rise">কোনটা কমছে, কোনটা বাড়ছে</h2>
   <div class="split">
@@ -293,7 +242,7 @@
   </aside>
 </section>
 
-<!-- S9 · কীভাবে গুনলাম -->
+<!-- S7 · কীভাবে গোনা হলো -->
 <section>
   <h2 data-enter="rise"><span class="num">২</span>কীভাবে গুনলাম</h2>
   <div class="flow" data-enter="rise">
@@ -310,13 +259,13 @@
   </div>
   <div class="src"><i data-lucide="database"></i>নিজস্ব গণনা, ৩ সেপ্টেম্বর – ১২ নভেম্বর ২০২৬ · প্রতি post-এ প্রতিটা skill একবার</div>
   <aside class="notes">
-    <p>এবার Bangladesh। কীভাবে গুনেছি, সেটা আগে বলি, যাতে সংখ্যাগুলো বিশ্বাস করতে পারেন।</p>
-    <p>bdjobs আর LinkedIn থেকে ৬৩টা post তুলেছিলাম। এর মধ্যে একই post দুই জায়গায় থাকা, data labelling-এর gig, IT বা finance-এর চাকরি বাদ দিয়ে রইল ৩৩টা। প্রতিটা skill প্রতি post-এ একবার গোনা।</p>
+    <p>এবার Bangladesh। কীভাবে গোনা হলো, সেটা আগে দেখি, যাতে সংখ্যাগুলো বিশ্বাস করতে পারেন।</p>
+    <p>bdjobs আর LinkedIn থেকে ৬৩টা post তোলা হয়েছিল। এর মধ্যে একই post দুই জায়গায় থাকা, data labelling-এর gig, IT বা finance-এর চাকরি বাদ দিয়ে রইল ৩৩টা। প্রতিটা skill প্রতি post-এ একবার গোনা।</p>
     <p>▶1 এগুলো তার কয়েকটা। ছোট নমুনা, শুধু খোলা বিজ্ঞাপন। বাজারের পুরো মাপ না, কিন্তু দিকটা পরিষ্কার বোঝায়।</p>
   </aside>
 </section>
 
-<!-- S10 · Employer যা চায় -->
+<!-- S8 · Employer যা চায় -->
 <section>
   <h2 data-enter="rise">Employer যা চায়</h2>
   <p class="lead" data-enter="rise">৩৩টা post-এর কত শতাংশে এই skill চাওয়া হয়েছে</p>
@@ -350,7 +299,7 @@
   </aside>
 </section>
 
-<!-- S11 · Role অনুযায়ী চাহিদা -->
+<!-- S9 · Role অনুযায়ী চাহিদা -->
 <section>
   <h2 data-enter="rise">Role অনুযায়ী</h2>
   <div class="hbars" data-enter="bars" data-delay="0.2">
@@ -374,7 +323,7 @@
   </aside>
 </section>
 
-<!-- S12 · একটা আসল post পড়ি -->
+<!-- S10 · একটা আসল post পড়ি -->
 <section>
   <h2 data-enter="rise">একটা আসল post পড়ি</h2>
   <div class="split" style="align-items:start">
@@ -394,7 +343,7 @@
   </aside>
 </section>
 
-<!-- S13 · কত বছরের অভিজ্ঞতা চায় -->
+<!-- S11 · কত বছরের অভিজ্ঞতা চায় -->
 <section>
   <h2 data-enter="rise">কত বছরের অভিজ্ঞতা চায়</h2>
   <div class="hbars" data-enter="bars" data-delay="0.2">
@@ -404,16 +353,14 @@
     <div class="hbar" style="--v:12"><span class="name">৬+ বছর</span><b class="track"><i class="fill"></i></b><span class="val">৪</span></div>
     <div class="hbar dim" style="--v:21"><span class="name">উল্লেখ নেই</span><b class="track"><i class="fill"></i></b><span class="val">৭</span></div>
   </div>
-  <div class="todo" data-step="rise"><b>আমার অভিজ্ঞতায়:</b> CV-র প্রথম ৩০ সেকেন্ডে যা দেখি · [প্রশ্ন ১–৩-এর উত্তর বসবে]</div>
   <div class="src"><i data-lucide="database"></i>নিজস্ব গণনা, ৩৩টা post</div>
   <aside class="notes">
     <p>অভিজ্ঞতার হিসাব: বেশিরভাগ post, ৩৩টার ১৩টা, চেয়েছে দুই থেকে তিন বছর। শূন্য থেকে এক বছরের জন্য মাত্র পাঁচটা।</p>
     <p>তাহলে fresher কী করবে? প্রমাণ দেখাবে। সেটা portfolio অংশে বলব।</p>
-    <p>▶1 আর আমি নিজে CV দেখার প্রথম ত্রিশ সেকেন্ডে যা দেখি: [আপনার উত্তর: Q1–Q3]</p>
   </aside>
 </section>
 
-<!-- S14 · AI নিয়ে গবেষণা যা বলে -->
+<!-- S12 · AI নিয়ে গবেষণা যা বলে -->
 <section>
   <h2 data-enter="rise"><span class="num">৩</span>AI নিয়ে গবেষণা যা বলে</h2>
   <p class="lead" data-enter="rise">Harvard + BCG, ৭৫৮ জন consultant-এর পরীক্ষা</p>
@@ -433,7 +380,7 @@
   </aside>
 </section>
 
-<!-- S15 · Scenario ১: প্রশ্ন থেকে SQL -->
+<!-- S13 · Scenario ১: প্রশ্ন থেকে SQL -->
 <section>
   <h2 data-enter="rise">Scenario ১: প্রশ্ন থেকে SQL <span class="eg">ধরা যাক</span></h2>
   <div class="split" style="align-items:start">
@@ -463,15 +410,15 @@ ORDER BY change LIMIT 5;</pre></div>
     <span class="chip yellow">cancelled বাদ গেল?</span><span class="chip yellow">আগের মাসে ০ অর্ডারের জেলা JOIN-এ হারাল?</span><span class="chip yellow">district খালি?</span>
   </div>
   <aside class="notes">
-    <p>তিনটা scenario দেখাই। এগুলো উদাহরণ, কিন্তু প্রতিদিনের কাজের মতোই।</p>
+    <p>তিনটা scenario দেখা যাক। এগুলো উদাহরণ, কিন্তু প্রতিদিনের কাজের মতোই।</p>
     <p>ধরা যাক, manager জানতে চাইলেন: গত মাসে কোন জেলায় অর্ডার সবচেয়ে বেশি কমেছে?</p>
     <p>▶1 AI-কে table-এর নাম আর column দিয়ে প্রশ্নটা লিখলাম।</p>
     <p>▶2 AI এই SQL দিল। দেখতে ঠিকঠাক।</p>
-    <p>▶3 কিন্তু চালানোর আগে আমি তিনটা জিনিস দেখি: cancelled অর্ডার বাদ গেছে কি না, আগের মাসে অর্ডার ছিল না এমন জেলা JOIN-এ হারিয়ে গেল কি না, আর district খালি থাকা row। দশ মিনিটের কাজ দুই মিনিটে, যাচাইসহ।</p>
+    <p>▶3 কিন্তু চালানোর আগে তিনটা জিনিস দেখে নিতে হয়: cancelled অর্ডার বাদ গেছে কি না, আগের মাসে অর্ডার ছিল না এমন জেলা JOIN-এ হারিয়ে গেল কি না, আর district খালি থাকা row। দশ মিনিটের কাজ দুই মিনিটে, যাচাইসহ।</p>
   </aside>
 </section>
 
-<!-- S16 · Scenario ২: পুরনো query বোঝা -->
+<!-- S14 · Scenario ২: পুরনো query বোঝা -->
 <section>
   <h2 data-enter="rise">Scenario ২: পুরনো query বোঝা <span class="eg">ধরা যাক</span></h2>
   <div class="split wide-code" style="align-items:start">
@@ -491,7 +438,7 @@ ORDER BY change LIMIT 5;</pre></div>
   </aside>
 </section>
 
-<!-- S17 · Scenario ৩: ফল থেকে insight -->
+<!-- S15 · Scenario ৩: ফল থেকে insight -->
 <section>
   <h2 data-enter="rise">Scenario ৩: ফল থেকে insight <span class="eg">ধরা যাক</span></h2>
   <div class="split" style="align-items:start">
@@ -509,11 +456,11 @@ ORDER BY change LIMIT 5;</pre></div>
   <aside class="notes">
     <p>তৃতীয়: ফলাফল থেকে manager-এর জন্য তিন লাইনের সারাংশ।</p>
     <p>▶1 AI লিখল: Sylhet-এ অর্ডার ১৭% কমেছে, সম্ভবত বন্যার কারণে। শুনতে দারুণ, কিন্তু কারণটা data-তে নেই, AI অনুমান করেছে।</p>
-    <p>▶2 আমার সংশোধন: সংখ্যাটা দিলাম, কারণটা "এখনো নিশ্চিত না" লিখলাম, আর পরের ধাপ বললাম। Manager-এর কাছে বিশ্বাস এভাবেই তৈরি হয়।</p>
+    <p>▶2 ঠিক করা version: সংখ্যাটা থাকল, কারণের জায়গায় লেখা হলো "এখনো নিশ্চিত না", আর সাথে পরের ধাপ। Manager-এর কাছে বিশ্বাস এভাবেই তৈরি হয়।</p>
   </aside>
 </section>
 
-<!-- S18 · আত্মবিশ্বাসী ভুল উত্তর -->
+<!-- S16 · আত্মবিশ্বাসী ভুল উত্তর -->
 <section>
   <h2 data-enter="rise">আত্মবিশ্বাসী ভুল উত্তর <span class="eg">ধরা যাক</span></h2>
   <div class="split" style="align-items:start">
@@ -536,17 +483,7 @@ ORDER BY change LIMIT 5;</pre></div>
   </aside>
 </section>
 
-<!-- S19 · এ পর্যন্ত প্রশ্ন -->
-<section class="center" data-live>
-  <h2 data-enter="rise">এ পর্যন্ত কোনো প্রশ্ন?</h2>
-  <p class="lead" data-enter="rise">Chat-এ লিখুন · তারপর portfolio</p>
-  <aside class="notes">
-    <p>(Live only: দুই-তিন মিনিট প্রশ্ন নিন)</p>
-    <p>এ পর্যন্ত কোনো প্রশ্ন থাকলে chat-এ লিখুন। দুই-তিনটা নিয়ে তারপর portfolio-তে যাব।</p>
-  </aside>
-</section>
-
-<!-- S20 · অভিজ্ঞতা নেই? প্রমাণ দেখান -->
+<!-- S17 · অভিজ্ঞতা নেই? প্রমাণ দেখান -->
 <section>
   <h2 data-enter="rise"><span class="num">৪</span>অভিজ্ঞতা নেই? প্রমাণ দেখান</h2>
   <div class="split">
@@ -563,7 +500,7 @@ ORDER BY change LIMIT 5;</pre></div>
   </aside>
 </section>
 
-<!-- S21 · চারটা starter project -->
+<!-- S18 · চারটা starter project -->
 <section>
   <h2 data-enter="rise">চারটা starter project</h2>
   <div class="grid2">
@@ -586,7 +523,7 @@ ORDER BY change LIMIT 5;</pre></div>
   </aside>
 </section>
 
-<!-- S22 · ভালো project-এর গঠন -->
+<!-- S19 · ভালো project-এর গঠন -->
 <section>
   <h2 data-enter="rise">ভালো project-এর গঠন</h2>
   <div class="steps6" data-step="stream">
@@ -602,7 +539,7 @@ ORDER BY change LIMIT 5;</pre></div>
   </aside>
 </section>
 
-<!-- S23 · ৩০ সেকেন্ডের checklist -->
+<!-- S20 · ৩০ সেকেন্ডের checklist -->
 <section>
   <h2 data-enter="rise">৩০ সেকেন্ডের checklist</h2>
   <div class="items" data-step="stream">
@@ -611,15 +548,13 @@ ORDER BY change LIMIT 5;</pre></div>
     <div class="item green"><i data-lucide="play"></i>Code, যেটা অন্য কেউ চালাতে পারে</div>
     <div class="item green"><i data-lucide="share-2"></i>LinkedIn-এ নিজের ভাষায় একটা post</div>
   </div>
-  <div class="todo" data-step="rise"><b>আমার অভিজ্ঞতায়:</b> কোন project চোখে পড়ে, কোনটা copy মনে হয় · [প্রশ্ন ৮–৯-এর উত্তর বসবে]</div>
   <aside class="notes">
     <p>Portfolio দেখার সময় নিয়োগকারী কী দেখে?</p>
     <p>▶1 README-তে প্রশ্ন আর উত্তর প্রথমেই, একটা chart যেটা গল্পটা বলে, code যেটা অন্য কেউ চালাতে পারে, আর LinkedIn-এ একটা post যেখানে নিজের ভাষায় বুঝিয়েছেন।</p>
-    <p>▶2 আমার নিজের অভিজ্ঞতায়: [আপনার উত্তর: Q8–Q9]</p>
   </aside>
 </section>
 
-<!-- S24 · চারটা path -->
+<!-- S21 · চারটা path -->
 <section>
   <h2 data-enter="rise"><span class="num">৫</span>চারটা path</h2>
   <div class="paths" data-enter="stream">
@@ -633,12 +568,12 @@ ORDER BY change LIMIT 5;</pre></div>
   <aside class="notes">
     <p>পাঁচ নম্বর topic: আপনার জন্য কোন path। চারটা প্রধান path।</p>
     <p>Data Analyst প্রশ্নের উত্তর খোঁজেন। BI Analyst dashboard আর report বানান। Data Engineer data-র পাইপলাইন বানান। Data Scientist model দিয়ে ভবিষ্যৎ আন্দাজ করেন।</p>
-    <p>▶1 আর Bangladesh-এর চাহিদা আমাদের হিসাবে: Analyst আর MIS মিলিয়ে চব্বিশটা, BI চারটা, Engineer চারটা, Scientist একটা।</p>
+    <p>▶1 আর Bangladesh-এর চাহিদা এই ৩৩টা post-এর হিসাবে: Analyst আর MIS মিলিয়ে চব্বিশটা, BI চারটা, Engineer চারটা, Scientist একটা।</p>
     <p>▶2 আর যেকোনো path-এর সাথে একটা domain জানলে, যেমন finance, marketing বা supply chain, profile অনেক শক্ত হয়।</p>
   </aside>
 </section>
 
-<!-- S25 · Path finder -->
+<!-- S22 · Path finder -->
 <section class="s25">
   <h2 data-enter="rise">Path finder <span class="eg live-only">chat-এ A বা B</span><span class="eg play-only">ধরা যাক</span></h2>
   <div class="pf">
@@ -656,8 +591,7 @@ ORDER BY change LIMIT 5;</pre></div>
     </div>
   </div>
   <aside class="notes">
-    <p>এবার একটা খেলা। চারটা প্রশ্ন, প্রতিটার দুইটা উত্তর। Chat-এ A বা B লিখুন, বেশিরভাগ যেটা বলবেন, আমি সেটা চাপব।</p>
-    <p>(Video-তে: ধরা যাক, আপনার উত্তরগুলো এরকম।)</p>
+    <p>এবার একটা খেলা। চারটা প্রশ্ন, প্রতিটার দুইটা উত্তর। মনে মনে A বা B বেছে নিন। ধরা যাক, আপনার উত্তরগুলো এরকম।</p>
     <p>▶1 প্রথম প্রশ্ন: মানুষের সাথে কথা বলে প্রশ্ন বুঝতে ভালো লাগে, নাকি system বানাতে?</p>
     <p>▶2 দ্বিতীয়: chart আর dashboard বানাতে মজা লাগে, নাকি code লিখতে?</p>
     <p>▶3 তৃতীয়: "কী হয়েছে আর কেন", নাকি "সামনে কী হবে"?</p>
@@ -666,7 +600,7 @@ ORDER BY change LIMIT 5;</pre></div>
   </aside>
 </section>
 
-<!-- S26 · তিন বছর পর কোথায় -->
+<!-- S23 · তিন বছর পর কোথায় -->
 <section>
   <h2 data-enter="rise">তিন বছর পর কোথায়</h2>
   <div class="items" data-step="stream">
@@ -675,30 +609,26 @@ ORDER BY change LIMIT 5;</pre></div>
     <div class="item"><b>Data Engineer</b> → Senior / Lead Data Engineer</div>
     <div class="item"><b>Data Scientist</b> → ML Engineer / Lead</div>
   </div>
-  <div class="todo" data-step="rise"><b>আমার অভিজ্ঞতায়:</b> কোন path-এ ঢোকা সহজ, বেতনের পরিসর · [প্রশ্ন ১৪–১৫-এর উত্তর বসবে]</div>
   <aside class="notes">
     <p>প্রতিটা path তিন বছরে কোথায় নিয়ে যায়?</p>
     <p>▶1 Analyst থেকে Senior Analyst বা Analytics Manager। BI থেকে BI Lead, আজকের post-এও Singer আর Gildan BI Lead খুঁজছে। Engineer থেকে Senior বা Lead Data Engineer। Scientist থেকে ML Engineer বা Lead।</p>
-    <p>▶2 বেতনের ব্যাপারে আমার অভিজ্ঞতা: [আপনার উত্তর: Q14–Q15]</p>
   </aside>
 </section>
 
-<!-- S27 · Interview-এর ধাপ -->
+<!-- S24 · Interview-এর ধাপ -->
 <section>
   <h2 data-enter="rise"><span class="num">৬</span>Interview-এর ধাপ</h2>
   <div class="steps6" data-step="stream">
     <span class="box">CV screening</span><span class="arrow">→</span><span class="box">Written / SQL test</span><span class="arrow">→</span><span class="box">Technical round</span><span class="arrow">→</span>
     <span class="box">Case / presentation</span><span class="arrow">→</span><span class="box">HR</span>
   </div>
-  <div class="todo" data-step="rise"><b>আমার অভিজ্ঞতায়:</b> আমার টিমের ধাপ, আর কোথায় মানুষ বাদ পড়ে · [প্রশ্ন ১০–১১-এর উত্তর বসবে]</div>
   <aside class="notes">
     <p>ছয় নম্বর topic: interview। সাধারণত ধাপগুলো এরকম।</p>
     <p>▶1 CV screening, তারপর written বা SQL test, technical round, case বা presentation, আর শেষে HR।</p>
-    <p>▶2 আমার টিমে ধাপগুলো আর কোথায় মানুষ বাদ পড়ে: [আপনার উত্তর: Q10–Q11]</p>
   </aside>
 </section>
 
-<!-- S28 · SQL প্রশ্ন: chat-এ চেষ্টা করুন -->
+<!-- S25 · SQL প্রশ্ন: pause করে চেষ্টা করুন -->
 <section>
   <h2 data-enter="rise">SQL প্রশ্ন <span class="eg live-only">chat-এ চেষ্টা করুন</span><span class="eg play-only">pause করে চেষ্টা করুন</span></h2>
   <div class="split" style="align-items:start">
@@ -725,13 +655,13 @@ ORDER BY month;</pre></div>
   <aside class="notes">
     <p>একটা সত্যিকারের ধরনের SQL প্রশ্ন। দুইটা table: customers আর orders।</p>
     <p>▶1 প্রশ্ন: প্রতি মাসে কতজন নতুন customer প্রথম অর্ডার দিয়েছেন?</p>
-    <p>▶2 এক মিনিট সময়। Chat-এ আপনার query লিখুন। (Video-তে: pause করে চেষ্টা করুন।)</p>
+    <p>▶2 Video-টা pause করুন, এক মিনিটে নিজে query লিখে দেখুন।</p>
     <p>▶3 উত্তর: আগে প্রতিটা customer-এর প্রথম অর্ডারের তারিখ বের করি, তারপর মাস ধরে গুনি।</p>
     <p>▶4 আর সবচেয়ে কমন ভুল এটা: মাস ধরে distinct customer গোনা। ওটা নতুন না, সক্রিয় customer গোনে। প্রশ্নটা ঠিকভাবে পড়াই অর্ধেক কাজ।</p>
   </aside>
 </section>
 
-<!-- S29 · Case প্রশ্ন -->
+<!-- S26 · Case প্রশ্ন -->
 <section>
   <h2 data-enter="rise">"Sales ২০% কমেছে। কী দেখবেন?"</h2>
   <div class="tree">
@@ -749,7 +679,7 @@ ORDER BY month;</pre></div>
   </aside>
 </section>
 
-<!-- S30 · STAR আর কমন ভুল -->
+<!-- S27 · STAR আর কমন ভুল -->
 <section>
   <h2 data-enter="rise">Behavioural প্রশ্ন: STAR</h2>
   <div class="star" data-step="stream">
@@ -758,15 +688,13 @@ ORDER BY month;</pre></div>
     <div class="box"><b>A</b>Action: আপনি নিজে কী করলেন</div>
     <div class="box"><b>R</b>Result: সংখ্যা দিয়ে ফল</div>
   </div>
-  <div class="todo" data-step="rise"><b>আমার অভিজ্ঞতায়:</b> interview-এ সবচেয়ে বেশি দেখা ৩টা ভুল · [প্রশ্ন ১২–১৩-এর উত্তর বসবে]</div>
   <aside class="notes">
     <p>Behavioural প্রশ্নের জন্য STAR পদ্ধতি।</p>
     <p>▶1 Situation: কী অবস্থা ছিল। Task: আপনার দায়িত্ব কী ছিল। Action: আপনি নিজে কী করলেন। Result: সংখ্যা দিয়ে কী ফল হলো।</p>
-    <p>▶2 আর interview-এ সবচেয়ে বেশি যে তিনটা ভুল দেখি: [আপনার উত্তর: Q12–Q13]</p>
   </aside>
 </section>
 
-<!-- S31 · ৯০ দিনের পরিকল্পনা -->
+<!-- S28 · ৯০ দিনের পরিকল্পনা -->
 <section>
   <h2 data-enter="rise"><span class="num">৭</span>৯০ দিনের পরিকল্পনা</h2>
   <p class="lead" data-enter="rise">সপ্তাহে ৮–১০ ঘণ্টা · ক্রমটা এসেছে job post-এর হিসাব থেকে</p>
@@ -783,7 +711,7 @@ ORDER BY month;</pre></div>
   </aside>
 </section>
 
-<!-- S32 · Path অনুযায়ী বদল -->
+<!-- S29 · Path অনুযায়ী বদল -->
 <section>
   <h2 data-enter="rise">Path অনুযায়ী মাঝের অংশ বদলায়</h2>
   <div class="items" data-step="stream">
@@ -800,7 +728,7 @@ ORDER BY month;</pre></div>
   </aside>
 </section>
 
-<!-- S33 · সারসংক্ষেপ -->
+<!-- S30 · সারসংক্ষেপ -->
 <section>
   <h2 data-enter="rise">এক নজরে</h2>
   <div class="agenda recap">
@@ -816,21 +744,14 @@ ORDER BY month;</pre></div>
   <aside class="notes">
     <p>তাহলে আজ যা দেখলাম, এক নজরে।</p>
     <p>▶1 Skill-এর অগ্রাধিকার, employer-এর চাহিদা, AI দিয়ে দ্রুত কাজ, portfolio, path, interview, আর ৯০ দিনের পরিকল্পনা। সাতটাই।</p>
+    <p>আজই একটা কাজ করুন: bdjobs-এ আপনার পছন্দের পাঁচটা post খুলে দেখুন, কোন skill বারবার আসছে। ওই তালিকাই আপনার ৯০ দিনের শুরু।</p>
+    <p>প্রশ্ন থাকলে comment-এ লিখুন।</p>
   </aside>
 </section>
 
-<!-- S34 · প্রশ্নোত্তর -->
-<section class="center">
-  <h1 data-enter="rise">প্রশ্নোত্তর</h1>
-  <p class="say live-only" data-enter="rise">Chat-এ আপনার প্রশ্ন লিখুন</p>
-  <p class="say play-only" data-enter="rise">প্রশ্ন থাকলে comment-এ লিখুন</p>
-  <aside class="notes">
-    <p>এবার আপনার প্রশ্ন। Chat-এ লিখুন, একটা একটা করে উত্তর দিচ্ছি।</p>
-    <p>(Video-তে: প্রশ্ন থাকলে comment-এ লিখুন। দেখার জন্য ধন্যবাদ।)</p>
-  </aside>
-</section>
 
 </div></div>
+<audio data-vo src="assets/vo.mp3" preload="none"></audio>
 <script src="../../vendor/gsap/gsap.min.js"></script>
 <script src="../../vendor/gsap/SplitText.min.js"></script>
 <script src="../../vendor/gsap/DrawSVGPlugin.min.js"></script>
@@ -840,9 +761,6 @@ ORDER BY month;</pre></div>
 <script src="../../lib/deck.js"></script>
 <script src="../../lib/talk.js"></script>
 <script>
-// The live-only pause Slide has no place in the voiced video.
-if (document.documentElement.classList.contains('play')) document.querySelectorAll('section[data-live]').forEach(s => s.remove());
-
 // Bars: each .hbar fades in and its fill grows to --v (a chart axis, so filling from zero is the data, not an entrance).
 Deck.preset('bars', el => {
   const rows = el.matches('.hbar') ? [el] : [...el.querySelectorAll('.hbar')];

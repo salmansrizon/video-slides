@@ -1,0 +1,20 @@
+# English (or a symbol) as written in a Script → how the voice should say it, in Bangla letters. Tab-separated.
+# Only the text sent to tools/voice-deck.py changes; Scripts, Notes and time-deck keep the English. Longest match wins.
+Context Window	কনটেক্সট উইন্ডো
+Context	কনটেক্সট
+Token	টোকেন
+Chat	চ্যাট
+Input	ইনপুট
+Prompt Caching	প্রম্পট ক্যাশিং
+Caching	ক্যাশিং
+Prompt	প্রম্পট
+Model	মডেল
+Message	মেসেজ
+Version	ভার্সন
+RAG	র‍্যাগ
+Chunk	চাংক
+Embedding	এমবেডিং
+Document	ডকুমেন্ট
+Reranking	রির‍্যাঙ্কিং
+App	অ্যাপ
+AI	এআই

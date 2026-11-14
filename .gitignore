@@ -6,3 +6,4 @@
 *-talk-transcript.txt
 decks/*/research/jobposts/posts.json
 decks/*/research/jobposts/*.log
+__pycache__/

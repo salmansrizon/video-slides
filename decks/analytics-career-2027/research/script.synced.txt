@@ -1,49 +1,30 @@
 # Data Analytics Career 2027: Bangladesh-এ চাকরি পেতে যা লাগবে (synced copy for the Deck's Notes)
 
-Webinar, ~60 min. The words are the same as scripts/analytics-career-2027.txt, plus ▶ Cues (press →). Rebuild the Notes after any change:
+Voiced video, cut from the webinar (webinar Cues: script.webinar.txt). Reading copy (one paragraph): scripts/analytics-career-2027.txt. Rebuild the Notes after any change:
 node tools/sync-notes.mjs decks/analytics-career-2027/research/script.synced.txt decks/analytics-career-2027/index.html
-[আপনার উত্তর: Qn] marks a line to fill from research/QUESTIONNAIRE.md before the webinar.
 
 ## S1 · শিরোনাম
 ⏭ Slide 1 · ▶ ×0
 
 **VO:**
 
-আসসালামু আলাইকুম, সবাইকে স্বাগতম।
-আজকের বিষয়: Data Analytics Career 2027, Bangladesh-এ চাকরি পেতে আসলে কী লাগে।
-আগামী এক ঘণ্টায় আমরা অনুমান না, আসল job post আর আসল গবেষণা দেখে কথা বলব।
+Data analytics-এ career গড়তে চাইলে internet বলবে, আগে Python শিখুন, তারপর machine learning।
+কিন্তু Bangladesh-এর employer আসলে কী চায়? সেটা জানতে গত তিন মাসের আসল job post একটা একটা করে খোলা হলো, পাশে রাখা হলো বিশ্বের বড় গবেষণা। ফলাফল অনেকের ধারণার সাথে মেলে না।
+আজ দেখব, ২০২৭-এ এই দেশে data-র চাকরি পেতে আসলে কী লাগে।
+সাতটা প্রশ্নের উত্তর খুঁজব: skill, employer, AI, portfolio, path, interview, আর ৯০ দিনের পরিকল্পনা।
 
-## S2 · আমার পরিচয়
+## S2 · ৩৩টা job post
 ⏭ Slide 2 · ▶ ×2
 
 **VO:**
 
-আমি সালমান সাকিব। US-Bangla Group-এ Data আর BI টিমের Manager, সাত বছরের বেশি এই কাজে আছি।
-▶1 আমার কাজ হলো জটিল data থেকে এমন insight বের করা, যেটা দিয়ে ব্যবসা সিদ্ধান্ত নিতে পারে। আজকের webinar-ও সেই ভাবনা থেকে।
-▶2 Daraz, Cartup, Upay, foodi, wagely: এই প্রতিষ্ঠানগুলোর data-র কাজে যুক্ত থেকে বড় হতে দেখেছি।
-আর আমি নিয়মিত analyst নিয়োগও করি। তাই আজ নিয়োগকারীর চোখ দিয়েও কথা বলব।
-
-## S3 · আজ যা শিখবেন
-⏭ Slide 3 · ▶ ×0
-
-**VO:**
-
-আজ সাতটা জিনিস নিয়ে কথা বলব।
-২০২৭-এ কোন skill আগে শিখবেন। Bangladesh-এর employer আসলে কী চায়। AI দিয়ে কীভাবে কাজ দ্রুত করবেন। অভিজ্ঞতা ছাড়া portfolio কীভাবে বানাবেন। আপনার জন্য কোন career path। Interview-এর প্রস্তুতি। আর শেষে ৯০ দিনের একটা পরিকল্পনা।
-প্রশ্ন জমা রাখুন, মাঝখানে একবার আর শেষে পুরো সময় থাকবে।
-
-## S4 · ৩৩টা job post
-⏭ Slide 4 · ▶ ×2
-
-**VO:**
-
-এই webinar-এর জন্য আমি একটা কাজ করেছি। গত তিন মাসে Bangladesh-এ যত analytics job post পেয়েছি, bdjobs আর LinkedIn থেকে, একটা একটা করে পড়েছি। বাছাইয়ের পর রইল ৩৩টা।
+শুরুটা একটা গোনা দিয়ে। গত তিন মাসে bdjobs আর LinkedIn-এ Bangladesh-এর যত analytics job post পাওয়া গেছে, একটা একটা করে পড়া হয়েছে। বাছাইয়ের পর রইল ৩৩টা।
 ▶1 এর মধ্যে ১০টার ৬টায় Excel চেয়েছে, অর্ধেকের বেশিতে Power BI, আর SQL চেয়েছে মাত্র তিনটায় একটা।
 অনেকে ভাবেন আগে Python। Bangladesh-এর বাজার অন্য কথা বলছে।
 ▶2 আজকের প্রায় সব কথা এই post-গুলো থেকে। Screen-এ যেগুলো দেখছেন, সব আসল।
 
-## S5 · বিশ্বে কোন skill বাড়ছে
-⏭ Slide 5 · ▶ ×1
+## S3 · বিশ্বে কোন skill বাড়ছে
+⏭ Slide 3 · ▶ ×1
 
 **VO:**
 
@@ -51,8 +32,8 @@ node tools/sync-notes.mjs decks/analytics-career-2027/research/script.synced.txt
 সবার ওপরে AI and big data। তারপর cybersecurity আর technological literacy।
 ▶1 আমাদের জন্য তিনটা দাগানো: AI and big data, technological literacy, আর analytical thinking। Analytics career মানে এই তিনটার মিলনস্থল।
 
-## S6 · মূল skill এখনো চিন্তা
-⏭ Slide 6 · ▶ ×2
+## S4 · মূল skill এখনো চিন্তা
+⏭ Slide 4 · ▶ ×2
 
 **VO:**
 
@@ -60,18 +41,18 @@ node tools/sync-notes.mjs decks/analytics-career-2027/research/script.synced.txt
 ▶1 আর সতর্কবার্তা: ২০৩০-এর মধ্যে কর্মীদের skill-এর প্রায় ৩৯% বদলে যাবে।
 ▶2 মানে প্রতি একশো জনে ঊনষাট জনের নতুন training লাগবে। শেখা থামানো যাবে না।
 
-## S7 · ২০২৭-এর analyst: T-shaped
-⏭ Slide 7 · ▶ ×2
+## S5 · ২০২৭-এর analyst: T-shaped
+⏭ Slide 5 · ▶ ×2
 
 **VO:**
 
-তাহলে ২০২৭-এর analyst দেখতে কেমন? আমি বলি T-shaped।
+তাহলে ২০২৭-এর analyst দেখতে কেমন? এক কথায়: T-shaped।
 ▶1 ওপরের লম্বা দাগটা হলো ভিত্তি, যেটা সব role-এ লাগে: SQL, Excel, basic statistics, আর কথা বলে বোঝানোর ক্ষমতা।
 ▶2 আর নিচের খাড়া দাগটা হলো গভীরতা: একটা tool-এ দক্ষতা, যেমন Power BI বা Python, আর একটা domain, যেমন finance বা supply chain।
 একটু পরে job post-এর হিসাবও ঠিক এটাই দেখাবে।
 
-## S8 · কোনটা কমছে
-⏭ Slide 8 · ▶ ×1
+## S6 · কোনটা কমছে
+⏭ Slide 6 · ▶ ×1
 
 **VO:**
 
@@ -79,17 +60,17 @@ node tools/sync-notes.mjs decks/analytics-career-2027/research/script.synced.txt
 এটা গুরুত্বপূর্ণ, কারণ অনেকে data entry-কে data-র কাজ ভাবেন।
 ▶1 Data entry আর data analysis এক জিনিস না। একটা কমছে, আরেকটা বাড়ছে। আপনি কোন দিকে যাচ্ছেন, সেটা নিশ্চিত হোন।
 
-## S9 · কীভাবে গুনলাম
-⏭ Slide 9 · ▶ ×1
+## S7 · কীভাবে গোনা হলো
+⏭ Slide 7 · ▶ ×1
 
 **VO:**
 
-এবার Bangladesh। কীভাবে গুনেছি, সেটা আগে বলি, যাতে সংখ্যাগুলো বিশ্বাস করতে পারেন।
-bdjobs আর LinkedIn থেকে ৬৩টা post তুলেছিলাম। এর মধ্যে একই post দুই জায়গায় থাকা, data labelling-এর gig, IT বা finance-এর চাকরি বাদ দিয়ে রইল ৩৩টা। প্রতিটা skill প্রতি post-এ একবার গোনা।
+এবার Bangladesh। কীভাবে গোনা হলো, সেটা আগে দেখি, যাতে সংখ্যাগুলো বিশ্বাস করতে পারেন।
+bdjobs আর LinkedIn থেকে ৬৩টা post তোলা হয়েছিল। এর মধ্যে একই post দুই জায়গায় থাকা, data labelling-এর gig, IT বা finance-এর চাকরি বাদ দিয়ে রইল ৩৩টা। প্রতিটা skill প্রতি post-এ একবার গোনা।
 ▶1 এগুলো তার কয়েকটা। ছোট নমুনা, শুধু খোলা বিজ্ঞাপন। বাজারের পুরো মাপ না, কিন্তু দিকটা পরিষ্কার বোঝায়।
 
-## S10 · Employer যা চায়
-⏭ Slide 10 · ▶ ×4
+## S8 · Employer যা চায়
+⏭ Slide 8 · ▶ ×4
 
 **VO:**
 
@@ -99,8 +80,8 @@ bdjobs আর LinkedIn থেকে ৬৩টা post তুলেছিলা�
 ▶3 তারপর statistics, analytical thinking, আর SQL ৩৬%। ERP বা SAP-ও ৩৬%, কারণ অনেক চাকরি কারখানা আর বড় group-এর MIS-এ।
 ▶4 Python ২৭%, AI tool ২১%। শিক্ষাটা হলো: Bangladesh-এ আগে Excel আর Power BI-তে পাকা হোন, SQL সাথে রাখুন। Python পরের ধাপ।
 
-## S11 · Role অনুযায়ী চাহিদা
-⏭ Slide 11 · ▶ ×2
+## S9 · Role অনুযায়ী চাহিদা
+⏭ Slide 9 · ▶ ×2
 
 **VO:**
 
@@ -108,8 +89,8 @@ Role ধরে ভাগ করলে ছবিটা আরও পরিষ্�
 ▶1 MIS post-এ লাগে report, Excel আর ERP। Data Analyst post-এ communication, SQL আর statistics। Engineer post-এ Python, SQL আর pipeline।
 ▶2 মানে, Bangladesh-এ সবচেয়ে বেশি দরজা খোলা MIS আর Analyst-এ। Data Scientist হওয়ার স্বপ্ন থাকলে সমস্যা নেই, কিন্তু প্রথম চাকরিটা সম্ভবত এই দুই দরজার একটা দিয়ে আসবে।
 
-## S12 · একটা আসল post পড়ি
-⏭ Slide 12 · ▶ ×3
+## S10 · একটা আসল post পড়ি
+⏭ Slide 10 · ▶ ×3
 
 **VO:**
 
@@ -118,17 +99,16 @@ Role ধরে ভাগ করলে ছবিটা আরও পরিষ্�
 ▶2 তারপর Excel-এর formula, pivot, chart, আর basic statistics। Power BI জানলে বাড়তি সুবিধা।
 ▶3 আর খেয়াল করুন শেষটা: GitHub বা portfolio-র link থাকলে দিন। Intern পদেও portfolio চাইছে। এটা মনে রাখুন, চার নম্বর topic-এ কাজে লাগবে।
 
-## S13 · কত বছরের অভিজ্ঞতা চায়
-⏭ Slide 13 · ▶ ×1
+## S11 · কত বছরের অভিজ্ঞতা চায়
+⏭ Slide 11 · ▶ ×0
 
 **VO:**
 
 অভিজ্ঞতার হিসাব: বেশিরভাগ post, ৩৩টার ১৩টা, চেয়েছে দুই থেকে তিন বছর। শূন্য থেকে এক বছরের জন্য মাত্র পাঁচটা।
 তাহলে fresher কী করবে? প্রমাণ দেখাবে। সেটা portfolio অংশে বলব।
-▶1 আর আমি নিজে CV দেখার প্রথম ত্রিশ সেকেন্ডে যা দেখি: [আপনার উত্তর: Q1–Q3]
 
-## S14 · AI নিয়ে গবেষণা যা বলে
-⏭ Slide 14 · ▶ ×3
+## S12 · AI নিয়ে গবেষণা যা বলে
+⏭ Slide 12 · ▶ ×3
 
 **VO:**
 
@@ -137,19 +117,19 @@ Role ধরে ভাগ করলে ছবিটা আরও পরিষ্�
 ▶2 কিন্তু একটা কাজ ছিল AI-এর সীমার বাইরে: spreadsheet-এর data আর interview মিলিয়ে ব্যবসার সমস্যা ধরা। সেখানে AI ব্যবহারকারীরা ঠিক উত্তর দিয়েছেন ১৯ percentage point কম।
 ▶3 মানে AI আপনাকে দ্রুত করে, কিন্তু ভুল জায়গায় আত্মবিশ্বাসী ভুলও করায়। তাই কাজটা হলো: AI দিয়ে draft, যাচাই নিজে।
 
-## S15 · Scenario ১: প্রশ্ন থেকে SQL
-⏭ Slide 15 · ▶ ×3
+## S13 · Scenario ১: প্রশ্ন থেকে SQL
+⏭ Slide 13 · ▶ ×3
 
 **VO:**
 
-তিনটা scenario দেখাই। এগুলো উদাহরণ, কিন্তু প্রতিদিনের কাজের মতোই।
+তিনটা scenario দেখা যাক। এগুলো উদাহরণ, কিন্তু প্রতিদিনের কাজের মতোই।
 ধরা যাক, manager জানতে চাইলেন: গত মাসে কোন জেলায় অর্ডার সবচেয়ে বেশি কমেছে?
 ▶1 AI-কে table-এর নাম আর column দিয়ে প্রশ্নটা লিখলাম।
 ▶2 AI এই SQL দিল। দেখতে ঠিকঠাক।
-▶3 কিন্তু চালানোর আগে আমি তিনটা জিনিস দেখি: cancelled অর্ডার বাদ গেছে কি না, আগের মাসে অর্ডার ছিল না এমন জেলা JOIN-এ হারিয়ে গেল কি না, আর district খালি থাকা row। দশ মিনিটের কাজ দুই মিনিটে, যাচাইসহ।
+▶3 কিন্তু চালানোর আগে তিনটা জিনিস দেখে নিতে হয়: cancelled অর্ডার বাদ গেছে কি না, আগের মাসে অর্ডার ছিল না এমন জেলা JOIN-এ হারিয়ে গেল কি না, আর district খালি থাকা row। দশ মিনিটের কাজ দুই মিনিটে, যাচাইসহ।
 
-## S16 · Scenario ২: পুরনো query বোঝা
-⏭ Slide 16 · ▶ ×3
+## S14 · Scenario ২: পুরনো query বোঝা
+⏭ Slide 14 · ▶ ×3
 
 **VO:**
 
@@ -159,17 +139,17 @@ AI-কে বললাম, লাইন ধরে বুঝিয়ে দা�
 ▶2 এই লাইনে প্রতি ক্রেতার গড় খরচ।
 ▶3 আর WHERE-এ জুলাই থেকে আজ পর্যন্ত, মানে শেষ মাসটা অসম্পূর্ণ। এই ছোট জিনিসটা না বুঝলে report-এ ভুল তুলনা হতো।
 
-## S17 · Scenario ৩: ফল থেকে insight
-⏭ Slide 17 · ▶ ×2
+## S15 · Scenario ৩: ফল থেকে insight
+⏭ Slide 15 · ▶ ×2
 
 **VO:**
 
 তৃতীয়: ফলাফল থেকে manager-এর জন্য তিন লাইনের সারাংশ।
 ▶1 AI লিখল: Sylhet-এ অর্ডার ১৭% কমেছে, সম্ভবত বন্যার কারণে। শুনতে দারুণ, কিন্তু কারণটা data-তে নেই, AI অনুমান করেছে।
-▶2 আমার সংশোধন: সংখ্যাটা দিলাম, কারণটা "এখনো নিশ্চিত না" লিখলাম, আর পরের ধাপ বললাম। Manager-এর কাছে বিশ্বাস এভাবেই তৈরি হয়।
+▶2 ঠিক করা version: সংখ্যাটা থাকল, কারণের জায়গায় লেখা হলো "এখনো নিশ্চিত না", আর সাথে পরের ধাপ। Manager-এর কাছে বিশ্বাস এভাবেই তৈরি হয়।
 
-## S18 · আত্মবিশ্বাসী ভুল উত্তর
-⏭ Slide 18 · ▶ ×3
+## S16 · আত্মবিশ্বাসী ভুল উত্তর
+⏭ Slide 16 · ▶ ×3
 
 **VO:**
 
@@ -178,16 +158,8 @@ AI-কে বললাম, লাইন ধরে বুঝিয়ে দা�
 ▶2 কিন্তু finance-এর হিসাবে অক্টোবর ২.৪১ কোটি। প্রায় দ্বিগুণ! কারণ একটা অর্ডারের কয়েক কিস্তিতে payment, তাই JOIN-এ একই অর্ডার কয়েকবার গোনা হয়েছে।
 ▶3 ঠিক করা query এটা। নিয়মটা মনে রাখুন: AI-এর উত্তর একটা draft। জানা total-এর সাথে মিলিয়ে দেখুন, কয়েকটা row নিজে দেখুন। আর customer-এর data AI-এ paste করার আগে অফিসের নিয়ম জেনে নিন।
 
-## S19 · এ পর্যন্ত প্রশ্ন
-⏭ Slide 19 · ▶ ×0
-
-**VO:**
-
-(Live only: দুই-তিন মিনিট প্রশ্ন নিন)
-এ পর্যন্ত কোনো প্রশ্ন থাকলে chat-এ লিখুন। দুই-তিনটা নিয়ে তারপর portfolio-তে যাব।
-
-## S20 · অভিজ্ঞতা নেই? প্রমাণ দেখান
-⏭ Slide 20 · ▶ ×2
+## S17 · অভিজ্ঞতা নেই? প্রমাণ দেখান
+⏭ Slide 17 · ▶ ×2
 
 **VO:**
 
@@ -196,8 +168,8 @@ AI-কে বললাম, লাইন ধরে বুঝিয়ে দা�
 ▶1 "আমি Power BI পারি", এটা দাবি। যে কেউ লিখতে পারে।
 ▶2 আর এই dashboard-এর link, যেখানে আসল data, আসল প্রশ্ন, আসল উত্তর: এটা প্রমাণ। Interview-এ এটাই আলাদা করে।
 
-## S21 · চারটা starter project
-⏭ Slide 21 · ▶ ×4
+## S18 · চারটা starter project
+⏭ Slide 18 · ▶ ×4
 
 **VO:**
 
@@ -207,8 +179,8 @@ AI-কে বললাম, লাইন ধরে বুঝিয়ে দা�
 ▶3 Data Engineer-এর জন্য: আটটা বিভাগীয় শহরের প্রতিদিনের আবহাওয়া Open-Meteo থেকে টেনে একটা table-এ জমানোর pipeline, নিজে নিজে চলবে।
 ▶4 আর Data Scientist-এর জন্য: ঢাকার বাতাসের PM2.5 আর আবহাওয়া মিলিয়ে পরের দিনের পূর্বাভাস। Data link সব slide-এর নিচে।
 
-## S22 · ভালো project-এর গঠন
-⏭ Slide 22 · ▶ ×2
+## S19 · ভালো project-এর গঠন
+⏭ Slide 19 · ▶ ×2
 
 **VO:**
 
@@ -216,69 +188,65 @@ Project কী নিয়ে, তার চেয়ে বড় কথা, p
 ▶1 একটা প্রশ্ন দিয়ে শুরু। তারপর data, পরিষ্কার করা, analysis, insight, আর শেষে একটা পরামর্শ।
 ▶2 বেশিরভাগ tutorial-copy project এখানে, analysis-এ থেমে যায়। Chart আছে, কিন্তু "তাহলে কী করা উচিত" নেই। শেষ দুইটা ধাপই আপনাকে analyst বানায়।
 
-## S23 · ৩০ সেকেন্ডের checklist
-⏭ Slide 23 · ▶ ×2
+## S20 · ৩০ সেকেন্ডের checklist
+⏭ Slide 20 · ▶ ×1
 
 **VO:**
 
 Portfolio দেখার সময় নিয়োগকারী কী দেখে?
 ▶1 README-তে প্রশ্ন আর উত্তর প্রথমেই, একটা chart যেটা গল্পটা বলে, code যেটা অন্য কেউ চালাতে পারে, আর LinkedIn-এ একটা post যেখানে নিজের ভাষায় বুঝিয়েছেন।
-▶2 আমার নিজের অভিজ্ঞতায়: [আপনার উত্তর: Q8–Q9]
 
-## S24 · চারটা path
-⏭ Slide 24 · ▶ ×2
+## S21 · চারটা path
+⏭ Slide 21 · ▶ ×2
 
 **VO:**
 
 পাঁচ নম্বর topic: আপনার জন্য কোন path। চারটা প্রধান path।
 Data Analyst প্রশ্নের উত্তর খোঁজেন। BI Analyst dashboard আর report বানান। Data Engineer data-র পাইপলাইন বানান। Data Scientist model দিয়ে ভবিষ্যৎ আন্দাজ করেন।
-▶1 আর Bangladesh-এর চাহিদা আমাদের হিসাবে: Analyst আর MIS মিলিয়ে চব্বিশটা, BI চারটা, Engineer চারটা, Scientist একটা।
+▶1 আর Bangladesh-এর চাহিদা এই ৩৩টা post-এর হিসাবে: Analyst আর MIS মিলিয়ে চব্বিশটা, BI চারটা, Engineer চারটা, Scientist একটা।
 ▶2 আর যেকোনো path-এর সাথে একটা domain জানলে, যেমন finance, marketing বা supply chain, profile অনেক শক্ত হয়।
 
-## S25 · Path finder
-⏭ Slide 25 · ▶ ×4
+## S22 · Path finder
+⏭ Slide 22 · ▶ ×4
 
 **VO:**
 
-এবার একটা খেলা। চারটা প্রশ্ন, প্রতিটার দুইটা উত্তর। Chat-এ A বা B লিখুন, বেশিরভাগ যেটা বলবেন, আমি সেটা চাপব।
-(Video-তে: ধরা যাক, আপনার উত্তরগুলো এরকম।)
+এবার একটা খেলা। চারটা প্রশ্ন, প্রতিটার দুইটা উত্তর। মনে মনে A বা B বেছে নিন। ধরা যাক, আপনার উত্তরগুলো এরকম।
 ▶1 প্রথম প্রশ্ন: মানুষের সাথে কথা বলে প্রশ্ন বুঝতে ভালো লাগে, নাকি system বানাতে?
 ▶2 দ্বিতীয়: chart আর dashboard বানাতে মজা লাগে, নাকি code লিখতে?
 ▶3 তৃতীয়: "কী হয়েছে আর কেন", নাকি "সামনে কী হবে"?
 ▶4 আর শেষ: প্রতিদিনের report, নাকি লম্বা project?
 দেখুন কোন card সবচেয়ে উজ্জ্বল। এটা শুরুর দিক, শেষ কথা না।
 
-## S26 · তিন বছর পর কোথায়
-⏭ Slide 26 · ▶ ×2
+## S23 · তিন বছর পর কোথায়
+⏭ Slide 23 · ▶ ×1
 
 **VO:**
 
 প্রতিটা path তিন বছরে কোথায় নিয়ে যায়?
 ▶1 Analyst থেকে Senior Analyst বা Analytics Manager। BI থেকে BI Lead, আজকের post-এও Singer আর Gildan BI Lead খুঁজছে। Engineer থেকে Senior বা Lead Data Engineer। Scientist থেকে ML Engineer বা Lead।
-▶2 বেতনের ব্যাপারে আমার অভিজ্ঞতা: [আপনার উত্তর: Q14–Q15]
 
-## S27 · Interview-এর ধাপ
-⏭ Slide 27 · ▶ ×2
+## S24 · Interview-এর ধাপ
+⏭ Slide 24 · ▶ ×1
 
 **VO:**
 
 ছয় নম্বর topic: interview। সাধারণত ধাপগুলো এরকম।
 ▶1 CV screening, তারপর written বা SQL test, technical round, case বা presentation, আর শেষে HR।
-▶2 আমার টিমে ধাপগুলো আর কোথায় মানুষ বাদ পড়ে: [আপনার উত্তর: Q10–Q11]
 
-## S28 · SQL প্রশ্ন: chat-এ চেষ্টা করুন
-⏭ Slide 28 · ▶ ×4
+## S25 · SQL প্রশ্ন: pause করে চেষ্টা করুন
+⏭ Slide 25 · ▶ ×4
 
 **VO:**
 
 একটা সত্যিকারের ধরনের SQL প্রশ্ন। দুইটা table: customers আর orders।
 ▶1 প্রশ্ন: প্রতি মাসে কতজন নতুন customer প্রথম অর্ডার দিয়েছেন?
-▶2 এক মিনিট সময়। Chat-এ আপনার query লিখুন। (Video-তে: pause করে চেষ্টা করুন।)
+▶2 Video-টা pause করুন, এক মিনিটে নিজে query লিখে দেখুন।
 ▶3 উত্তর: আগে প্রতিটা customer-এর প্রথম অর্ডারের তারিখ বের করি, তারপর মাস ধরে গুনি।
 ▶4 আর সবচেয়ে কমন ভুল এটা: মাস ধরে distinct customer গোনা। ওটা নতুন না, সক্রিয় customer গোনে। প্রশ্নটা ঠিকভাবে পড়াই অর্ধেক কাজ।
 
-## S29 · Case প্রশ্ন
-⏭ Slide 29 · ▶ ×4
+## S26 · Case প্রশ্ন
+⏭ Slide 26 · ▶ ×4
 
 **VO:**
 
@@ -288,17 +256,16 @@ Data Analyst প্রশ্নের উত্তর খোঁজেন। BI A
 ▶3 কখন: হঠাৎ এক দিনে, নাকি ধীরে ধীরে।
 ▶4 আর কেন: দাম, stock, প্রতিযোগী, মৌসুম। এভাবে ভেঙে বললেই interviewer বোঝে আপনি analyst-এর মতো ভাবেন।
 
-## S30 · STAR আর কমন ভুল
-⏭ Slide 30 · ▶ ×2
+## S27 · STAR আর কমন ভুল
+⏭ Slide 27 · ▶ ×1
 
 **VO:**
 
 Behavioural প্রশ্নের জন্য STAR পদ্ধতি।
 ▶1 Situation: কী অবস্থা ছিল। Task: আপনার দায়িত্ব কী ছিল। Action: আপনি নিজে কী করলেন। Result: সংখ্যা দিয়ে কী ফল হলো।
-▶2 আর interview-এ সবচেয়ে বেশি যে তিনটা ভুল দেখি: [আপনার উত্তর: Q12–Q13]
 
-## S31 · ৯০ দিনের পরিকল্পনা
-⏭ Slide 31 · ▶ ×3
+## S28 · ৯০ দিনের পরিকল্পনা
+⏭ Slide 28 · ▶ ×3
 
 **VO:**
 
@@ -307,8 +274,8 @@ Behavioural প্রশ্নের জন্য STAR পদ্ধতি।
 ▶2 পাঁচ থেকে আট সপ্তাহ: Power BI আর basic statistics। একটা dashboard শেষ করুন।
 ▶3 নয় থেকে বারো: একটা পুরো portfolio project, আর interview-এর প্রস্তুতি। এই ক্রমটা আজকের job post-এর হিসাব থেকেই এসেছে।
 
-## S32 · Path অনুযায়ী বদল
-⏭ Slide 32 · ▶ ×2
+## S29 · Path অনুযায়ী বদল
+⏭ Slide 29 · ▶ ×2
 
 **VO:**
 
@@ -316,18 +283,12 @@ Behavioural প্রশ্নের জন্য STAR পদ্ধতি।
 ▶1 Data Engineer হলে পাঁচ থেকে আট সপ্তাহে Power BI-এর বদলে Python আর pipeline, project তিন। Data Scientist হলে Python আর statistics, project চার।
 ▶2 শেখার জন্য বিনামূল্যের ভালো জায়গা অনেক আছে। কয়েকটা এখানে।
 
-## S33 · সারসংক্ষেপ
-⏭ Slide 33 · ▶ ×1
+## S30 · সারসংক্ষেপ
+⏭ Slide 30 · ▶ ×1
 
 **VO:**
 
 তাহলে আজ যা দেখলাম, এক নজরে।
 ▶1 Skill-এর অগ্রাধিকার, employer-এর চাহিদা, AI দিয়ে দ্রুত কাজ, portfolio, path, interview, আর ৯০ দিনের পরিকল্পনা। সাতটাই।
-
-## S34 · প্রশ্নোত্তর
-⏭ Slide 34 · ▶ ×0
-
-**VO:**
-
-এবার আপনার প্রশ্ন। Chat-এ লিখুন, একটা একটা করে উত্তর দিচ্ছি।
-(Video-তে: প্রশ্ন থাকলে comment-এ লিখুন। দেখার জন্য ধন্যবাদ।)
+আজই একটা কাজ করুন: bdjobs-এ আপনার পছন্দের পাঁচটা post খুলে দেখুন, কোন skill বারবার আসছে। ওই তালিকাই আপনার ৯০ দিনের শুরু।
+প্রশ্ন থাকলে comment-এ লিখুন।

@@ -108,6 +108,9 @@
   .strip.old { opacity: .45; }
   html.vertical .strips { gap: 12px; } html.vertical .strip { width: 80px; }
   html.vertical .strip .v { font-size: 22px; } html.vertical .strip .n { font-size: 15px; }
+  /* Reel content is ~750px wide after the 1.15 zoom: narrower strips so S10's nine fit inside the panel. */
+  html.play.vertical .panel:has(> .strips) { padding: 24px; }
+  html.play.vertical .strips { gap: 6px; } html.play.vertical .strip { width: 70px; } html.play.vertical .strip .n { font-size: 13px; }
   .stat { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 20px; flex-wrap: wrap; font-size: 30px; line-height: 1.3; }
   .stat small { display: block; font: 400 20px/1.4 var(--mono); color: var(--muted-fg); }
   .stat .v { font: 400 30px/1 var(--mono); color: var(--muted-fg); white-space: nowrap; } .stat .v b { font-size: 60px; font-weight: 700; color: var(--accent); }

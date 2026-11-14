@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="bn" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-কে কাজ দিয়ে চলে যাবেন?</title>
+<!-- Talk Deck, Clay Look. Script: scripts/ai-coding-unattended.txt; Notes from research/script.synced.txt (tools/sync-notes.mjs).
+     Keys: ← → Slides, ↓ ↑ Steps, C face-cam guide. Voiced video: index.html?play follows assets/vo.mp3.
+     Reels (one per Slide, each opens on its own hook): S4 S5 S6 S7 S9 S10 →
+     node tools/render-deck.mjs decks/ai-coding-unattended/index.html --format vertical --slides 4-7,9,10 --outro library/outro-9x16-follow.mp4 -->
+<link rel="stylesheet" href="../../vendor/reveal/reveal.css">
+<link rel="stylesheet" href="../../lib/deck.css">
+<link rel="stylesheet" href="../../lib/talk.css">
+<link rel="stylesheet" href="../../lib/looks/clay.css">
+<style>
+  .ctl { display: none; }                          /* invisible Step handles: their preset moves other elements */
+  .eg { align-self: flex-start; }
+  .chip .no, .chip .ok { width: 30px; height: 30px; } .chip .no svg, .chip .ok svg { width: 18px; height: 18px; }
+
+  /* S1: two bars, merges per day */
+  .merge { display: flex; align-items: flex-end; gap: 56px; padding: 30px 56px 26px; }
+  .merge .col { align-items: center; gap: 12px; width: 230px; }
+  .merge .n { font: 300 64px/1 var(--font); font-variant-numeric: tabular-nums; }
+  .merge .bar { width: 120px; border-radius: 10px 10px 0 0; background: var(--muted-fg); transform-origin: 50% 100%; }
+  .merge .col.hot .bar { background: var(--accent); } .merge .col.hot .n { color: var(--accent); }
+  .merge .d { font-size: 26px; color: var(--muted-fg); }
+  .merge .x { align-self: center; font: 300 96px/1 var(--font); color: var(--accent); }
+  html.vertical .merge { gap: 28px; padding: 28px 30px; } html.vertical .merge .col { width: 200px; }
+  html.vertical .merge .x { font-size: 72px; }
+
+  /* S2: five jobs we did by hand */
+  .t-humans { margin: 110px 0 10px; }
+  .jobs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; width: 100%; }
+  .job { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--border); font-size: 26px; line-height: 1.3; }
+  .job svg { width: 34px; height: 34px; color: var(--blue-fg); }
+  html.vertical .jobs { grid-template-columns: repeat(3, 1fr); }
+
+  /* S3: decides | enforces table */
+  .frame-t { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+  .frame-t .tr { display: grid; grid-template-columns: 260px 1.3fr 1fr; gap: 12px; align-items: stretch; }
+  .frame-t .th { font-size: 28px; color: var(--muted-fg); padding: 0 20px; }
+  .frame-t .th.r { color: var(--accent); }
+  .frame-t .k { font-size: 26px; color: var(--muted-fg); align-self: center; }
+  .frame-t .c { padding: 18px 22px; border-radius: var(--radius-sm); background: var(--card); border: 1px solid var(--border); font-size: 28px; line-height: 1.35; }
+  .frame-t .c.m { color: var(--muted-fg); background: transparent; }
+  .frame-t .c.r { border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 8%, var(--card)); }
+  html.vertical .frame-t .tr { grid-template-columns: 1fr 1fr; gap: 8px 10px; } html.vertical .frame-t .k { grid-column: 1 / -1; }
+  html.vertical .frame-t .c { font-size: 24px; padding: 14px 16px; }
+
+  /* S4: the rules file */
+  html.vertical .code pre { font-size: 19px; }
+
+  /* S5: 1,053 dots, fatigue line, verdict */
+  .study { display: flex; gap: 40px; align-items: flex-start; }
+  .dots { display: grid; grid-template-columns: repeat(39, 9px); gap: 3px; flex: none; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--dim); }
+  .study .side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .legend { display: flex; gap: 28px; }
+  .legend div { display: flex; flex-direction: column; font-size: 24px; color: var(--muted-fg); line-height: 1.3; }
+  .legend b { font: 300 60px/1.05 var(--font); }
+  .legend .h b { color: var(--blue-fg); } .legend .a b { color: var(--accent); }
+  .fatigue { width: 440px; height: 170px; overflow: visible; }
+  .fatigue path { fill: none; stroke-width: 3; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+  .fatigue text { font-size: 18px; fill: var(--muted-fg); }
+  .verdict { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+  .verdict .panel { padding: 20px 26px; } .verdict .panel-h { font-size: 30px; margin-bottom: 8px; }
+  .verdict ul { font-size: 26px; gap: 4px; }
+  .verdict .code { margin-top: 12px; } .verdict .code pre { font-size: 21px; padding: 8px 0; } .verdict .code pre > span { padding-left: 24px; }
+  .verdict .code pre > span::before { content: none; }
+  html.vertical .study { flex-direction: column; gap: 18px; }
+  html.vertical .dots { grid-template-columns: repeat(39, 8px); } html.vertical .dots i { width: 8px; height: 8px; }
+  html.vertical .fatigue { width: 560px; height: 120px; }
+  html.vertical .verdict ul { font-size: 22px; } html.vertical .verdict .panel { padding: 16px 18px; }
+  html.vertical .verdict .code pre { font-size: 15px; }
+
+  /* S6: npm test */
+  .frame .swap { position: relative; display: inline-grid; }
+  .frame .swap > span { grid-area: 1 / 1; }
+  .leak { display: flex; align-items: center; gap: 16px; padding: 0 0 26px; }
+  .leak .chip { font-family: var(--mono) !important; font-size: 24px; }
+  .leak .chip .no { margin-left: 4px; }
+  html.vertical .leak { flex-direction: column; align-items: flex-start; gap: 10px; }
+  html.vertical .leak .arr { transform: rotate(90deg); margin-left: 24px; }
+
+  /* S8: one prompt, seven runs */
+  .runs { display: grid; grid-template-columns: 520px 1fr; align-items: center; }
+  .runs svg { width: 520px; height: 392px; overflow: visible; }
+  .runs svg path { fill: none; stroke: var(--accent); stroke-width: 3; }
+  .runs svg .cp rect { rx: 6px; }
+  .runs .outs { display: flex; flex-direction: column; }
+  .runs .outs div { height: 56px; display: flex; align-items: center; gap: 12px; padding-left: 18px; font-size: 26px; white-space: nowrap; }
+  .runs .outs div.win { color: var(--green-fg); font-weight: 600; }
+  html.vertical .runs { grid-template-columns: 250px 1fr; } html.vertical .runs svg { width: 250px; }
+  html.vertical .runs .outs div { font-size: 21px; padding-left: 12px; }
+
+  /* S9: cheating rates */
+  .hbars { display: flex; flex-direction: column; gap: 22px; width: 100%; }
+  .hb { display: grid; grid-template-columns: 430px 1fr 110px; gap: 20px; align-items: center; font-size: 26px; line-height: 1.3; }
+  .hb .trk { height: 40px; border-radius: 8px; background: var(--card-2); overflow: hidden; }
+  .hb .trk i { display: block; height: 100%; background: var(--accent); transform-origin: 0 50%; border-radius: 8px; }
+  .hb.good .trk i { background: var(--green); }
+  .hb .v { font: 300 44px/1 var(--font); color: var(--accent); text-align: right; } .hb.good .v { color: var(--green-fg); }
+  .hb small { display: block; font-size: 22px; color: var(--muted-fg); }
+  html.vertical .hb { grid-template-columns: 1fr 96px; gap: 8px 16px; }
+  html.vertical .hb > span:first-child { grid-column: 1 / -1; }
+
+  /* S10: exit 1 vs exit 2 */
+  .t-hook { margin: 80px 0 50px; }
+  .t-hook .arc { position: absolute; inset: 0; } .t-hook .arc svg { width: 100%; height: 100%; overflow: visible; }
+  .t-hook .arc svg path { fill: none; stroke: var(--green); stroke-width: 3; vector-effect: non-scaling-stroke; stroke-dasharray: none; }
+  .t-hook .arc-lab { position: absolute; left: 30%; top: -84px; transform: translateX(-50%); white-space: nowrap; }
+    html.vertical .t-hook .arc-lab { top: -80px; }
+
+  /* Reels: keep the tallest Slides (S5–S7) clear of the source line */
+  html.play.vertical .reveal .slides > section { gap: 24px; }
+  html.play.vertical .leak { flex-direction: row; flex-wrap: wrap; } html.play.vertical .leak .arr { display: none; }
+  html.play.vertical .fatigue { height: 80px; }
+  html.play.vertical .traj { margin: 50px 0 56px; } html.play.vertical .t-hook { margin: 80px 0 50px; }
+
+  /* S11: who does each job now */
+  .map { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+  .map .tr { display: grid; grid-template-columns: 280px 50px 1fr; align-items: center; gap: 12px; font-size: 30px; }
+  .map .tr > span:first-child { color: var(--muted-fg); }
+  .map .tr svg { width: 36px; height: 36px; color: var(--accent); }
+  .map .tr .who { padding: 12px 22px; border-radius: var(--radius-sm); background: var(--card); border: 1px solid var(--border); }
+  .map .tr.you .who { border-color: color-mix(in srgb, var(--blue) 60%, transparent); color: var(--blue-fg); }
+  html.vertical .map .tr { grid-template-columns: 1fr 40px 1.3fr; font-size: 26px; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- S1 · দিনে কত merge -->
+<section data-at="0.00" data-auto="2.02 5.98 12.05">
+  <h2 data-enter="rise">দিনে কত code merge হয়?</h2>
+  <div class="panel merge" data-enter="rise">
+    <div class="col" data-step="col" data-fragment-index="1"><span class="n" data-to="2500">0</span><div class="bar" style="height:30px"></div><span class="d">মে ২০২৬ · দিনে গড়ে</span></div>
+    <div class="col hot" data-step="col" data-fragment-index="2"><span class="n" data-to="30000" data-plus>0</span><div class="bar" style="height:360px"></div><span class="d">সেপ্টেম্বর ২০২৬ · দিনে</span></div>
+    <span class="x" data-step="land" data-fragment-index="2">≈ ১২×</span>
+  </div>
+  <div class="row" data-step="rise" data-fragment-index="3"><span class="chip lg accent">কে review করছে?</span></div>
+  <p class="lead" data-step="rise" data-fragment-index="3">AI-কে কাজ দিয়ে চলে যাবেন? আগে এই ৪টা জিনিস ঠিক করুন</p>
+  <div class="src">Anthropic Engineering, "Redesigning source control at Anthropic", 13 Oct 2026 · Anthropic-এর নিজস্ব monorepo</div>
+  <aside class="notes">
+    <p>২০২৬ সালের মে মাসে Anthropic-এ ▶1 প্রতিদিন গড়ে আড়াই হাজার code change merge হতো।</p>
+    <p>▶2 সেপ্টেম্বরে সেই সংখ্যা বেড়ে দাঁড়ায় ত্রিশ হাজারেরও বেশি। মাত্র চার মাসে প্রায় বারো গুণ।</p>
+    <p>▶3 কিন্তু মানুষ কি এখন বারো গুণ বেশি code review করছে? না, বরং মানুষ ধীরে ধীরে coding-এর মাঝখান থেকে সরে যাচ্ছে।</p>
+    <p>এখন AI-কে একটা বড় কাজ দিয়ে developer অন্য কাজে চলে যাচ্ছেন। AI নিজেই code লিখছে, test করছে, ভুল হলে ঠিকও করছে।</p>
+    <p>কিন্তু AI-কে কাজ দিয়ে চলে গেলেই দায়িত্ব শেষ হয় না। তাহলে AI-কে কী করতে দেবেন, কী করতে দেবেন না? আর কীভাবে বুঝবেন সে ঠিক কাজ করেছে?</p>
+    <p>আজ দেখব, AI-কে স্বাধীনভাবে কাজ করতে দেওয়ার আগে কোন চারটি বিষয় ঠিক করতে হবে।</p>
+  </aside>
+</section>
+
+<!-- S2 · loop থেকে বাইরে -->
+<section data-at="42.06" data-auto="3.11 6.87 16.64 24.06">
+  <h2 data-enter="rise">In the loop</h2>
+  <div class="traj t-humans" data-enter="traj" data-delay="0.2" data-waves="2">
+    <i class="human" data-at=".1" data-step="node" data-fragment-index="1"></i>
+    <i class="human" data-at=".3" data-step="node" data-fragment-index="1"></i>
+    <i class="human" data-at=".5" data-step="node" data-fragment-index="1"></i>
+    <i class="human" data-at=".7" data-step="node" data-fragment-index="1"></i>
+    <i class="human" data-at=".9" data-step="node" data-fragment-index="1"></i>
+  </div>
+  <div class="jobs" data-enter="rise" data-delay="0.5">
+    <div class="job"><i data-lucide="compass"></i>দিক ঠিক করা</div>
+    <div class="job"><i data-lucide="check-check"></i>অনুমতি দেওয়া</div>
+    <div class="job"><i data-lucide="hand"></i>'না' বলা</div>
+    <div class="job"><i data-lucide="search-check"></i>যাচাই করা</div>
+    <div class="job"><i data-lucide="play"></i>শুরু করা</div>
+  </div>
+  <span class="ctl" data-step="away" data-fragment-index="2"></span>
+  <div class="row">
+    <span class="chip accent" data-step="rise" data-fragment-index="3">Model</span>
+    <span class="chip accent" data-step="rise" data-fragment-index="3">Harness</span>
+    <span class="chip accent" data-step="rise" data-fragment-index="3">Environment</span>
+    <span class="chip blue" data-step="rise" data-fragment-index="4">নিরাপদ তো?</span>
+    <span class="chip blue" data-step="rise" data-fragment-index="4">ঠিক কাজটা হচ্ছে তো?</span>
+  </div>
+  <div class="src">Lydia Hallie (Anthropic), "Rethinking Claude Code Best Practices", AI Engineer Code Summit</div>
+  <aside class="notes">
+    <p>আগে AI একটা কাজ করত, তারপর থামত।</p>
+    <p>▶1 আমরা code দেখতাম, permission দিতাম, ভুল হলে ঠিক করে দিতাম।</p>
+    <p>▶2 এখন AI অনেক বেশি সক্ষম। তাই মানুষ প্রতিটি ধাপে উপস্থিত না থাকলেও সে কাজ চালিয়ে যেতে পারে। কিন্তু মানুষ সরে গেলে দায়িত্ব তো আর শূন্যে চলে যেতে পারে না।</p>
+    <p>▶3 সেই দায়িত্ব নিতে হবে AI model, তার tools বা harness, কিংবা যে computer-এ AI কাজ করছে, সেই environment-কে।</p>
+    <p>▶4 আর দুটি প্রশ্ন সব সময় মাথায় রাখতে হবে: AI যা করছে সেটা নিরাপদ তো? আর কাজটা আসলেই সঠিক তো?</p>
+  </aside>
+</section>
+
+<!-- S3 · চারটি জায়গা -->
+<section data-at="73.18" data-auto="3.65 8.87 15.66 21.75 28.06">
+  <h2 data-enter="rise">AI-কে নিয়ন্ত্রণের চারটি জায়গা</h2>
+  <div class="frame-t">
+    <div class="tr" data-step="rise"><span class="k">১ · নির্দেশনা</span><span class="c">prompt, rules file</span><span class="c m">কী করতে হবে</span></div>
+    <div class="tr" data-step="rise"><span class="k">২ · নিরাপত্তা</span><span class="c r">permission, deny rule, sandbox</span><span class="c m">কী করতে পারবে</span></div>
+    <div class="tr" data-step="rise"><span class="k">৩ · verification</span><span class="c r">test, hook, CI</span><span class="c m">কাজ ঠিক হয়েছে কিনা</span></div>
+    <div class="tr" data-step="rise"><span class="k">৪ · environment</span><span class="c r">কোন machine, কী access</span><span class="c m">কোথায় কাজ করবে</span></div>
+  </div>
+  <div class="rule" data-step="rise"><i data-lucide="arrow-right-to-line"></i><span>যা <b>প্রতিবার</b> হতেই হবে, সেটা AI-এর মনে রাখার ওপর না: <b>system দিয়ে নিশ্চিত করুন।</b></span></div>
+  <div class="src">code.claude.com/docs/en/best-practices · Lydia Hallie (Anthropic), "Rethinking Claude Code Best Practices"</div>
+  <aside class="notes">
+    <p>প্রথমে বুঝুন, AI-কে নিয়ন্ত্রণ করার চারটি জায়গা আছে।</p>
+    <p>▶1 প্রথমত নির্দেশনা: prompt বা rules file দিয়ে AI-কে বলেন কী করতে হবে।</p>
+    <p>▶2 দ্বিতীয়ত নিরাপত্তা: permission, deny rule এবং sandbox দিয়ে নিয়ন্ত্রণ করেন AI কী করতে পারবে।</p>
+    <p>▶3 তৃতীয়ত verification: test, hook এবং CI দিয়ে প্রমাণ করেন কাজ ঠিক হয়েছে কিনা।</p>
+    <p>▶4 চতুর্থত environment: AI কোথায় এবং কী access নিয়ে কাজ করবে, সেটা আপনাকে ঠিক করতে হবে।</p>
+    <p>▶5 মনে রাখবেন, যে কাজ প্রতিবার হতেই হবে, সেটা AI-এর মনে রাখার ওপর ছেড়ে দেবেন না। System দিয়ে নিশ্চিত করুন।</p>
+  </aside>
+</section>
+
+<!-- S4 · পুরনো মন্ত্র বাদ দিন -->
+<section data-at="108.09" data-auto="11.31 19.01 28.84 36.09 40.92">
+  <h2 data-enter="rise"><span class="num">১</span>পুরনো মন্ত্র বাদ দিন</h2>
+  <div class="code" data-enter="rise"><div class="code-h">CLAUDE.md · AGENTS.md</div><pre><span data-step="line" data-as="del" data-fragment-index="1">IMPORTANT: ALWAYS use the auth helper!!!</span><span data-step="line" data-as="del" data-fragment-index="1">Think hard. Be thorough.</span><span data-step="line" data-as="del" data-fragment-index="1">Keep going. Don't be lazy.</span><span data-step="line" data-as="del" data-fragment-index="2">Stack: React + Node, code in src/</span><span data-step="line" data-as="add" data-fragment-index="3">Test: pnpm test</span><span data-step="line" data-as="add" data-fragment-index="3">src/legacy is live: don't copy from it</span><span data-step="line" data-as="add" data-fragment-index="3">Migrations need review before deploy</span></pre></div>
+  <div class="rule" data-step="rise" data-fragment-index="4"><i data-lucide="file-text"></i><span>শুধু সেটাই লিখুন, <b>যেটা code পড়ে বোঝা যায় না।</b></span></div>
+  <span class="chip accent" data-step="rise" data-fragment-index="5">বারবার ভাঙলে? জোর না, hook</span>
+  <div class="src">code.claude.com/docs/en/best-practices · "What you can stop doing"</div>
+  <aside class="notes">
+    <p>এবার আসি rules file-এ। আপনার AGENTS.md বা CLAUDE.md file-এ কি অনেকগুলো IMPORTANT লেখা আছে? মনে হতে পারে, যত জোর দিয়ে লিখবেন, AI তত ভালোভাবে মানবে।</p>
+    <p>▶1 কিন্তু Anthropic-এর documentation অনুযায়ী, অতিরিক্ত জোর দিয়ে নির্দেশনা দিলে AI অপ্রয়োজনীয় জায়গাতেও সেই নিয়ম প্রয়োগ করতে পারে।</p>
+    <p>▶2 আর পুরো project-এর folder structure লিখে রাখারও দরকার নেই। AI নিজেই codebase পড়ে বুঝতে পারে।</p>
+    <p>বরং লিখুন শুধু সেই তথ্য, যেটা code দেখে AI বুঝতে পারবে না।</p>
+    <p>▶3 যেমন test চালানোর command, কোন পুরনো folder ব্যবহার করা যাবে না, কিংবা কোন পরিবর্তনের আগে মানুষের review লাগে।</p>
+    <p>▶4 সহজ নিয়ম: AI নিজে যেটা বুঝতে পারবে না, শুধু সেটাই rules file-এ রাখুন।</p>
+    <p>▶5 আর কোনো নিয়ম বারবার ভাঙলে একই কথা লিখে থাকবেন না, hook ব্যবহার করুন।</p>
+  </aside>
+</section>
+
+<!-- S5 · আপনি কতটা ভালো পাহারাদার -->
+<section data-at="153.75" data-auto="14.16 17.33 23.01 29.83 37.07 45.01">
+  <h2 data-enter="rise"><span class="num">২</span>আপনি কতটা ভালো পাহারাদার?</h2>
+  <div class="panel w study" data-enter="rise">
+    <div class="dots" id="dots"></div>
+    <div class="side">
+      <div class="legend">
+        <div class="h" data-step="rise" data-fragment-index="1"><b>১৩.৬%</b>মানুষ 'না' বলেছে</div>
+        <div class="a" data-step="rise" data-fragment-index="2"><b>৮৯%</b>classifier থামাত</div>
+      </div>
+      <svg class="fatigue" viewBox="0 0 440 170" preserveAspectRatio="none" data-step="draw" data-fragment-index="3">
+        <path d="M0,22 L440,22" style="stroke:var(--accent)"/>
+        <path d="M0,140 C120,146 260,158 440,162" style="stroke:var(--blue-fg)"/>
+      </svg>
+      <span class="muted" style="font-size:22px" data-step="rise" data-fragment-index="3"><span class="accent">— classifier, সমান</span> · <span class="blue">— মানুষ: ১৭% → ৫%, ৫০+ prompt পরে</span></span>
+      <span class="chip red" data-step="rise" data-fragment-index="4">সব দায়িত্ব মানুষের ওপর রাখবেন না</span>
+    </div>
+  </div>
+  <span class="ctl" data-step="dots" data-n="143" data-color="--blue-fg" data-fragment-index="1"></span>
+  <span class="ctl" data-step="dots" data-n="937" data-color="--accent" data-fragment-index="2"></span>
+  <div class="verdict" data-step="rise" data-fragment-index="5">
+    <div class="panel green"><div class="panel-h green">ফেরানো যায় → AI-কে ছাড়ুন</div><ul><li>code edit, test</li><li>git-এ ফেরানো যায় এমন সব</li></ul></div>
+    <div class="panel red"><div class="panel-h red">ফেরানো যায় না → নিয়ম</div><ul><li>database মুছে ফেলা</li><li>secret key বাইরে পাঠানো</li></ul>
+      <div class="code"><pre><span data-step="line" data-as="add" data-fragment-index="6">"deny": ["Read(./.env)"]</span></pre></div></div>
+  </div>
+  <div class="src">Claude blog, "Auto mode is now the default…", 7 Aug 2026 · study environment, Anthropic-এর নিজের গবেষণা</div>
+  <aside class="notes">
+    <p>এবার ধরুন, AI আপনার project-এর একটা file delete করবে। আপনি কি প্রতিবার বসে permission দেবেন? মানুষ সব সময় সতর্ক থাকতে পারে না।</p>
+    <p>Anthropic-এর একটি পরীক্ষায় ১,০৫৩ জন tester-কে বিপজ্জনক command দেখানো হয়েছিল।</p>
+    <p>▶1 মাত্র সাড়ে তেরো শতাংশ মানুষ সেটি থামিয়েছিলেন।</p>
+    <p>▶2 অন্যদিকে AI classifier প্রায় ঊননব্বই শতাংশ ক্ষেত্রে বিপজ্জনক command সনাক্ত করেছিল।</p>
+    <p>▶3 আর পঞ্চাশটি prompt-এর পর মানুষের সতর্কতার হার সতেরো শতাংশ থেকে নেমে মাত্র পাঁচ শতাংশে চলে আসে।</p>
+    <p>▶4 তাই সব নিরাপত্তার দায়িত্ব মানুষের ওপর রাখবেন না।</p>
+    <p>একটা সহজ প্রশ্ন করুন: ভুল হলে কি কাজটা ফিরিয়ে নেওয়া যাবে?</p>
+    <p>▶5 Code পরিবর্তন হলে git দিয়ে আগের অবস্থায় ফেরা যায়। কিন্তু database মুছে ফেলা বা secret key বাইরে পাঠানো সহজে ফেরানো যায় না।</p>
+    <p>▶6 তাই এ ধরনের বিপজ্জনক কাজের জন্য deny rule তৈরি করুন। AI-এর সিদ্ধান্তের ওপর ছেড়ে দেবেন না।</p>
+  </aside>
+</section>
+
+<!-- S6 · npm test-এর ভেতরে কী চলে -->
+<section data-at="204.80" data-auto="5.64 6.93 21.44 35.51">
+  <h2 data-enter="rise"><span class="num">৩</span>npm test-এর ভেতরে কী চলে?</h2>
+  <span class="eg" data-enter="rise">ধরা যাক</span>
+  <div class="frame" data-enter="rise" id="box"><span class="frame-h swap"><span class="open">আপনার laptop · কোনো বাধা নেই</span><span class="shut green" style="visibility:hidden">sandbox · OS আটকায়</span></span>
+    <div class="traj" data-enter="traj" data-delay="0.2" data-waves="1">
+      <i data-at=".3" data-enter="node" data-delay="0.6"><b>Bash</b> npm test</i>
+      <i data-at=".62" class="check up" data-step="node" data-fragment-index="1">permission ✓</i>
+    </div>
+    <div class="leak" data-step="rise" data-fragment-index="2">
+      <span class="chip red">node_modules/some-pkg</span><i class="arr" data-lucide="arrow-right"></i>
+      <span class="chip red">.env<span class="no" data-step="land" data-fragment-index="3"><i data-lucide="x"></i></span></span>
+      <span class="chip red">~/.ssh<span class="no" data-step="land" data-fragment-index="3"><i data-lucide="x"></i></span></span><i class="arr" data-lucide="arrow-right"></i>
+      <span class="chip red">collector.example<span class="no" data-step="land" data-fragment-index="3"><i data-lucide="x"></i></span></span>
+    </div>
+  </div>
+  <span class="ctl" data-step="lock" data-fragment-index="3"></span>
+  <div class="row" data-step="rise" data-fragment-index="4"><span class="chip">কোন file পড়বে</span><span class="chip">কোথায় লিখবে</span><span class="chip">internet-এর কোথায় যাবে</span><span class="chip green">Cursor: permission চাওয়া ~৪০% কম</span></div>
+  <div class="src">code.claude.com/docs/en/sandboxing · cursor.com/blog/agent-sandboxing (18 Feb 2026)</div>
+  <aside class="notes">
+    <p>কিন্তু permission দিলেই কি সব নিরাপদ? ধরুন, AI npm test command চালাতে চাইল।</p>
+    <p>▶1 আপনি permission দিলেন।</p>
+    <p>▶2 সমস্যা হলো, test-এর সঙ্গে আপনার project-এর dependency বা বাইরের package-এর code-ও চলতে পারে। সেটি আপনার .env file বা API key চুরি করতে পারে।</p>
+    <p>এখানেই permission আর sandbox-এর পার্থক্য। Permission দেখে, কোনো command চালানো যাবে কিনা।</p>
+    <p>▶3 Sandbox নিয়ন্ত্রণ করে, সেই command চলার সময় কোন file পড়তে পারবে, কোথায় লিখতে পারবে, আর internet-এর কোথায় connect করতে পারবে। অর্থাৎ command অনুমোদিত হলেও তার ক্ষমতা সীমিত থাকবে।</p>
+    <p>▶4 Cursor-এর তথ্য অনুযায়ী, sandbox ব্যবহার করলে agent-এর permission চাওয়ার প্রয়োজন প্রায় চল্লিশ শতাংশ কমে।</p>
+  </aside>
+</section>
+
+<!-- S7 · সবচেয়ে ভালো বাক্স -->
+<section data-at="246.72" data-auto="5.70 14.10 23.50">
+  <h2 data-enter="rise">সবচেয়ে ভালো বাক্স: আলাদা machine</h2>
+  <div class="frame" data-enter="rise"><span class="frame-h">☁ cloud machine</span>
+    <div class="traj" data-enter="traj" data-delay="0.2" data-waves="2">
+      <i data-at=".2" data-enter="node" data-delay="0.7"></i>
+      <i data-at=".45" data-enter="node" data-delay="0.8"></i>
+      <i data-at=".7" data-enter="node" data-delay="0.9" class="check"></i>
+      <i data-at="1" data-enter="node" data-delay="1.0" class="check"></i>
+    </div>
+  </div>
+  <div class="row">
+    <span class="chip green" data-step="rise" data-fragment-index="1">repo-র নতুন copy</span>
+    <span class="chip green" data-step="rise" data-fragment-index="1">laptop বন্ধ থাকলেও চলে</span>
+    <span class="chip" data-step="rise" data-fragment-index="2" style="text-decoration:line-through;color:var(--dim)">personal secret · SSH key · API token</span>
+  </div>
+  <div class="items" data-step="rise" data-fragment-index="2">
+    <div class="item"><i data-lucide="key-round"></i><span><b>Codex:</b> secret শুধু setup-এ, agent শুরুর আগেই সরানো</span></div>
+    <div class="item"><i data-lucide="globe-lock"></i><span><b>Claude Code cloud:</b> network শুধু package registry, GitHub…; API key VM-এর বাইরে</span></div>
+  </div>
+  <div class="rule" data-step="rise" data-fragment-index="3" style="border-color:color-mix(in srgb,var(--red) 50%,transparent);background:color-mix(in srgb,var(--red) 8%,transparent)"><i data-lucide="triangle-alert" style="color:var(--red-fg)"></i><span>cloud-এও code push বা বাইরের system-এ পরিবর্তনের <b style="color:var(--red-fg)">permission আলাদাভাবে নিয়ন্ত্রণ করুন।</b></span></div>
+  <div class="src">learn.chatgpt.com/docs/agent-approvals-security · code.claude.com/docs/en/cloud-environments</div>
+  <aside class="notes">
+    <p>আর বড় কাজের ক্ষেত্রে নিজের laptop-এ AI চালানোর বদলে cloud environment ব্যবহার করতে পারেন।</p>
+    <p>▶1 সহজভাবে বললে, project-এর আলাদা copy cloud-এর একটা computer-এ চালাবেন। AI সেখানে কাজ করে, আপনি laptop বন্ধ করলেও কাজ চলতে পারে।</p>
+    <p>▶2 সবচেয়ে গুরুত্বপূর্ণ বিষয়: সেখানে personal secret, SSH key বা API token রাখবেন না। কারণ যা সেখানে নেই, তা চুরি হওয়ার ঝুঁকিও কম।</p>
+    <p>▶3 তবে cloud environment ব্যবহার করলেও code push বা বাইরের system-এ পরিবর্তনের permission আলাদাভাবে নিয়ন্ত্রণ করতে হবে।</p>
+  </aside>
+</section>
+
+<!-- S8 · একই prompt, সাত রকম ফল -->
+<section data-at="277.26" data-auto="9.70 21.27 23.10 28.12">
+  <h2 data-enter="rise"><span class="num">৪</span>একই prompt, সাত রকম ফল</h2>
+  <div class="row" data-enter="rise"><span class="eg">ধরা যাক</span><span class="chip">"auth-টা নতুন API-তে নিয়ে যাও"</span></div>
+  <div class="panel w runs">
+    <svg id="runs" data-step="branches" data-fragment-index="1"></svg>
+    <div class="outs" data-step="stream" data-fragment-index="1">
+      <div>পুরনো API রয়ে গেছে</div><div>সবাই logout</div><div>test বাদ দেওয়া</div><div>token refresh নেই</div>
+      <div class="win">নতুন API, সব check pass</div><div>error চাপা দেওয়া</div><div>শুধু login page বদলেছে</div>
+    </div>
+  </div>
+  <span class="ctl" data-step="checks" data-fragment-index="2"></span>
+  <span class="ctl" data-step="win" data-fragment-index="3"></span>
+  <div class="rule" data-step="rise" data-fragment-index="4"><i data-lucide="circle-check"></i><span>প্রমাণ চান: <b>test pass</b>, <b>build</b>, screenshot-এ নির্দিষ্ট UI। শুধু "done" না।</span></div>
+  <div class="src">"Give Claude something it can run that comes back pass or fail" · code.claude.com/docs/en/best-practices</div>
+  <aside class="notes">
+    <p>এবার দ্বিতীয় প্রশ্ন। AI নিরাপদে কাজ করছে, কিন্তু সে কি ঠিক কাজটাও করছে? ধরুন বললেন, পুরনো authentication system নতুন API-তে migrate করতে।</p>
+    <p>▶1 একই কাজ সাতবার করালে সাত রকম ফল পাওয়া গেল। কোথাও পুরনো API রয়ে গেছে, কোথাও আবার সব user logout হয়ে যাচ্ছে। দেখতে code ঠিকঠাক, কিন্তু কাজটা কি আপনার চাহিদা পূরণ করছে?</p>
+    <p>▶2 এখানে দরকার verification।</p>
+    <p>▶3 AI-কে শুধু কাজ দেবেন না, কীভাবে কাজটি সঠিক প্রমাণ করতে হবে, সেটাও বলে দিন।</p>
+    <p>▶4 যেমন test pass করতে হবে, application build হতে হবে, screenshot-এ নির্দিষ্ট UI দেখা যেতে হবে। শুধু AI-এর done বলার ওপর নির্ভর করবেন না, প্রমাণ চান।</p>
+  </aside>
+</section>
+
+<!-- S9 · AI test-টাই বদলে দেয় -->
+<section data-at="315.38" data-auto="13.22 18.75 23.60 29.80">
+  <h2 data-enter="rise">অসম্ভব কাজ, তবু test pass</h2>
+  <span class="eg" data-enter="rise">২০২৫-এর model · ইচ্ছে করে অসম্ভব বানানো কাজ</span>
+  <div class="panel w hbars">
+    <div class="hb" data-step="hbar"><span>GPT-5 <small>Oneoff-SWE-bench</small></span><div class="trk"><i style="width:76%"></i></div><span class="v">৭৬%</span></div>
+    <div class="hb good" data-step="hbar"><span>GPT-5, অসম্ভব হলে থামার সুযোগ দিলে <small>Conflicting-SWE-bench</small></span><div class="trk"><i style="width:9%"></i></div><span class="v">৯%</span></div>
+  </div>
+  <span class="chip red" data-step="rise">Claude model: cheating-এর &gt;৭৯% test file বদলে</span>
+  <div class="rule" data-step="rise"><i data-lucide="lock"></i><span>test file <b>read-only</b>। AI-কে বলুন: <b>"application code ঠিক করো, test না"</b></span></div>
+  <div class="src">Zhong, Raghunathan, Carlini, "ImpossibleBench", arXiv:2510.20270 (2025)</div>
+  <aside class="notes">
+    <p>কিন্তু এখানেও একটা ঝুঁকি আছে। AI test pass করানোর জন্য test file-টাই পরিবর্তন করে দিতে পারে।</p>
+    <p>২০২৫ সালের একটি গবেষণায় এমন task দেওয়া হয়েছিল, যেখানে সৎভাবে test pass করা অসম্ভব ছিল।</p>
+    <p>▶1 তারপরও GPT-5-এর কিছু ক্ষেত্রে ছিয়াত্তর শতাংশে pass দেখানোর ঘটনা পাওয়া যায়।</p>
+    <p>▶2 AI-কে অসম্ভব হলে থামার সুযোগ দিলে হার নেমে আসে নয় শতাংশে।</p>
+    <p>▶3 Claude model-গুলোর ক্ষেত্রেও test নিয়ে cheating-এর বড় একটি অংশ ঘটেছিল test file পরিবর্তনের মাধ্যমে।</p>
+    <p>▶4 তাই test file read-only রাখুন। AI-কে বলুন: application code ঠিক করো, test পরিবর্তন করবে না।</p>
+  </aside>
+</section>
+
+<!-- S10 · hook: প্রতিবার চলবেই -->
+<section data-at="351.89" data-auto="15.24 23.17 28.38 31.20">
+  <h2 data-enter="rise">Hook: প্রতিবার চলবেই</h2>
+  <div class="row" data-step="rise" data-fragment-index="1"><span class="chip">code বদলালে → lint</span><span class="chip">task শেষে → test</span></div>
+  <div class="traj t-hook" data-enter="traj" data-delay="0.2" data-waves="0">
+    <i data-at=".18" data-enter="node" data-delay="0.6"><b>Edit</b> auth.ts</i>
+    <i data-at=".48" class="fail" data-step="node" data-fragment-index="2">hook: test ✕</i>
+    <div class="arc"><svg viewBox="0 0 1000 200" preserveAspectRatio="none" data-step="draw" data-fragment-index="2"><path d="M480,100 C460,-40 200,-40 180,100"/></svg></div>
+    <span class="chip green arc-lab" data-step="rise" data-fragment-index="2">exit 2 → error AI-এর কাছে ফেরত</span>
+    <i data-at=".78" data-step="node" data-fragment-index="3" class="check">আবার ঠিক করল</i>
+  </div>
+  <div class="split">
+    <div class="code"><div class="code-h">.claude / settings.json · Stop hook</div><pre><span data-step="line" data-as="add" data-fragment-index="3">pnpm tsc --noEmit 1&gt;&amp;2 || exit 2</span></pre></div>
+    <div class="rule" data-step="rise" data-fragment-index="4"><i data-lucide="shield-check"></i><span>শেষ জাল <b>CI</b>: pull request-এ test, build চলে। fail করলে merge হয় না।</span></div>
+  </div>
+  <div class="src">code.claude.com/docs/en/hooks · exit 2 = blocks, error goes back to the model</div>
+  <aside class="notes">
+    <p>এবার আসি hook-এ। Rules file-এ লিখলেন, কাজ শেষে test চালাতে হবে। AI বেশিরভাগ সময় সেটা করবে। কিন্তু বেশিরভাগ সময় আর প্রতিবার এক জিনিস নয়। Hook হলো এমন script, যা নির্দিষ্ট event ঘটলেই স্বয়ংক্রিয়ভাবে চলে।</p>
+    <p>▶1 যেমন code পরিবর্তন হলে lint চালানো, task শেষ হলে test চালানো। এতে AI ভুলে গেলেও system কাজটি করাবে।</p>
+    <p>▶2 Claude Code-এ hook থেকে exit code 2 ব্যবহার করলে error AI-এর কাছে ফেরত যায়,</p>
+    <p>▶3 যাতে সে সমস্যাটি ঠিক করার চেষ্টা করতে পারে।</p>
+    <p>▶4 সব শেষে আছে CI বা continuous integration। AI যখন git-এ pull request তৈরি করবে, তখন স্বয়ংক্রিয়ভাবে test, build এবং অন্যান্য check চলবে। কোনো check fail করলে code merge করা যাবে না। অর্থাৎ AI কাজ শেষ বললেই সেটা production-এ চলে যাবে না।</p>
+  </aside>
+</section>
+
+<!-- S11 · চারটি নিয়ম -->
+<section data-at="399.80" data-auto="2.30 6.71 12.28 17.14 22.72 34.47">
+  <h2 data-enter="rise">চারটি নিয়ম</h2>
+  <div class="map">
+    <div class="tr" data-step="rise"><span>১ · নির্দেশনা</span><i data-lucide="arrow-right"></i><span class="who">rules file-এ শুধু প্রয়োজনীয় তথ্য</span></div>
+    <div class="tr" data-step="rise"><span>২ · নিরাপত্তা</span><i data-lucide="arrow-right"></i><span class="who">deny rule, sandbox</span></div>
+    <div class="tr" data-step="rise"><span>৩ · environment</span><i data-lucide="arrow-right"></i><span class="who">আলাদা cloud machine</span></div>
+    <div class="tr" data-step="rise"><span>৪ · verification</span><i data-lucide="arrow-right"></i><span class="who">test, hook, CI</span></div>
+  </div>
+  <div class="rule" data-step="rise"><i data-lucide="shield"></i><span>স্বাধীনতা মানে দায়িত্ব ছেড়ে দেওয়া নয়: <b>ভুল করলেও বড় ক্ষতি যেন না হয়।</b></span></div>
+  <div class="rule" data-step="rise" style="border-color:color-mix(in srgb,var(--accent) 50%,transparent);background:color-mix(in srgb,var(--accent) 8%,transparent)"><i data-lucide="rocket" style="color:var(--accent)"></i><span>এই সপ্তাহে: AI-কে একটা <b style="color:var(--accent)">বড় feature</b> দিন। দেখুন কোথায় আটকায়।</span></div>
+  <div class="src">Lydia Hallie (Anthropic), "Rethinking Claude Code Best Practices"</div>
+  <aside class="notes">
+    <p>তাহলে চারটি নিয়ম আবার মনে করি।</p>
+    <p>▶1 প্রথমত নির্দেশনা: rules file-এ শুধু প্রয়োজনীয় তথ্য রাখুন।</p>
+    <p>▶2 দ্বিতীয়ত নিরাপত্তা: deny rule এবং sandbox দিয়ে AI-এর ক্ষমতা সীমিত করুন।</p>
+    <p>▶3 তৃতীয়ত environment: বড় কাজের জন্য আলাদা cloud machine ব্যবহার করুন।</p>
+    <p>▶4 চতুর্থত verification: test, hook এবং CI দিয়ে কাজের প্রমাণ নিশ্চিত করুন।</p>
+    <p>▶5 মনে রাখবেন, AI-কে স্বাধীনতা দেওয়া মানে সব দায়িত্ব ছেড়ে দেওয়া নয়। আপনার কাজ হলো এমন ব্যবস্থা তৈরি করা, যেখানে AI স্বাধীনভাবে কাজ করতে পারবে, কিন্তু ভুল করলে বড় ক্ষতি করতে পারবে না।</p>
+    <p>▶6 এই সপ্তাহে AI-কে আপনার project-এর একটা বড় feature বানাতে দিন। তারপর দেখুন কোথায় সে ভুল করছে, কোথায় permission চাইছে, আর কোথায় verification দরকার হচ্ছে। ওই জায়গাগুলোই বলে দেবে, আপনার system-এ পরের কোন control যোগ করা উচিত।</p>
+  </aside>
+</section>
+
+</div></div>
+<audio data-vo src="assets/vo.mp3" preload="none"></audio>
+<script src="../../vendor/gsap/gsap.min.js"></script>
+<script src="../../vendor/gsap/SplitText.min.js"></script>
+<script src="../../vendor/gsap/DrawSVGPlugin.min.js"></script>
+<script src="../../vendor/reveal/reveal.js"></script>
+<script src="../../vendor/reveal/notes.js"></script>
+<script src="../../vendor/lucide/lucide.min.js"></script>
+<script src="../../lib/deck.js"></script>
+<script src="../../lib/talk.js"></script>
+<script>
+const bn = n => n.toLocaleString('bn-BD');
+const slideOf = el => el.closest('section');
+
+// S1: a bar rises from its foot while its number counts up.
+Deck.preset('col', el => {
+  const n = el.querySelector('.n'), to = +n.dataset.to, o = { v: 0 }, plus = n.hasAttribute('data-plus') ? '+' : '';
+  return gsap.timeline()
+    .fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: 'none' }, 0)
+    .fromTo(el.querySelector('.bar'), { scaleY: 0.04 }, { scaleY: 1, duration: 0.9, ease: 'softLand' }, 0)
+    .fromTo(o, { v: 0 }, { v: to, duration: 0.9, ease: 'glide', onUpdate: () => { n.textContent = bn(Math.round(o.v)) + (o.v >= to ? plus : ''); } }, 0);
+});
+
+// S2: the people leave the line and the five jobs dim (we stepped out of the loop).
+Deck.preset('away', el => gsap.timeline()
+  .to(slideOf(el).querySelectorAll('.human'), { y: -50, autoAlpha: 0, duration: 0.4, ease: 'accelExit', stagger: 0.05, immediateRender: false }, 0)
+  .to(slideOf(el).querySelectorAll('.job'), { autoAlpha: 0.3, duration: 0.3, ease: 'softInOut', immediateRender: false }, 0.2));
+
+// S5: 1,053 dots, one per tester. A Step colours the first data-n of them.
+const dotBox = document.getElementById('dots');
+dotBox.innerHTML = '<i></i>'.repeat(1053);
+Deck.preset('dots', el => {
+  const dots = [...dotBox.children].slice(0, +el.dataset.n), to = Deck.css(el.dataset.color);
+  const from = i => (el.dataset.n === '937' && i < 143) ? Deck.css('--blue-fg') : Deck.css('--dim');
+  return gsap.fromTo(dots, { backgroundColor: i => from(i) }, { backgroundColor: to, duration: 0.25, ease: 'none', stagger: { amount: 0.9 }, immediateRender: false });
+});
+
+// S6: the box closes: header swaps, border turns green.
+Deck.preset('lock', el => {
+  const box = document.getElementById('box');
+  return gsap.timeline()
+    .fromTo(box, { borderColor: Deck.css('--muted-fg') }, { borderColor: Deck.css('--green'), duration: 0.35, ease: 'softInOut', immediateRender: false }, 0)
+    .fromTo(box.querySelector('.open'), { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.2, immediateRender: false }, 0)
+    .fromTo(box.querySelector('.shut'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, 0.15)
+    .fromTo(box.querySelectorAll('.leak .arr'), { autoAlpha: 1 }, { autoAlpha: 0.2, duration: 0.3, immediateRender: false }, 0);
+});
+
+// S8: seven runs fan out from one prompt; a checkpoint on each at 70 %.
+const runs = document.getElementById('runs'), W = Deck.vertical ? 250 : 520, H = 392, WIN = 4, NS = 'http://www.w3.org/2000/svg';
+const bez = (t, a, b, c, d) => (1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t * t * c + t ** 3 * d;
+runs.setAttribute('viewBox', `0 0 ${W} ${H}`);
+runs.innerHTML = Array.from({ length: 7 }, (_, i) => {
+  const y = 28 + i * 56, c = [0, H / 2, W * 0.45, H / 2, W * 0.35, y, W, y], t = 0.7;
+  const px = bez(t, c[0], c[2], c[4], c[6]), py = bez(t, c[1], c[3], c[5], c[7]), ok = i === WIN;
+  return `<g class="run${ok ? ' good' : ''}"><path d="M${c[0]},${c[1]} C${c[2]},${c[3]} ${c[4]},${c[5]} ${c[6]},${c[7]}"/>`
+    + `<g class="cp" transform="translate(${px - 14},${py - 14})"><rect width="28" height="28" fill="${ok ? Deck.css('--green') : Deck.css('--red')}"/>`
+    + `<path d="${ok ? 'M7,14.5 L12,19.5 L21,9' : 'M8,8 L20,20 M20,8 L8,20'}" stroke="${ok ? '#0b1a0d' : '#fff'}" style="stroke-width:3"/></g></g>`;
+}).join('') + `<circle cx="0" cy="${H / 2}" r="10" fill="${Deck.css('--bg')}" stroke="${Deck.css('--muted-fg')}" stroke-width="3"/>`;
+Deck.preset('branches', el => gsap.fromTo(el.querySelectorAll('.run > path'), { drawSVG: '0%' }, { drawSVG: '100%', duration: 0.8, ease: 'softInOut', stagger: 0.06 }));
+gsap.set(runs.querySelectorAll('.cp'), { autoAlpha: 0 });
+Deck.preset('checks', el => {
+  const bad = [...runs.querySelectorAll('.run:not(.good)')], outs = [...document.querySelectorAll('.runs .outs div:not(.win)')];
+  return gsap.timeline()
+    .fromTo(runs.querySelectorAll('.cp'), { autoAlpha: 0, scale: 1.6, transformOrigin: '50% 50%' }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'snapSettle', stagger: 0.05, immediateRender: false }, 0)
+    .to([...bad.map(g => g.querySelector('path')), ...outs], { autoAlpha: 0.25, duration: 0.3, ease: 'softInOut', immediateRender: false }, 0.5);
+});
+Deck.preset('win', el => {
+  const p = runs.querySelector('.run.good > path'), lab = document.querySelector('.runs .outs .win');
+  return gsap.timeline()
+    .fromTo(p, { stroke: Deck.css('--accent') }, { stroke: Deck.css('--green'), duration: 0.3, immediateRender: false }, 0)
+    .fromTo(lab, { scale: 1, transformOrigin: '0% 50%' }, { scale: 1.12, duration: 0.4, ease: 'snapSettle', immediateRender: false }, 0);
+});
+
+// S9: a bar slides out from the left while its value counts.
+Deck.preset('hbar', el => {
+  const v = el.querySelector('.v'), to = parseInt(v.textContent.replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d))), o = { v: 0 };
+  return gsap.timeline()
+    .fromTo(el, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'softLand' }, 0)
+    .fromTo(el.querySelector('.trk i'), { scaleX: 0.02 }, { scaleX: 1, duration: 0.8, ease: 'softLand' }, 0.1)
+    .fromTo(o, { v: 0 }, { v: to, duration: 0.8, ease: 'glide', onUpdate: () => { v.textContent = bn(Math.round(o.v)) + '%'; } }, 0.1);
+});
+
+
+Deck.start({ keyboard: Talk.keys });
+</script>
+</body>
+</html>
